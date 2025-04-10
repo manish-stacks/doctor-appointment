@@ -1,0 +1,1 @@
+export const Login_Screen_image = require('../assets/Login/Image.webp')
