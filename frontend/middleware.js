@@ -6,9 +6,9 @@ export function middleware(request) {
 
     const pathname = request.nextUrl.pathname;
 
-    if (!token) {
-        return NextResponse.redirect(new URL('/auth/login', request.url));
-    }
+    // if (!token) {
+    //     return NextResponse.redirect(new URL('/auth/login', request.url));
+    // }
 
     if (['/login', '/register', '/'].includes(pathname)) {
         if (role === 'user') {
