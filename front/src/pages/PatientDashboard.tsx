@@ -3,9 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Menu,
   X,
-  Home,
   Calendar,
-  Users,
   FileText,
   Settings,
   Bell,
