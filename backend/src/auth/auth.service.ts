@@ -21,7 +21,7 @@ export class AuthService {
     @InjectRepository(User) private userRepo: Repository<User>,
     private jwtService: JwtService,
     private mailerUtil: MailerUtil,
-  ) {}
+  ) { }
 
   /* eslint-disable prettier/prettier */
   async register(createUserDto: CreateUserDto): Promise<User> {
@@ -150,6 +150,7 @@ export class AuthService {
         username: user.username,
         phone: user.phone,
         image: user.image,
+        role: user.role,
       };
       const token = this.jwtService.sign(payload);
       const send_user = {
@@ -159,9 +160,10 @@ export class AuthService {
         phone: user.phone,
         image: user.image,
         role: user.role,
-        doctor_id:user?.doctor_id,
+        doctor_id: user?.doctor_id,
         contact_number_verified: user?.contact_number_verified,
       };
+
       return {
         success: true,
         message: 'OTP verified successfully.',
@@ -239,7 +241,7 @@ export class AuthService {
 
   async login(
     LoginDto: LoginDto,
-  ): Promise<{ success: boolean; message: string; otp: Number }> {
+  ): Promise<{ success: boolean; message: string;}> {
     const { phone } = LoginDto;
 
     if (!phone) {
@@ -263,8 +265,7 @@ export class AuthService {
 
     return {
       success: true,
-      message: 'Login otp send  successful on phone number.',
-      otp: otp,
+      message: 'Login otp send  successful on phone number.'
     };
   }
 }

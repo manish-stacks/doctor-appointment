@@ -1,53 +1,56 @@
-'use client'
-
-import axios from "axios";
-import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
+export interface UserResponse {
+    success: boolean;
+    message: string;
+    role: string;
+    token: string;
+    user: {
+        id: string;
+        username: string;
+        email: string;
+        phone: string;
+        image: string;
+        role: string;
+        contact_number_verified: number;
+        doctor_id: string | null;
+    }
+}
 interface UserState {
     isLoggedIn: boolean;
     userDetails: {
         id: string;
         username: string;
         email: string;
+        phone: string;
+        image: string;
+        role: string;
+        contact_number_verified: number;
+        doctor_id: string | null;
     } | null;
-    login: (user: { id: string; username: string; email: string }) => void;
     logout: () => void;
-    getUserDetails: () => { id: string; username: string; email: string } | null;
-    fetchUserDetails: () => Promise<void>;
+    getUserDetails: () => { id: string; username: string; email: string; phone: string; image: string; role: string; contact_number_verified: number; doctor_id: string | null } | null;
+    fetchUserDetails: (response: UserResponse) => void;
 }
-
 
 export const useUserStore = create<UserState>()(
     persist(
         (set, get) => ({
             isLoggedIn: false,
             userDetails: null,
-            login: (user) => {
-                set({ isLoggedIn: true, userDetails: user });
-            },
             logout: async () => {
-                try {
-                    await axios.get("/api/auth/logout");
-                    set({ isLoggedIn: false, userDetails: null });
-                } catch (error) {
-                    toast.error("Error logging out");
-                    console.error(error);
-                }
+                set({ isLoggedIn: false, userDetails: null });
+                localStorage.removeItem("token");
+                window.location.href = "/";
             },
-            fetchUserDetails: async () => {
-                try {
-                    const { data } = await axios.post('/api/auth/me');
-                    if (data.success) {
-                        set({ isLoggedIn: true, userDetails: data.user });
-                    } else {
-                        set({ isLoggedIn: false, userDetails: null });
-                    }
-                } catch (error) {
-                    toast.error('Failed to fetch user details')
-                    console.error("Failed to fetch user details:", error);
-                }
+            fetchUserDetails: (response) => {
+                set({
+                    isLoggedIn: true,
+                    userDetails: response.user
+                });
+                Cookies.set("token", response.token, { expires: 7 });
+                // localStorage.setItem("token", response.token);
             },
             getUserDetails: () => {
                 return get().userDetails;

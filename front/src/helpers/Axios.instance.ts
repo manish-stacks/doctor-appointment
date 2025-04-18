@@ -1,9 +1,7 @@
 import axios, { AxiosError } from 'axios';
-import { config } from 'dotenv';
+import Cookies from "js-cookie";
 
-config();
-
-if (!process.env.API_URL) {
+if (!process.env.NEXT_PUBLIC_API_URL) {
     throw new Error('API_URL environment variable is not defined');
 }
 
@@ -13,7 +11,7 @@ interface ApiErrorResponse {
 }
 
 export const AxiosInstance = axios.create({
-    baseURL: process.env.API_URL,
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
     timeout: 5000,
     headers: {
         'Content-Type': 'application/json',
@@ -22,7 +20,8 @@ export const AxiosInstance = axios.create({
 
 AxiosInstance.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
+        // const token = localStorage.getItem('token');
+        const token = Cookies.get('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }

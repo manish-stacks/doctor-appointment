@@ -1,8 +1,11 @@
 "use client";
 
-import { AxiosInstance } from '@/constant/Axios.instance';
+
+import { AxiosInstance } from '@/helpers/Axios.instance';
+import { UserResponse, useUserStore } from '@/store/useUserStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
@@ -19,6 +22,16 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     const [error, setError] = useState('');
     const [resendDisabled, setResendDisabled] = useState(false);
     const [timer, setTimer] = useState(30);
+    const fetchUserDetails = useUserStore((state) => state.fetchUserDetails);
+    const router = useRouter();
+
+    // useEffect(() => {
+    //     const fetch = async () => {
+    //         const response = await AxiosInstance.get(`/auth/me`);
+    //         console.log(response)
+    //     }
+    //     fetch();
+    // },[]);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -48,9 +61,26 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
         setIsLoading(true);
         try {
+            await AxiosInstance.post(`/auth/login`, { phone: Number(mobileNumber), type: 'login' });
+            setShowOTP(true);
+            setResendDisabled(true);
+            toast.success(`OTP has been sent to ${mobileNumber}`);
+        } catch (error) {
+            toast.error('Failed to send OTP');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    const handleResendOTP = async () => {
+        setError('');
+        if (!validateMobileNumber(mobileNumber)) {
+            setError('Please enter a valid Indian mobile number');
+            return;
+        }
 
-            //await new Promise(resolve => setTimeout(resolve, 1000));
-            const response = await AxiosInstance.post(`/auth/login`, { phone: mobileNumber, type: 'login' });
+        setIsLoading(true);
+        try {
+            await AxiosInstance.post(`/auth/resend`, { phone: Number(mobileNumber), type: 'login' });
             setShowOTP(true);
             setResendDisabled(true);
             toast.success(`OTP has been sent to ${mobileNumber}`);
@@ -69,15 +99,25 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
 
         setIsLoading(true);
         try {
-            // TODO: Implement your API call here
-            //await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
             const response = await AxiosInstance.post(`/auth/verify-otp`, {
-                phone: mobileNumber,
+                phone: Number(mobileNumber),
                 otp,
                 type: 'login',
-            });
+            }) as UserResponse;
+
+            console.log(response)
+
+            fetchUserDetails(response);
+
+            if (!response.success) {
+                toast.error(response.message)
+                return;
+            }
             toast.success('OTP verified successfully');
             onClose();
+
+            return router.push(response.role === 'user' ? '/patient/dashboard' : '/doctor/dashboard');
+
         } catch (error) {
             toast.error('Invalid OTP');
         } finally {
@@ -195,7 +235,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                                                     Change Number
                                                 </button>
                                                 <button
-                                                    onClick={handleSendOTP}
+                                                    onClick={handleResendOTP}
                                                     disabled={resendDisabled}
                                                     className="text-blue-500 hover:text-blue-600 disabled:text-gray-400 text-sm sm:text-base"
                                                 >

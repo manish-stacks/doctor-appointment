@@ -83,7 +83,7 @@ export class CreateUserDto {
 }
 
 export class LoginDto {
-  @IsNumber({}, { message: 'Invalid email format' })
+  @IsNumber({}, { message: 'Invalid Phone Number format' })
   @IsNotEmpty({ message: 'Conatct Number is required' })
   phone: string;
 
