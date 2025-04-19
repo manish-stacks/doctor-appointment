@@ -2,7 +2,7 @@
 
 
 import { AxiosInstance } from '@/helpers/Axios.instance';
-import { UserResponse, useUserStore } from '@/store/useUserStore';
+import { userStoreResponse, useUserStore } from '@/store/useUserStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -103,16 +103,14 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 phone: Number(mobileNumber),
                 otp,
                 type: 'login',
-            }) as UserResponse;
+            }) as userStoreResponse;
 
             console.log(response)
-
-            fetchUserDetails(response);
-
             if (!response.success) {
                 toast.error(response.message)
                 return;
             }
+            fetchUserDetails(response);
             toast.success('OTP verified successfully');
             onClose();
 

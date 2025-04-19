@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-export interface UserResponse {
+export interface userStoreResponse {
     success: boolean;
     message: string;
     role: string;
@@ -17,21 +17,24 @@ export interface UserResponse {
         doctor_id: string | null;
     }
 }
+
+export interface userDetails {
+    id: string;
+    username: string;
+    email: string;
+    phone: string;
+    image: string;
+    role: string;
+    contact_number_verified: number;
+    doctor_id: string | null;
+}
+
 interface UserState {
     isLoggedIn: boolean;
-    userDetails: {
-        id: string;
-        username: string;
-        email: string;
-        phone: string;
-        image: string;
-        role: string;
-        contact_number_verified: number;
-        doctor_id: string | null;
-    } | null;
+    userDetails: userDetails | null;
     logout: () => void;
     getUserDetails: () => { id: string; username: string; email: string; phone: string; image: string; role: string; contact_number_verified: number; doctor_id: string | null } | null;
-    fetchUserDetails: (response: UserResponse) => void;
+    fetchUserDetails: (response: userStoreResponse) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -41,7 +44,9 @@ export const useUserStore = create<UserState>()(
             userDetails: null,
             logout: async () => {
                 set({ isLoggedIn: false, userDetails: null });
-                localStorage.removeItem("token");
+                //localStorage.removeItem("token");
+                Cookies.remove("token");
+                localStorage.clear();
                 window.location.href = "/";
             },
             fetchUserDetails: (response) => {
