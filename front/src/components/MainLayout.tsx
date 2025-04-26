@@ -2,6 +2,7 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import PatientLayout from "./patient/Layout";
+import DoctorLayout from "./doctor/Layout";
 
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
@@ -22,9 +23,9 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
     if (isDoctorRoute) {
         return (
             <>
-                <PatientLayout>
+                <DoctorLayout>
                     {children}
-                </PatientLayout>
+                </DoctorLayout>
             </>
         )
     }
