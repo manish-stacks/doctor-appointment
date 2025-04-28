@@ -1,5 +1,5 @@
 import React from 'react'
-import { Bell, Calendar, FileText, LayoutDashboard, LogOut, MessageSquare, Settings, User, X } from 'lucide-react';
+import { Bell, BookmarkCheck, Calendar, FileText, LayoutDashboard, LogOut, MapPin, MessageSquare, Settings, User, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 interface NavigationItem {
@@ -17,10 +17,11 @@ interface propInterface {
 const navigation: NavigationItem[] = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/patient/dashboard' },
     { icon: Calendar, label: 'Appointments', path: '/patient/appointments' },
-    { icon: User, label: 'My Profile', path: '/patient/profile' },
-    { icon: MessageSquare, label: 'Messages', path: '/patient/messages' },
-    { icon: Bell, label: 'Notifications', path: '/patient/notifications' },
+    { icon: BookmarkCheck, label: 'Favorite', path: '/patient/favorite' },
+    { icon: MapPin, label: 'Patient Address', path: '/patient/address' },
     { icon: FileText, label: 'Medical Records', path: '/patient/records' },
+    { icon: Bell, label: 'Notifications', path: '/patient/notifications' },
+    { icon: User, label: 'My Profile', path: '/patient/profile' },
     { icon: Settings, label: 'Settings', path: '/patient/settings' },
 ];
 

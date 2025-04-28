@@ -13,9 +13,17 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
     const logout = useUserStore((state) => state.logout);
 
     useEffect(() => {
-        if (!userDetails) return;
-        setUserData(userDetails)
-    }, [])
+        if (!userDetails) {
+            console.warn('No user details available');
+            return;
+        }
+        try {
+            setUserData(userDetails);
+            console.log('User data updated:', userDetails);
+        } catch (error) {
+            console.error('Error setting user data:', error);
+        }
+    }, [userDetails])
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {

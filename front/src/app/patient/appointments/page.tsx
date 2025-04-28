@@ -1,3 +1,4 @@
+import Breadcrumb from '@/components/patient/Breadcrumb';
 import { Eye } from 'lucide-react';
 import React from 'react'
 
@@ -67,15 +68,7 @@ const Appointments = () => {
 
     return (
         <div className="p-4">
-            <div className="w-full mb-6">
-                <div className="bg-white py-4 rounded-lg shadow flex justify-between px-5">
-                    <h3 className="text-2xl font-semibold text-slate-700 tracking-wider">Appointment</h3>
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-blue-800 ">Dashboard</span>/
-                        <span className="text-sm text-gray-500">Appointment</span>
-                    </div>
-                </div>
-            </div>
+            <Breadcrumb title="Appointments" />
 
             {/* Search and entries section */}
             <div className="bg-white py-8 px-4 rounded-lg shadow my-6">
