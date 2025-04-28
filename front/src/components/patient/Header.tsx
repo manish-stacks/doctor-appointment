@@ -1,5 +1,6 @@
 import { userDetails } from '@/store/useUserStore';
 import { Bell, ChevronDown, LogOut, Menu, Search, Settings, UserCircle } from 'lucide-react'
+import Link from 'next/link';
 import React from 'react'
 interface headerInterface {
     setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -54,20 +55,20 @@ const Header = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdownOpen, d
                                     <p className="text-sm font-medium text-gray-900">{userData?.username || 'User'}</p>
                                     <p className="text-xs text-gray-500">{userData?.email || 'example@gmail.com'}</p>
                                 </div>
-                                <a
-                                    href="#"
+                                <Link
+                                    href="/patient/profile"
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                     <UserCircle className="h-4 w-4 mr-2" />
                                     View Profile
-                                </a>
-                                <a
-                                    href="#"
+                                </Link>
+                                <Link
+                                    href="/patient/settings"
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                     <Settings className="h-4 w-4 mr-2" />
                                     Account Settings
-                                </a>
+                                </Link>
                                 <div className="border-t">
                                     <button
                                         onClick={() => logout()}

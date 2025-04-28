@@ -1,6 +1,5 @@
 'use client';
 
-import Breadcrumb from "@/components/patient/Breadcrumb";
 import { Edit, Trash, Plus } from "lucide-react";
 
 const addresses = [
@@ -13,7 +12,6 @@ const addresses = [
 export default function AddressPage() {
     return (
         <div className="p-6">
-            <Breadcrumb title="Manage Addresses" />
             <div className="min-h-screen">
                 <div className="mb-6 flex justify-between items-center">
                     <h2 className="text-2xl font-semibold text-gray-800">Your Addresses</h2>
@@ -48,7 +46,7 @@ export default function AddressPage() {
 
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-gray-50">
+                            <thead className="bg-gray-200">
                                 <tr>
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No.</th>
                                     <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Address</th>
