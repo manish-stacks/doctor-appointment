@@ -3,23 +3,37 @@ import React, { useState, useRef, useEffect } from 'react';
 import { userDetails, useUserStore } from '@/store/useUserStore';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { usePathname } from 'next/navigation';
 
-export default function PatientLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const userDetails = useUserStore((state) => state.userDetails);
+    const userDetails = useUserStore((state) => state.getUserDetails);
     const [userdata, setUserData] = useState<userDetails>();
     const logout = useUserStore((state) => state.logout);
+    const pathname = usePathname();
+    // console.log(pathname?.startsWith("/patient"), pathname?.startsWith("/doctor"));
+    const isPatientRoute = pathname!.startsWith("/patient");
+    const isDoctorRoute = pathname!.startsWith("/doctor");
 
     useEffect(() => {
-        if (!userDetails) {
+        const details = userDetails();
+        if (!details) {
             console.warn('No user details available');
             return;
         }
         try {
-            setUserData(userDetails);
-            console.log('User data updated:', userDetails);
+            setUserData(details);
+            // if (details.role === 'doctor' && isPatientRoute) {
+            //     console.warn('User is a doctor but on a patient route');
+            //     logout();
+            // }
+            // if (details.role === 'patient' && isDoctorRoute) {
+            //     console.warn('User is a patient but on a doctor route');
+            //     logout();
+            // }
+            console.log('User data updated:', details);
         } catch (error) {
             console.error('Error setting user data:', error);
         }
@@ -34,6 +48,35 @@ export default function PatientLayout({ children }: { children: React.ReactNode 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === "user_store" && !event.newValue) {
+                console.log("Logout triggered from user_store localStorage change");
+            }
+        };
+
+        window.addEventListener("storage", handleStorageChange);
+
+        let previousToken = document.cookie;
+        const interval = setInterval(() => {
+            const currentToken = document.cookie;
+            if (previousToken !== currentToken) {
+                const tokenDeleted = !/token=/.test(currentToken);
+                if (tokenDeleted) {
+                    console.log("Logout triggered from token cookie change");
+                }
+                previousToken = currentToken;
+            }
+        }, 1000);
+
+        return () => {
+            window.removeEventListener("storage", handleStorageChange);
+            clearInterval(interval);
+        };
+    }, []);
+
+
 
     return (
         <div className="h-screen flex overflow-hidden bg-gray-100">

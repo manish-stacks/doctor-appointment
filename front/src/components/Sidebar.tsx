@@ -1,5 +1,5 @@
 import React from 'react'
-import { Bell, BookmarkCheck, Calendar, FileText, LayoutDashboard, LogOut, MapPin, MessageSquare, Settings, User, X } from 'lucide-react';
+import { Bell, BookmarkCheck, Calendar, FileText, LayoutDashboard, LogOut, MapPin, MessageSquare, Settings, User, Users, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 interface NavigationItem {
@@ -14,7 +14,7 @@ interface propInterface {
     logout: () => void
 }
 
-const navigation: NavigationItem[] = [
+const patientNavigation: NavigationItem[] = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/patient/dashboard' },
     { icon: Calendar, label: 'Appointments', path: '/patient/appointments' },
     { icon: BookmarkCheck, label: 'Favorite', path: '/patient/favorite' },
@@ -25,15 +25,28 @@ const navigation: NavigationItem[] = [
     { icon: Settings, label: 'Settings', path: '/patient/settings' },
 ];
 
+const doctorNavigation: NavigationItem[] = [
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/doctor/dashboard' },
+    { icon: Calendar, label: 'Appointments', path: '/doctor/appointments' },
+    { icon: Users, label: 'Patients', path: '/doctor/patients' },
+    { icon: MessageSquare, label: 'Schedule Timings', path: '/doctor/schedule' },
+    { icon: Bell, label: 'Notifications', path: '/doctor/notifications' },
+    { icon: User, label: 'My Profile', path: '/doctor/profile' },
+    { icon: Settings, label: 'Settings', path: '/doctor/settings' },
+];
+
 const Sidebar = ({ sidebarOpen, setSidebarOpen, logout }: propInterface) => {
     const pathname = usePathname();
-
+    const isPatientRoute = pathname!.startsWith("/patient");
+    const navigation = isPatientRoute ? patientNavigation : doctorNavigation;
 
     return (
         <>
             <div className={`fixed inset-y-0 left-0 z-40 w-64 bg-white ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out`}>
                 <div className="h-16 flex items-center justify-between px-4 shadow-sm">
-                    <h1 className="text-2xl font-bold text-indigo-900">MediDash</h1>
+                    <div className="text-2xl font-bold text-indigo-900">
+                        <span className="text-indigo-900 tracking-wider">MediDash</span>
+                    </div>
                     <button className="lg:hidden" onClick={() => setSidebarOpen(false)}>
                         <X className="h-6 w-6" />
                     </button>

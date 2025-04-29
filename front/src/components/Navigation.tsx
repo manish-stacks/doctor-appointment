@@ -1,4 +1,5 @@
 import { useUserStore } from '@/store/useUserStore';
+import { User } from '@/types/user';
 import { useRouter } from 'next/navigation';
 import React from 'react'
 
@@ -9,13 +10,14 @@ interface NavigationProps {
 
 const Navigation = ({ setIsAuthModalOpen, setIsRegisterModalOpen }: NavigationProps) => {
     const isLoggedIn = useUserStore((state) => state.isLoggedIn);
-    const userData = useUserStore((state) => state.userDetails);
+    const userData = useUserStore((state) => state.userDetails) as User | null;
     const router = useRouter();
 
     const goToDashboard = () => {
         if (!userData) return;
-        return router.push(userData.role === 'user' ? '/patient/dashboard' : '/doctor/dashboard');
+        return router.push(userData?.role === 'user' ? '/patient/dashboard' : '/doctor/dashboard');
     }
+    
     return (
         <>
             <nav className="bg-white shadow-sm">
@@ -35,13 +37,13 @@ const Navigation = ({ setIsAuthModalOpen, setIsRegisterModalOpen }: NavigationPr
                                     <>
                                         <button
                                             onClick={() => setIsAuthModalOpen(true)}
-                                            className="text-[#045d59] hover:text-indigo-800"
+                                            className="bg-[#045d59] text-white px-4 py-2 rounded-full hover:bg-indigo-900 transition-colors"
                                         >
                                             Login
                                         </button>
                                         <button
                                             onClick={() => setIsRegisterModalOpen(true)}
-                                            className="bg-[#045d59] text-white px-4 py-2 rounded-full hover:bg-indigo-900 transition-colors"
+                                            className="hidden bg-[#045d59] text-white px-4 py-2 rounded-full hover:bg-indigo-900 transition-colors"
                                         >
                                             Register
                                         </button>

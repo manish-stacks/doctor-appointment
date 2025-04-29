@@ -12,9 +12,12 @@ import toast from 'react-hot-toast';
 interface AuthModalProps {
     isOpen: boolean;
     onClose: () => void;
+    step: 'role' | 'phone';
+    onRoleSelect: (role: 'patient' | 'doctor') => void;
+    onStepChange: (step: 'role' | 'phone') => void;
 }
 
-export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
+export const AuthModal = ({ isOpen, onClose, step, onRoleSelect, onStepChange }: AuthModalProps) => {
     const [mobileNumber, setMobileNumber] = useState('');
     const [showOTP, setShowOTP] = useState(false);
     const [otp, setOTP] = useState('');
@@ -25,13 +28,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     const fetchUserDetails = useUserStore((state) => state.fetchUserDetails);
     const router = useRouter();
 
-    // useEffect(() => {
-    //     const fetch = async () => {
-    //         const response = await AxiosInstance.get(`/auth/me`);
-    //         console.log(response)
-    //     }
-    //     fetch();
-    // },[]);
+
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -158,92 +155,121 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                             <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-900">
                                 {showOTP ? 'Verify OTP' : 'Login / Sign Up'}
                             </h2>
-                            <div className="space-y-4">
-                                {!showOTP ? (
-                                    <div className="space-y-3">
-                                        <input
-                                            placeholder="Enter mobile number"
-                                            value={mobileNumber}
-                                            onChange={(e) => {
-                                                setMobileNumber(e.target.value.replace(/\D/g, ''));
-                                                setError('');
-                                            }}
-                                            type="tel"
-                                            maxLength={10}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        />
-                                        {error && <span className='text-sm text-rose-400 block'>{error}</span>}
+                            {step === 'role' ? (
+                                <div className="space-y-6">
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
                                         <button
-                                            onClick={handleSendOTP}
-                                            disabled={isLoading}
-                                            className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            onClick={() => onRoleSelect('patient')}
+                                            className="p-4 border-2 border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
                                         >
-                                            Send OTP
+                                            <h3 className="text-lg font-semibold text-indigo-600">Patient</h3>
+                                            <p className="text-sm text-gray-600">Book appointments and manage your health</p>
+                                        </button>
+                                        <button
+                                            onClick={() => onRoleSelect('doctor')}
+                                            className="p-4 border-2 border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
+                                        >
+                                            <h3 className="text-lg font-semibold text-indigo-600">Doctor</h3>
+                                            <p className="text-sm text-gray-600">Manage your practice and patients</p>
                                         </button>
                                     </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        <span className='mt-3 text-slate-400 text-sm sm:text-base block text-center'>
-                                            Enter OTP sent to +91 {mobileNumber}
-                                        </span>
-                                        <div className='flex justify-center gap-2 sm:gap-4 my-4'>
-                                            {[...Array(6)].map((_, index) => (
-                                                <input
-                                                    key={index}
-                                                    type='tel'
-                                                    maxLength={1}
-                                                    className="w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    value={otp[index] || ''}
-                                                    onChange={(e) => {
-                                                        const newOtp = otp.split('');
-                                                        newOtp[index] = e.target.value;
-                                                        setOTP(newOtp.join(''));
-                                                        if (e.target.value && e.target.nextElementSibling) {
-                                                            (e.target.nextElementSibling as HTMLInputElement).focus();
-                                                        }
-                                                    }}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Backspace' && !otp[index]) {
-                                                            const currentTarget = e.target as HTMLInputElement;
-                                                            const prevInput = currentTarget.previousElementSibling as HTMLInputElement;
-                                                            if (prevInput) {
-                                                                prevInput.focus();
-                                                                const newOtp = otp.split('');
-                                                                newOtp[index - 1] = '';
-                                                                setOTP(newOtp.join(''));
-                                                            }
-                                                        }
-                                                    }}
-                                                />
-                                            ))}
-                                        </div>
+                                </div>
+                            ) : (
+
+                                <div className="space-y-4">
+                                    <span
+                                        className='cursor-pointer text-indigo-600 hover:text-indigo-800'
+                                        onClick={() => onStepChange('role')}
+                                    >
+                                        ← Back
+                                    </span>
+                                    {!showOTP ? (
                                         <div className="space-y-3">
+                                            <input
+                                                placeholder="Enter mobile number"
+                                                value={mobileNumber}
+                                                onChange={(e) => {
+                                                    setMobileNumber(e.target.value.replace(/\D/g, ''));
+                                                    setError('');
+                                                }}
+                                                type="tel"
+                                                maxLength={10}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                            {error && <span className='text-sm text-rose-400 block'>{error}</span>}
                                             <button
-                                                onClick={handleVerifyOTP}
+                                                onClick={handleSendOTP}
                                                 disabled={isLoading}
                                                 className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                             >
-                                                Verify OTP
+                                                Send OTP
                                             </button>
-                                            <div className='flex flex-col sm:flex-row gap-2 sm:gap-4 justify-between'>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            <span className='mt-3 text-slate-400 text-sm sm:text-base block text-center'>
+                                                Enter OTP sent to +91 {mobileNumber}
+                                            </span>
+                                            <div className='flex justify-center gap-2 sm:gap-4 my-4'>
+                                                {[...Array(6)].map((_, index) => (
+                                                    <input
+                                                        key={index}
+                                                        type='tel'
+                                                        maxLength={1}
+                                                        className="w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                        value={otp[index] || ''}
+                                                        onChange={(e) => {
+                                                            const newOtp = otp.split('');
+                                                            newOtp[index] = e.target.value;
+                                                            setOTP(newOtp.join(''));
+                                                            if (e.target.value && e.target.nextElementSibling) {
+                                                                (e.target.nextElementSibling as HTMLInputElement).focus();
+                                                            }
+                                                        }}
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Backspace' && !otp[index]) {
+                                                                const currentTarget = e.target as HTMLInputElement;
+                                                                const prevInput = currentTarget.previousElementSibling as HTMLInputElement;
+                                                                if (prevInput) {
+                                                                    prevInput.focus();
+                                                                    const newOtp = otp.split('');
+                                                                    newOtp[index - 1] = '';
+                                                                    setOTP(newOtp.join(''));
+                                                                }
+                                                            }
+                                                        }}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <div className="space-y-3">
                                                 <button
-                                                    onClick={handleReset}
-                                                    className="text-gray-600 hover:text-gray-800 text-sm sm:text-base"
+                                                    onClick={handleVerifyOTP}
+                                                    disabled={isLoading}
+                                                    className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                                 >
-                                                    Change Number
+                                                    Verify OTP
                                                 </button>
-                                                <button
-                                                    onClick={handleResendOTP}
-                                                    disabled={resendDisabled}
-                                                    className="text-blue-500 hover:text-blue-600 disabled:text-gray-400 text-sm sm:text-base"
-                                                >
-                                                    {resendDisabled ? `Resend in ${timer}s` : 'Resend OTP'}
-                                                </button>
+                                                <div className='flex flex-col sm:flex-row gap-2 sm:gap-4 justify-between'>
+                                                    <button
+                                                        onClick={handleReset}
+                                                        className="text-gray-600 hover:text-gray-800 text-sm sm:text-base"
+                                                    >
+                                                        Change Number
+                                                    </button>
+                                                    <button
+                                                        onClick={handleResendOTP}
+                                                        disabled={resendDisabled}
+                                                        className="text-blue-500 hover:text-blue-600 disabled:text-gray-400 text-sm sm:text-base"
+                                                    >
+                                                        {resendDisabled ? `Resend in ${timer}s` : 'Resend OTP'}
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
-                            </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </motion.div>
                 </motion.div>

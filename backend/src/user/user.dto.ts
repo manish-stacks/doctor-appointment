@@ -10,33 +10,29 @@ import {
   IsBoolean,
   IsNumber,
 } from 'class-validator';
-import { Index } from 'typeorm';
+
 
 export class CreateUserDto {
   @IsOptional()
   @IsEmail({}, { message: 'Invalid email format' })
-  @IsNotEmpty({ message: 'Email is required' })
   @MaxLength(50, { message: 'Email cannot be longer than 50 characters' })
-  email: string;
+  email?: string;
 
+  @IsOptional()
   @IsString()
-  @Index()
-  @IsNotEmpty({ message: 'Username is required' })
   @MinLength(3, { message: 'Username must be at least 3 characters long' })
   @MaxLength(50, { message: 'Username cannot be longer than 50 characters' })
-  username: string;
+  username?: string;
 
-  @IsString()
   @IsOptional()
-  @IsNotEmpty({ message: 'Password is required' })
+  @IsString()
   @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  password: string;
+  password?: string;
 
   @IsString()
-  @MaxLength(255, {
-    message: 'Phone number cannot be longer than 255 characters',
-  })
-  phone?: string;
+  @IsNotEmpty({ message: 'Phone number is required' })
+  @MaxLength(255, { message: 'Phone number cannot be longer than 255 characters' })
+  phone: string;
 
   @IsOptional()
   @IsDate()
@@ -52,8 +48,8 @@ export class CreateUserDto {
   image: string;
 
 
-  @IsOptional()
   @IsString()
+  @IsNotEmpty({ message: 'Role is required' })
   role:string
 
   @IsOptional()

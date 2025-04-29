@@ -31,7 +31,7 @@ export default function PatientProfile() {
                             ✏️
                         </button>
                     </div>
-                    <h2 className="text-lg font-semibold mt-2">Patient Image</h2>
+                    <h2 className="text-lg font-semibold mt-2">Doctor Image</h2>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3/4">

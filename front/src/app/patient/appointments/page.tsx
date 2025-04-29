@@ -1,4 +1,4 @@
-import Breadcrumb from '@/components/patient/Breadcrumb';
+import Breadcrumb from '@/components/Breadcrumb';
 import { Eye } from 'lucide-react';
 import React from 'react'
 

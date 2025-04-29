@@ -25,13 +25,16 @@ export class AuthService {
 
   /* eslint-disable prettier/prettier */
   async register(createUserDto: CreateUserDto): Promise<User> {
-    const { username, gender, phone, role } = createUserDto;
+    const { phone, role } = createUserDto;
 
-    if (!username || !phone) {
+    if (!role || !phone) {
       throw new BadRequestException('Username and phone are required.');
     }
 
-    const formattedUsername = username.replace(/\s+/g, '+');
+    if (phone.length !== 10) {
+      throw new BadRequestException('Phone number must be exactly 10 digits long.');
+    }
+
 
     const getRandomColor = () => {
       const letters = '0123456789ABCDEF';
@@ -44,41 +47,23 @@ export class AuthService {
 
     const backgroundColor = getRandomColor();
     const textColor = getRandomColor();
-
     const existingUser = await this.userRepo.findOne({ where: { phone } });
 
     if (existingUser) {
-      if (!existingUser?.contact_number_verified) {
-        // Generate a new OTP and expiry time
-        const otp = otp_generator();
-        const otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
-        existingUser.otp = otp;
-        existingUser.otp_expires_at = otpExpireTime;
-
-        await this.userRepo.save(existingUser);
-
-        // Send OTP to the user
-        // await this.sendOtp(phone, otp);
-
-        throw new ConflictException(
-          'Phone number already exists but not verified. OTP has been sent again.',
-        );
-      }
       throw new ConflictException(
         'Phone number already exists and is verified.',
       );
     }
 
-    // Generate OTP and expiry time for new registration
     const otp = otp_generator();
     const otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
 
-    // Set the avatar URL with random colors
-    const avatar = `https://ui-avatars.com/api/?name=${formattedUsername}&background=${backgroundColor}&color=${textColor}`;
+    const avatar = `https://ui-avatars.com/api/?name=Guest&background=${backgroundColor}&color=${textColor}`;
 
     createUserDto.otp = otp;
+    createUserDto.username = 'Guest';
     createUserDto.otp_expires_at = otpExpireTime;
-    createUserDto.gender = gender === 'MR' ? 'Male' : 'Female';
+    //createUserDto.gender = gender === 'MR' ? 'Male' : 'Female';
     createUserDto.image = avatar;
     createUserDto.role = role;
     createUserDto.contact_number_verified = false;
@@ -241,7 +226,7 @@ export class AuthService {
 
   async login(
     LoginDto: LoginDto,
-  ): Promise<{ success: boolean; message: string;}> {
+  ): Promise<{ success: boolean; message: string; }> {
     const { phone } = LoginDto;
 
     if (!phone) {

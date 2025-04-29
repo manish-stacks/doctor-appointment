@@ -1,6 +1,6 @@
 'use client';
 
-import Breadcrumb from "@/components/patient/Breadcrumb";
+import Breadcrumb from "@/components/Breadcrumb";
 import { EyeIcon } from "lucide-react";
 
 const orders = [

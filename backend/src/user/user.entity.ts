@@ -27,7 +27,7 @@ export class User {
   @Column()
   HowManyOtpSend: number;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ unique: true })
   phone: string;
 
   @Column({ type: 'int', nullable: true })
@@ -45,7 +45,7 @@ export class User {
   @Column({ length: 255, nullable: true })
   gender: string;
 
-  @Column({ default: 'user' }) // Roles: 'user', 'admin'
+  @Column({ default: 'user' }) // Roles: 'user', 'doctor', 'admin'
   role: string;
 
   @Column({ length: 255, nullable: true })

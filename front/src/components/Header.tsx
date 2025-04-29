@@ -11,6 +11,8 @@ interface headerInterface {
     logout: () => void
 }
 const Header = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdownOpen, dropdownRef, userData, logout }: headerInterface) => {
+    const [showNotifications, setShowNotifications] = React.useState(false);
+
     return (
         <>
             <header className="sticky top-0 z-30 h-16 bg-white shadow-sm flex items-center justify-between px-4 lg:px-8">
@@ -23,15 +25,47 @@ const Header = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdownOpen, d
                         <input
                             type="text"
                             placeholder="Search..."
-                            className="pl-10 pr-10 py-2 shadow-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="pl-10 pr-10 py-2  focus:outline-none"
                         />
                     </div>
                 </div>
                 <div className="flex items-center space-x-4">
-                    <button className="relative">
-                        <Bell className="h-6 w-6 text-gray-600" />
-                        <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
-                    </button>
+                    <div className="relative hidden lg:block">
+                        <div
+                            className="relative"
+                            onClick={() => setShowNotifications(!showNotifications)}
+                            //   onMouseEnter={() => setShowNotifications(true)}
+                            //   onMouseLeave={() => setShowNotifications(false)}
+                        >
+                            <Bell className="h-6 w-6 text-gray-600" />
+                            <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+
+                            {showNotifications && (
+                                <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg py-2 z-50">
+                                    <div className="px-4 py-2 border-b border-gray-200">
+                                        <h3 className="text-sm font-semibold">Notifications</h3>
+                                    </div>
+                                    <div className="max-h-[300px] overflow-y-auto">
+                                        {/* Sample notifications */}
+                                        <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
+                                            <p className="text-sm text-gray-800">New appointment request from John Doe</p>
+                                            <p className="text-xs text-gray-500 mt-1">2 hours ago</p>
+                                        </div>
+                                        <div className="px-4 py-3 hover:bg-gray-50">
+                                            <p className="text-sm text-gray-800">Your appointment is confirmed</p>
+                                            <p className="text-xs text-gray-500 mt-1">1 day ago</p>
+                                        </div>
+                                    </div>
+                                    <div className="px-4 py-2 border-t border-gray-200">
+                                        <Link href={userData?.role === 'patient' ? "/patient/notifications" : "/doctor/notifications"} className="text-sm text-blue-600 hover:underline">View all notifications</Link>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                    </div>
+
+
                     <div className="relative" ref={dropdownRef}>
                         <button
                             className="flex items-center space-x-3 focus:outline-none"
@@ -56,14 +90,14 @@ const Header = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdownOpen, d
                                     <p className="text-xs text-gray-500">{userData?.email || 'example@gmail.com'}</p>
                                 </div>
                                 <Link
-                                    href="/patient/profile"
+                                    href={userData?.role === 'patient' ? "/patient/profile" : "/doctor/profile"}
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                     <UserCircle className="h-4 w-4 mr-2" />
                                     View Profile
                                 </Link>
                                 <Link
-                                    href="/patient/settings"
+                                    href={userData?.role === 'patient' ? "/patient/settings" : "/doctor/settings"}
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                     <Settings className="h-4 w-4 mr-2" />
