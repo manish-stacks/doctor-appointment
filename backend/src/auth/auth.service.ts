@@ -3,12 +3,10 @@ import { LoginDto } from './../user/user.dto';
 import {
   Injectable,
   BadRequestException,
-  UnauthorizedException,
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/user.entity';
 import { CreateUserDto, resendOtpDto, VerifyOtpDto } from 'src/user/user.dto';
@@ -22,62 +20,6 @@ export class AuthService {
     private jwtService: JwtService,
     private mailerUtil: MailerUtil,
   ) { }
-
-  /* eslint-disable prettier/prettier */
-  async register(createUserDto: CreateUserDto): Promise<User> {
-    const { phone, role } = createUserDto;
-
-    if (!role || !phone) {
-      throw new BadRequestException('Username and phone are required.');
-    }
-
-    if (phone.length !== 10) {
-      throw new BadRequestException('Phone number must be exactly 10 digits long.');
-    }
-
-
-    const getRandomColor = () => {
-      const letters = '0123456789ABCDEF';
-      let color = '';
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    };
-
-    const backgroundColor = getRandomColor();
-    const textColor = getRandomColor();
-    const existingUser = await this.userRepo.findOne({ where: { phone } });
-
-    if (existingUser) {
-      throw new ConflictException(
-        'Phone number already exists and is verified.',
-      );
-    }
-
-    const otp = otp_generator();
-    const otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
-
-    const avatar = `https://ui-avatars.com/api/?name=Guest&background=${backgroundColor}&color=${textColor}`;
-
-    createUserDto.otp = otp;
-    createUserDto.username = 'Guest';
-    createUserDto.otp_expires_at = otpExpireTime;
-    //createUserDto.gender = gender === 'MR' ? 'Male' : 'Female';
-    createUserDto.image = avatar;
-    createUserDto.role = role;
-    createUserDto.contact_number_verified = false;
-
-    const user = this.userRepo.create(createUserDto);
-    const savedUser = await this.userRepo.save(user);
-
-    // Send OTP to the user
-    // await this.sendOtp(phone, otp);
-
-    console.log('OTP Expire Time:', otpExpireTime);
-
-    return savedUser;
-  }
 
   async verifyOtp(VerifyOtpDto: VerifyOtpDto): Promise<{
     success: boolean;
@@ -227,30 +169,102 @@ export class AuthService {
   async login(
     LoginDto: LoginDto,
   ): Promise<{ success: boolean; message: string; }> {
-    const { phone } = LoginDto;
-
+    const { phone, role } = LoginDto;
+    
     if (!phone) {
       throw new BadRequestException('Phone Number are required.');
+    }
+
+    if (!/^\d{10}$/.test(phone)) {
+      throw new BadRequestException('Phone number must be exactly 10 numeric digits.');
     }
 
     const user = await this.userRepo.findOne({ where: { phone } });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials.');
+     
+      const createUserDto: CreateUserDto = {
+        ...LoginDto,
+        image: '',  
+        contact_number_verified: false
+      };
+      
+      
+      await this.register(createUserDto);
+      return {
+        success: true,
+        message: 'User registered successfully. OTP sent to your phone number.'
+      };
     }
 
     const otp = otp_generator();
     const otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
 
-    if (user) {
-      user.login_otp = otp;
-      user.otp_expires_at = otpExpireTime;
-    }
+    user.login_otp = otp;
+    user.otp_expires_at = otpExpireTime;
     await this.userRepo.save(user);
 
     return {
       success: true,
-      message: 'Login otp send  successful on phone number.'
+      message: 'Login otp send successful on phone number.'
     };
+  }
+
+
+  async register(createUserDto: CreateUserDto): Promise<User> {
+
+    // console.log(createUserDto)
+    const { phone, role } = createUserDto;
+
+    if (!role || !phone) {
+      throw new BadRequestException('Username and phone are required.');
+    }
+
+    if (!/^\d{10}$/.test(phone)) {
+      throw new BadRequestException('Phone number must be exactly 10 numeric digits.');
+    }
+
+
+    const getRandomColor = () => {
+      const letters = '0123456789ABCDEF';
+      let color = '';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    };
+
+    const backgroundColor = getRandomColor();
+    const textColor = getRandomColor();
+    const existingUser = await this.userRepo.findOne({ where: { phone } });
+
+    if (existingUser) {
+      throw new ConflictException(
+        'Phone number already exists and is verified.',
+      );
+    }
+
+    const otp = otp_generator();
+    const otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
+
+    const avatar = `https://ui-avatars.com/api/?name=Guest&background=${backgroundColor}&color=${textColor}`;
+
+    createUserDto.otp = otp;
+    createUserDto.username = 'Guest';
+    createUserDto.otp_expires_at = otpExpireTime;
+    //createUserDto.gender = gender === 'MR' ? 'Male' : 'Female';
+    createUserDto.image = avatar;
+    createUserDto.role = role;
+    createUserDto.contact_number_verified = false;
+
+    const user = this.userRepo.create(createUserDto);
+    const savedUser = await this.userRepo.save(user);
+
+    // Send OTP to the user
+    // await this.sendOtp(phone, otp);
+
+    console.log('OTP Expire Time:', otpExpireTime);
+
+    return savedUser;
   }
 }

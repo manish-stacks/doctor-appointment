@@ -74,6 +74,7 @@ export default function Home() {
         step={registerStep}
         onRoleSelect={handleRoleSelect}
         onStepChange={setRegisterStep}
+        selectedRole={selectedRole}
       />
 
     </div>

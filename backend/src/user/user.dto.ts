@@ -85,8 +85,8 @@ export class LoginDto {
 
   @IsString()
   @IsOptional()
-  @IsNotEmpty({ message: 'Password is required' })
-  type: string;
+  @IsNotEmpty({ message: 'Role is required' })
+  role: string;
 }
 
 export class resendOtpDto {

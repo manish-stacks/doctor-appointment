@@ -2,12 +2,13 @@
 
 import { userDetails, useUserStore } from "@/store/useUserStore";
 import { Calendar, Clock, FileText, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function DoctorDashboard() {
   const userDetails = useUserStore((state) => state.getUserDetails);
   const [userdata, setUserData] = useState<userDetails>();
-
+  const router = useRouter();
   useEffect(() => {
     const details = userDetails();
     if (!details) {
@@ -21,8 +22,17 @@ export function DoctorDashboard() {
     }
   }, [userDetails])
 
+
+
+
+  if (!userdata?.doctor_id) {
+    router.push('/doctor/profile');
+    return null; 
+  }
+
   return (
     <>
+    
       <div className="flex-1 overflow-y-auto p-2 lg:p-4">
 
         <div className="bg-white rounded-lg shadow p-6">

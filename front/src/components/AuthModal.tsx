@@ -15,9 +15,10 @@ interface AuthModalProps {
     step: 'role' | 'phone';
     onRoleSelect: (role: 'patient' | 'doctor') => void;
     onStepChange: (step: 'role' | 'phone') => void;
+    selectedRole: 'patient' | 'doctor';
 }
 
-export const AuthModal = ({ isOpen, onClose, step, onRoleSelect, onStepChange }: AuthModalProps) => {
+export const AuthModal = ({ isOpen, onClose, step, onRoleSelect, onStepChange,selectedRole }: AuthModalProps) => {
     const [mobileNumber, setMobileNumber] = useState('');
     const [showOTP, setShowOTP] = useState(false);
     const [otp, setOTP] = useState('');
@@ -58,7 +59,10 @@ export const AuthModal = ({ isOpen, onClose, step, onRoleSelect, onStepChange }:
 
         setIsLoading(true);
         try {
-            await AxiosInstance.post(`/auth/login`, { phone: Number(mobileNumber), type: 'login' });
+            await AxiosInstance.post(`/auth/login`, {
+                phone: Number(mobileNumber),
+                role: selectedRole === 'doctor' ? 'doctor' : 'user',
+            });
             setShowOTP(true);
             setResendDisabled(true);
             toast.success(`OTP has been sent to ${mobileNumber}`);
@@ -70,6 +74,7 @@ export const AuthModal = ({ isOpen, onClose, step, onRoleSelect, onStepChange }:
     };
     const handleResendOTP = async () => {
         setError('');
+        setOTP('');
         if (!validateMobileNumber(mobileNumber)) {
             setError('Please enter a valid Indian mobile number');
             return;
@@ -157,7 +162,7 @@ export const AuthModal = ({ isOpen, onClose, step, onRoleSelect, onStepChange }:
                             </h2>
                             {step === 'role' ? (
                                 <div className="space-y-6">
-                                    
+
                                     <div className="grid grid-cols-2 gap-4">
                                         <button
                                             onClick={() => onRoleSelect('patient')}
