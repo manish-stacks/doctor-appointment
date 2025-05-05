@@ -107,7 +107,6 @@ export const AuthModal = ({ isOpen, onClose, step, onRoleSelect, onStepChange,se
                 type: 'login',
             }) as userStoreResponse;
 
-            console.log(response)
             if (!response.success) {
                 toast.error(response.message)
                 return;

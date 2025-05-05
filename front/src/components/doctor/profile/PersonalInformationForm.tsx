@@ -23,6 +23,7 @@ const hospitals = [
     { value: "edmonton-royal", label: "Royal Alexandra Hospital" },
     { value: "winnipeg-health", label: "Health Sciences Centre" },
     { value: "halifax-medical", label: "QEII Health Sciences Centre" },
+    { value: "other", label: "Other's" },
 ]
 
 export default function PersonalInformationForm() {

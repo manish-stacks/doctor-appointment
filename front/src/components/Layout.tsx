@@ -25,15 +25,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         }
         try {
             setUserData(details);
-            // if (details.role === 'doctor' && isPatientRoute) {
-            //     console.warn('User is a doctor but on a patient route');
-            //     logout();
-            // }
-            // if (details.role === 'patient' && isDoctorRoute) {
-            //     console.warn('User is a patient but on a doctor route');
-            //     logout();
-            // }
-            console.log('User data updated:', details);
         } catch (error) {
             console.error('Error setting user data:', error);
         }
