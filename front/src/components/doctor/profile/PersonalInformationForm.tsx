@@ -275,7 +275,7 @@ export default function PersonalInformationForm() {
                             </Select>
                         </div>
                     </div>
-
+                                    
                     {/* Professional Bio */}
                     <div className="space-y-2">
                         <Label htmlFor="bio" className="text-gray-600">
