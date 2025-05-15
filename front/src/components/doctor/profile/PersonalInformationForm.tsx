@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { PlusCircle, X, Check, ChevronsUpDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 // Sample hospitals data
 const hospitals = [
@@ -29,7 +30,7 @@ const hospitals = [
 export default function PersonalInformationForm() {
     const [profileImage, setProfileImage] = useState<string>("https://res.cloudinary.com/do34gd7bu/image/upload/v1746015026/360_F_565224180_QNRiRQkf9Fw0dKRoZGwUknmmfk51SuSS_cn2bqt.jpg")
     const [open, setOpen] = useState(false)
-
+    const [openHospitals, setOpenHospitals] = useState(false)
     // Sample data
     const [formData, setFormData] = useState({
         name: "Dr. Michael Nguyen",
@@ -39,12 +40,28 @@ export default function PersonalInformationForm() {
         dateOfBirth: "1978-11-05",
         gender: "male",
         professionalBio: "Dr. Michael Nguyen is a skilled orthopedic surgeon specializing in sports medicine.",
+        hospitalName: "Toronto General Hospital",
+        hospitalNumber: "1234",
+        hospitalFacility: "Orthopedic Surgery",
+        hospitalLocation: "123456/123456",
     })
 
     // Selected hospitals state
     const [selectedHospitals, setSelectedHospitals] = useState([
         { value: "montreal-general", label: "Montreal General Hospital" },
     ])
+
+
+    useEffect(() => {
+        const hasOther = selectedHospitals.some(
+            (hospital) => hospital.value === "other"
+        );
+        if (hasOther) {
+            setOpenHospitals(true)
+            return
+        }
+        setOpenHospitals(false)
+    }, [selectedHospitals])
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -61,6 +78,8 @@ export default function PersonalInformationForm() {
 
     const toggleHospital = (hospital: { value: string; label: string }) => {
         setSelectedHospitals((current) => {
+
+
             // Check if hospital is already selected
             const isSelected = current.some((h) => h.value === hospital.value)
 
@@ -90,7 +109,9 @@ export default function PersonalInformationForm() {
                     </Label>
                     <div className="relative w-full max-w-[200px]">
                         <div className="aspect-square rounded-lg overflow-hidden border border-gray-200">
-                            <img
+                            <Image
+                                width={200}
+                                height={200}
                                 src={profileImage || "https://res.cloudinary.com/do34gd7bu/image/upload/v1746015026/360_F_565224180_QNRiRQkf9Fw0dKRoZGwUknmmfk51SuSS_cn2bqt.jpg"}
                                 alt="Doctor profile"
                                 className="w-full h-full object-cover"
@@ -244,6 +265,7 @@ export default function PersonalInformationForm() {
                             )}
                         </div>
 
+
                         {/* Date of Birth */}
                         <div className="space-y-2">
                             <Label htmlFor="dob" className="text-gray-600">
@@ -275,7 +297,7 @@ export default function PersonalInformationForm() {
                             </Select>
                         </div>
                     </div>
-                                    
+
                     {/* Professional Bio */}
                     <div className="space-y-2">
                         <Label htmlFor="bio" className="text-gray-600">
@@ -290,6 +312,89 @@ export default function PersonalInformationForm() {
                     </div>
                 </div>
             </div>
+
+            {
+                openHospitals && (
+                    <div className="gap-8 py-5">
+                        <h2 className="text-lg font-normal text-blue-500 mb-2">Hospitals Details</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Name */}
+                            <div className="space-y-2">
+                                <Label htmlFor="hospitalName" className="text-gray-600">
+                                    Hospital Name
+                                </Label>
+                                <Input
+                                    id="hospitalName"
+                                    value={formData.hospitalName}
+                                    onChange={(e) => setFormData({ ...formData, hospitalName: e.target.value })}
+                                    className="bg-gray-100"
+                                />
+                            </div>
+
+
+                            <div className="space-y-2">
+                                <Label htmlFor="hospitalNumber" className="text-gray-600">
+                                    Phone number
+                                </Label>
+                                <Input
+                                    id="hospitalNumber"
+                                    value={formData.hospitalNumber}
+                                    onChange={(e) => setFormData({ ...formData, hospitalNumber: e.target.value })}
+                                    className="bg-gray-100"
+                                />
+                            </div>
+
+
+
+
+                            <div className="space-y-2">
+                                <Label htmlFor="hospitalFacility" className="text-gray-600">
+                                    Hospital Facility
+                                </Label>
+                                <Input
+                                    id="hospitalFacility"
+                                    value={formData.hospitalFacility}
+                                    onChange={(e) => setFormData({ ...formData, hospitalFacility: e.target.value })}
+                                    className="bg-gray-100"
+                                />
+                            </div>
+
+
+                            <div className="space-y-2 ">
+                                <Label htmlFor="hospitalLocation" className="text-gray-600">
+                                    Location based on latitude/longitude
+                                </Label>
+                                <Input
+                                    id="hospitalLocation"
+                                    value={formData.hospitalLocation}
+                                    onChange={(e) => setFormData({ ...formData, hospitalLocation: e.target.value })}
+                                    className="bg-gray-100"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Professional Bio */}
+                        <div className="space-y-2 mt-3">
+                            <Label htmlFor="bio" className="text-gray-600">
+                                Map
+                            </Label>
+                            <div>
+                                <iframe
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4188.11341618486!2d77.1517968!3d28.690584100000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d031bd35247f5%3A0x167e7ad1ee25b7c7!2sHover%20Business%20Services%20LLP!5e1!3m2!1sen!2sin!4v1747310025227!5m2!1sen!2sin"
+                                   className="w-full h-[300px]"
+                                    style={{ border: 0 }}
+                                    allowFullScreen={true}
+                                    loading="lazy"
+                                    referrerPolicy="no-referrer-when-downgrade"
+                                />
+
+                            </div>
+                        </div>
+
+                    </div>
+                )
+            }
+
         </div>
     )
 }
