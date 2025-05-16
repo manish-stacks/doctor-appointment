@@ -1,30 +1,29 @@
 "use client";
-import { useState } from 'react';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-interface Education {
+export interface Education {
   id: number;
   degree: string;
   institution: string;
   year: string;
 }
 
-interface Certificate {
+export interface Certificate {
   id: number;
   name: string;
   year: string;
 }
 
-export default function EducationCertificates() {
-  const [educations, setEducations] = useState<Education[]>([
-    { id: 1, degree: 'MD', institution: 'Medical University', year: '2003' }
-  ]);
-
-  const [certificates, setCertificates] = useState<Certificate[]>([
-    { id: 1, name: 'Orthopedic Surgery Residency Program', year: '2008' }
-  ]);
+interface educationProps {
+  educations: Education[];
+  certificates: Certificate[];
+  setEducations: (educations: Education[]) => void;
+  setCertificates: (certificates: Certificate[]) => void;
+}
+export default function EducationCertificates({ educations, certificates, setEducations, setCertificates }: educationProps) {
+  
 
   const addEducation = () => {
     const newId = educations.length > 0 ? Math.max(...educations.map(e => e.id)) + 1 : 1;

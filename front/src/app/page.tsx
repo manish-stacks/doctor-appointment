@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import { RegisterModal } from '@/components/RegisterModal';
 import { AuthModal } from '@/components/AuthModal';
 import { Hero } from '@/components/home/Hero';
@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 
 export default function Home() {
 
-  const navigate = useRouter();
+  // const navigate = useRouter();
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [registerStep, setRegisterStep] = useState<'role' | 'phone'>('role');
   const [selectedRole, setSelectedRole] = useState<'patient' | 'doctor'>('patient');

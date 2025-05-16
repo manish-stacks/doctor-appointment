@@ -11,8 +11,9 @@ export class DoctorService {
     private doctorRepository: Repository<Doctor>
     ) { }
 
-    async create(doctorDto: DoctorDto) {
-        const { name, categoryId, treatmentId, expertise ,hospitalId ,userId ,image ,education,certificate ,appointmentFees} = doctorDto;
+    async create(doctorDto: DoctorDto, userId: number) {
+        console.log(userId);
+        const { name, categoryId, treatmentId, expertise, hospitalId, userId, image, education, certificate, appointmentFees } = doctorDto;
         const doctor = this.doctorRepository.create(doctorDto);
         return this.doctorRepository.save(doctor);
     }
@@ -30,7 +31,7 @@ export class DoctorService {
     async update(id: number, doctorDto: DoctorDto) {
         const doctor = await this.doctorRepository.findOne({ where: { id } });
         if (!doctor) throw new NotFoundException('Doctor not found');
-        
+
         Object.assign(doctor, doctorDto);
         return this.doctorRepository.save(doctor);
     }

@@ -18,7 +18,7 @@ import {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('register')
   register(@Body() createUserDto: CreateUserDto) {
@@ -41,13 +41,12 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getProfile(@Request() req) {
+  getProfile(@Request() req: { user: { id: number; username: string; image: string; phone: string } }) {
     return {
       id: req.user.id,
       username: req.user.username,
       image: req.user.image,
       phone: req.user.phone,
-     
     };
   }
 }

@@ -1,3 +1,4 @@
+// src/auth/auth.module.ts
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -17,7 +18,7 @@ import { MailerUtil } from 'utils/SendEmail';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: { expiresIn: configService.get<string>('JWT_EXPIRES') },
       }),
@@ -25,7 +26,7 @@ import { MailerUtil } from 'utils/SendEmail';
     MailerModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy,MailerUtil],
-  exports: [AuthService],
+  providers: [AuthService, JwtStrategy, MailerUtil],
+  exports: [AuthService, JwtModule, JwtStrategy],
 })
-export class AuthModule { }
+export class AuthModule {}

@@ -4,8 +4,9 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 interface NavigationItem {
     label: string;
-    icon: React.ElementType;
-    path: string;
+    icon?: React.ElementType;
+    path?: string;
+    children?: NavigationItem[];
 }
 
 interface propInterface {
@@ -30,6 +31,14 @@ const doctorNavigation: NavigationItem[] = [
     { icon: Calendar, label: 'Appointments', path: '/doctor/appointments' },
     { icon: Users, label: 'Patients', path: '/doctor/patients' },
     { icon: MessageSquare, label: 'Schedule Timings', path: '/doctor/schedule' },
+    {
+        icon: FileText,
+        label: 'Subscriptions',
+        children: [
+            { label: 'Subscription', path: '/doctor/subscriptions' },
+            { label: 'Subscription History', path: '/doctor/subscriptions/history' }
+        ]
+    },
     { icon: Bell, label: 'Notifications', path: '/doctor/notifications' },
     { icon: User, label: 'My Profile', path: '/doctor/profile' },
     { icon: Settings, label: 'Settings', path: '/doctor/settings' },
@@ -54,20 +63,56 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, logout }: propInterface) => {
 
                 <nav className="mt-6">
                     <div className="space-y-1">
+
                         {navigation.map((link) => {
                             const Icon = link.icon;
                             const isActive = pathname === link.path;
 
+                            if (link.children) {
+                                const isParentActive = link.children.some(child => pathname === child.path);
+
+                                return (
+                                    <div key={link.label} className="space-y-1">
+                                        <div
+                                            className={`flex items-center px-6 py-3 text-sm font-medium transition-colors cursor-default ${isParentActive
+                                                ? 'text-indigo-600 bg-indigo-50 border-r-2 border-indigo-600'
+                                                : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-50'
+                                                }`}
+                                        >
+                                            {Icon && <Icon className="w-5 h-5 mr-3" />}
+                                            {link.label}
+                                        </div>
+                                        <div className="pl-12 space-y-4 py-3">
+                                            {link.children.map((child) => {
+                                                const isChildActive = pathname === child.path;
+                                                return (
+                                                    <Link
+                                                        key={child.path}
+                                                        href={child.path!}
+                                                        className={`block text-sm transition-colors ${isChildActive
+                                                            ? 'text-indigo-600 font-medium'
+                                                            : 'text-gray-600 hover:text-indigo-600'
+                                                            }`}
+                                                    >
+                                                        {child.label}
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                );
+                            }
+
                             return (
                                 <Link
                                     key={link.path}
-                                    href={link.path}
+                                    href={link.path!}
                                     className={`flex items-center px-6 py-3 text-sm font-medium transition-colors ${isActive
                                         ? 'text-indigo-600 bg-indigo-50 border-r-2 border-indigo-600'
                                         : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-50'
                                         }`}
                                 >
-                                    <Icon className="w-5 h-5 mr-3" />
+                                    {Icon && <Icon className="w-5 h-5 mr-3" />}
                                     {link.label}
                                 </Link>
                             );

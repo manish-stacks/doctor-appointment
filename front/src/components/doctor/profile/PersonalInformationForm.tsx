@@ -13,6 +13,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { PersonalInfo } from "@/app/doctor/profile/page"
 
 // Sample hospitals data
 const hospitals = [
@@ -27,24 +28,20 @@ const hospitals = [
     { value: "other", label: "Other's" },
 ]
 
-export default function PersonalInformationForm() {
+
+
+interface PersonalInformationFormProps {
+    formData: PersonalInfo;
+    setFormData: React.Dispatch<React.SetStateAction<PersonalInfo>>
+}
+
+export default function PersonalInformationForm({ formData, setFormData }: PersonalInformationFormProps) {
+
     const [profileImage, setProfileImage] = useState<string>("https://res.cloudinary.com/do34gd7bu/image/upload/v1746015026/360_F_565224180_QNRiRQkf9Fw0dKRoZGwUknmmfk51SuSS_cn2bqt.jpg")
     const [open, setOpen] = useState(false)
     const [openHospitals, setOpenHospitals] = useState(false)
     // Sample data
-    const [formData, setFormData] = useState({
-        name: "Dr. Michael Nguyen",
-        email: "Confidential",
-        phoneNumber: "1234567890",
-        countryCode: "+91",
-        dateOfBirth: "1978-11-05",
-        gender: "male",
-        professionalBio: "Dr. Michael Nguyen is a skilled orthopedic surgeon specializing in sports medicine.",
-        hospitalName: "Toronto General Hospital",
-        hospitalNumber: "1234",
-        hospitalFacility: "Orthopedic Surgery",
-        hospitalLocation: "123456/123456",
-    })
+
 
     // Selected hospitals state
     const [selectedHospitals, setSelectedHospitals] = useState([
@@ -381,7 +378,7 @@ export default function PersonalInformationForm() {
                             <div>
                                 <iframe
                                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4188.11341618486!2d77.1517968!3d28.690584100000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d031bd35247f5%3A0x167e7ad1ee25b7c7!2sHover%20Business%20Services%20LLP!5e1!3m2!1sen!2sin!4v1747310025227!5m2!1sen!2sin"
-                                   className="w-full h-[300px]"
+                                    className="w-full h-[300px]"
                                     style={{ border: 0 }}
                                     allowFullScreen={true}
                                     loading="lazy"
