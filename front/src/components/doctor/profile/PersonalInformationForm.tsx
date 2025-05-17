@@ -62,7 +62,9 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
+        
         if (file) {
+            setFormData({ ...formData, image: file })
             const reader = new FileReader()
             reader.onload = (e) => {
                 if (e.target?.result) {

@@ -1,5 +1,6 @@
+/* eslint-disable prettier/prettier */
 import { Category } from "src/category/category.entity";
-import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Treatments {

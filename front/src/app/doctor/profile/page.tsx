@@ -4,9 +4,11 @@ import OtherInformation from '@/components/doctor/profile/OtherInformation'
 import PersonalInformationForm from '@/components/doctor/profile/PersonalInformationForm'
 import { AxiosInstance } from '@/helpers/Axios.instance'
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
 
 
 export interface PersonalInfo {
+    image: File |  undefined;
     name: string;
     email: string;
     phoneNumber: string;
@@ -24,14 +26,13 @@ export interface PersonalInfo {
     categories: string,
     treatments: string,
     expertise: string,
-    timeslots: string,
-    startTime: string,
-    endTime: string,
+    timeSlots: string,
 };
 
 const Profile = () => {
 
     const [formData, setFormData] = useState({
+        image: undefined,
         name: "Dr. Michael Nguyen",
         email: "Confidential",
         phoneNumber: "1234567890",
@@ -49,9 +50,8 @@ const Profile = () => {
         categories: 'Orthopedic Surgery',
         treatments: 'Orthopedics',
         expertise: 'Orthopedic Surgical Procedures',
-        timeslots: '30',
-        startTime: '08:00',
-        endTime: '20:00',
+        timeSlots: '30',
+       
     })
 
     const [educations, setEducations] = useState<Education[]>([
@@ -73,7 +73,8 @@ const Profile = () => {
             console.log(response)
         } catch (error) {
             if (error instanceof Error) {
-                console.error(error.message);
+                toast.error(error.message.split(',')[0]);
+                console.error('error', error.message);
             } else {
                 console.error('Unexpected error:', error);
             }

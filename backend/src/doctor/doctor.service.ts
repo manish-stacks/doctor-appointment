@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from './doctor.entity';
 import { Repository } from 'typeorm';
 import { DoctorDto } from './doctor.dto';
+import { uploadToCloudinary } from 'src/helper/cloudinary.helper';
 
 @Injectable()
 export class DoctorService {
@@ -11,9 +12,13 @@ export class DoctorService {
     private doctorRepository: Repository<Doctor>
     ) { }
 
-    async create(doctorDto: DoctorDto, userId: number) {
+    async create(doctorDto: DoctorDto, userId: number, filePath?: string) {
+        if (filePath) {
+            const result = await uploadToCloudinary(filePath);
+           // doctorDto.image = result.secure_url;
+        }
         console.log(userId);
-        const { name, categoryId, treatmentId, expertise, hospitalId, userId, image, education, certificate, appointmentFees } = doctorDto;
+        console.log(doctorDto);
         const doctor = this.doctorRepository.create(doctorDto);
         return this.doctorRepository.save(doctor);
     }

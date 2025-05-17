@@ -4,10 +4,11 @@ import { DoctorService } from './doctor.service';
 import { Doctor } from './doctor.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
+import { CloudinaryConfig } from 'src/config/cloudinary.config';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Doctor]), AuthModule],
-  providers: [DoctorService],
+  providers: [DoctorService, CloudinaryConfig],
   controllers: [DoctorController],
 })
 export class DoctorModule {}

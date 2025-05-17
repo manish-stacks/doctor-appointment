@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { userDetails, useUserStore } from '@/store/useUserStore';
 import Sidebar from './Sidebar';
 import Header from './Header';
-import { usePathname } from 'next/navigation';
+// import { usePathname } from 'next/navigation';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -12,10 +12,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     const userDetails = useUserStore((state) => state.getUserDetails);
     const [userdata, setUserData] = useState<userDetails>();
     const logout = useUserStore((state) => state.logout);
-    const pathname = usePathname();
+    // const pathname = usePathname();
     // console.log(pathname?.startsWith("/patient"), pathname?.startsWith("/doctor"));
-    const isPatientRoute = pathname!.startsWith("/patient");
-    const isDoctorRoute = pathname!.startsWith("/doctor");
+    // const isPatientRoute = pathname!.startsWith("/patient");
+    // const isDoctorRoute = pathname!.startsWith("/doctor");
 
     useEffect(() => {
         const details = userDetails();

@@ -1,5 +1,9 @@
+
+
+import { useUserStore } from '@/store/useUserStore';
 import axios, { AxiosError } from 'axios';
 import Cookies from "js-cookie";
+
 
 if (!process.env.NEXT_PUBLIC_API_URL) {
     throw new Error('API_URL environment variable is not defined');
@@ -33,8 +37,13 @@ AxiosInstance.interceptors.request.use(
 AxiosInstance.interceptors.response.use(
     (response) => response.data,
     (error: AxiosError<ApiErrorResponse>) => {
+        const status = error.response?.status;
         const errorMessage = error.response?.data?.message || error.message || 'An error occurred';
-        console.error('Axios Error:', errorMessage);
+        if (status === 403) {
+            console.warn('403 Forbidden - Logging out...');
+            useUserStore.getState().logout();
+        }
+        // console.error('Axios Error:', errorMessage);
         return Promise.reject(new Error(errorMessage));
     }
 );

@@ -1,10 +1,27 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsArray, ValidateNested } from 'class-validator';
 
+
+class EducationDto {
+    @IsString()
+    degree: string;
+
+    @IsString()
+    institution: string;
+
+    @IsString()
+    year: string;
+}
+
+class CertificateDto {
+    @IsString()
+    name: string;
+
+    @IsString()
+    year: string;
+}
 export class DoctorDto {
-    @IsNumber()
-    @IsNotEmpty()
-    id: number;
 
     @IsString()
     @IsNotEmpty()
@@ -12,40 +29,36 @@ export class DoctorDto {
 
     @IsString()
     @IsNotEmpty()
-    categoryId: string;
+    categories: string;
 
     @IsString()
     @IsNotEmpty()
-    treatmentId: string;
+    treatments: string;
 
     @IsString()
     @IsNotEmpty()
     expertise: string;
 
-    @IsNumber()
-    @IsNotEmpty()
-    hospitalId: number;
-
-    @IsNumber()
-    @IsNotEmpty()
-    userId: number;
-
-    @IsString()
-    @IsNotEmpty()
-    image: string;
+    // @IsString()
+    // @IsOptional()
+    // image?: string;
 
     @IsString()
     @IsOptional()
-    desc: string;
+    professionalBio: string;
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => EducationDto)
+    educations: EducationDto[];
+
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CertificateDto)
+    certificates: CertificateDto[];
 
     @IsString()
-    education: string;
-
-    @IsString()
-    certificate: string;
-
-
-    @IsNumber()
+    @IsNotEmpty()
     appointmentFees: string;
 
     @IsString()
@@ -53,12 +66,8 @@ export class DoctorDto {
     experience: string;
 
     @IsString()
-    @IsOptional()
-    timeSlot: string;
-
-    @IsString()
     @IsNotEmpty()
-    dob: string;
+    dateOfBirth: string;
 
     @IsString()
     @IsNotEmpty()
@@ -66,11 +75,11 @@ export class DoctorDto {
 
     @IsString()
     @IsNotEmpty()
-    since: string;
+    phoneNumber: string;
 
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
-    isActive: number;
+    email: string;
 
     @IsNumber()
     @IsOptional()
@@ -80,13 +89,11 @@ export class DoctorDto {
     @IsOptional()
     isPopular: number;
 
-    @IsNumber()
-    @IsOptional()
-    customTimeSlot: number;
+    @IsString()
+    @IsNotEmpty()
+    timeSlots: number;
 
-    @IsNumber()
-    @IsOptional()
-    patientVideoCall: number;
+
 }
 
 

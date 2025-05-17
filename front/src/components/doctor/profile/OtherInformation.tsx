@@ -117,8 +117,8 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
         <div>
           <p className="text-sm text-gray-600 mb-2">Timeslots(In Minutes)</p>
           <Select
-            value={formData.timeslots}
-            onValueChange={(value) => handleChange('timeslots', value)}
+            value={formData.timeSlots}
+            onValueChange={(value) => handleChange('timeSlots', value)}
           >
             <SelectTrigger className="w-full border border-gray-200 focus:border-blue-500 focus:ring-0 rounded h-10">
               <SelectValue placeholder="Select time" />
@@ -134,29 +134,7 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
 
       </div>
 
-      {/* Row 4 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mb-6">
-        <div>
-          <p className="text-sm text-gray-600 mb-2">Start Time</p>
-          <Input
-            name="startTime"
-            type="time"
-            value={formData.startTime}
-            onChange={handleInputChange}
-            className="w-full bg-gray-100 border border-gray-200 focus:border-blue-500 focus:ring-0 rounded px-3 py-2"
-          />
-        </div>
-        <div>
-          <p className="text-sm text-gray-600 mb-2">End Time</p>
-          <Input
-            name="endTime"
-            type="time"
-            value={formData.endTime}
-            onChange={handleInputChange}
-            className="w-full bg-gray-100 border border-gray-200 focus:border-blue-500 focus:ring-0 rounded px-3 py-2"
-          />
-        </div>
-      </div>
+    
 
       {/* Submit Button */}
       <div className="flex justify-end mt-8">

@@ -9,7 +9,6 @@ import { CloudinaryConfig } from 'src/config/cloudinary.config';
 @Module({
   imports: [TypeOrmModule.forFeature([Category])],
   controllers: [CategoryController],
-  providers: [CategoryService,CloudinaryConfig]
+  providers: [CategoryService, CloudinaryConfig],
 })
-export class CategoryModule { }
-
+export class CategoryModule {}

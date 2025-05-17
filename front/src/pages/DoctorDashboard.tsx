@@ -7,32 +7,41 @@ import { useEffect, useState } from "react";
 
 export function DoctorDashboard() {
   const userDetails = useUserStore((state) => state.getUserDetails);
-  const [userdata, setUserData] = useState<userDetails>();
+  const [userdata, setUserData] = useState<userDetails | null>(null);
   const router = useRouter();
+
+
   useEffect(() => {
     const details = userDetails();
-    if (!details) {
-      console.warn('No user details available');
+
+    if (!details || !details.doctor_id) {
+      // Safe redirect inside useEffect
+      router.push("/doctor/profile");
       return;
     }
-    try {
-      setUserData(details);
-    } catch (error) {
-      console.error('Error setting user data:', error);
-    }
-  }, [userDetails])
+
+    setUserData(details);
+  }, [userDetails, router]);
+
+
+
+
+  if (!userdata) {
+    return <div>Loading...</div>;
+  }
+
 
 
 
 
   if (!userdata?.doctor_id) {
     router.push('/doctor/profile');
-    return null; 
+    return;
   }
 
   return (
     <>
-    
+
       <div className="flex-1 overflow-y-auto p-2 lg:p-4">
 
         <div className="bg-white rounded-lg shadow p-6">
