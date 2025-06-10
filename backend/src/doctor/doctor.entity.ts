@@ -3,10 +3,15 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Hospital } from 'src/hospital/hospital.entity';
+import { Category } from 'src/category/category.entity';
+import { Subscription } from 'src/subscription/subscription.entity';
+import { User } from 'src/user/user.entity';
 
 @Entity()
 export class Doctor {
@@ -16,19 +21,19 @@ export class Doctor {
   @Column({ type: 'varchar' })
   name: string;
 
-  @Column({ nullable: true })   //it will be store like array with come eg: 1,2,3
+  @Column({ nullable: true })
   categoryId: string;
 
-  @Column({ nullable: true })  //it will be store like array with come eg: 1,2,3
+  @Column({ nullable: true })
   treatmentId: string;
 
   @Column({ nullable: true })
   expertise: string;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
   hospitalId: number;
 
-  @Column({ type: 'bigint', unsigned: true })
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
   userId: number;
 
   @Column({ type: 'varchar' })
@@ -58,27 +63,45 @@ export class Doctor {
   @Column({ type: 'varchar', length: 50 })
   gender: string;
 
+  @Column({ nullable: true })
+  subscriptionId: number;
 
+  @Column({ default: false })
+  isActive: boolean;
 
-  @Column({ type: 'text' })
-  since: string;
+  @Column({ default: false })
+  isVerified: boolean;
 
-  @Column({ type: 'tinyint' })
-  isActive: number;
+  @Column({ default: false })
+  subscriptionStatus: boolean;
 
-  @Column({ type: 'int', nullable: true })
-  subscriptionStatus: number;
+  @Column({ default: false })
+  isPopular: boolean;
 
-  @Column({ type: 'int', default: 0 })
-  isPopular: number;
-
-
-  @Column({ type: 'tinyint', default: 0 })
-  patientVideoCall: number;
+  @Column({ default: false })
+  patientVideoCall: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // Relations
+  @ManyToOne(() => User, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user: User;
+
+  @ManyToOne(() => Hospital, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'hospitalId' })
+  hospital: Hospital;
+
+  @ManyToOne(() => Category, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
+
+  @ManyToOne(() => Subscription, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'subscriptionId' })
+  subscription: Subscription;
+  
 }

@@ -9,7 +9,7 @@ import {
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+ @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
   @Column({ length: 50 })
@@ -31,27 +31,27 @@ export class User {
   phone: string;
 
   @Column({ type: 'int', nullable: true })
-  otp: number;
+  otp?: number;
 
   @Column({ type: 'int', nullable: true })
-  login_otp: number;
+  login_otp?: number;
 
   @Column({ type: 'timestamp', nullable: true })
-  otp_expires_at: Date;
+  otp_expires_at?: Date;
 
   @Column({ length: 255, nullable: true })
-  dob: string;
+  dob?: string;
 
   @Column({ length: 255, nullable: true })
-  gender: string;
+  gender?: string;
 
   @Column({ default: 'user' }) // Roles: 'user', 'doctor', 'admin'
   role: string;
 
   @Column({ length: 255, nullable: true })
-  image: string;
+  image?: string;
 
-  @Column({ type: 'tinyint', default: 1 })
+  @Column({ default: false })
   isActive: boolean;
 
   @Column({ type: 'tinyint', default: 1 })
@@ -65,4 +65,8 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  // @OneToOne(() => Doctor)
+  // @JoinColumn({ name: 'doctor_id' })
+  // doctor: Doctor;
 }

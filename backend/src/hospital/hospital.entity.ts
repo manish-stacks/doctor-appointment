@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
@@ -23,9 +25,12 @@ export class Hospital {
     @Column({ type: 'text', nullable: true })
     facility: string;
 
-    @Column({ type: 'tinyint', default: 1 })
-    isActive: boolean;
+    @Column({ default: false })
+    isVerified: boolean;
 
+    @Column({ default: false })
+    isActive: boolean;
+   
     @CreateDateColumn()
     createdAt: Date;
 

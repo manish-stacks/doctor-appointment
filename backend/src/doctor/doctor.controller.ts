@@ -29,28 +29,43 @@ export class DoctorController {
   @UseGuards(JwtAuthGuard)
   @Post('/profile')
   @UseInterceptors(FileInterceptor('image', multerOptions))
-   create(
+  async create(
     @Request() req: { user: { id: number; } },
     @Body() doctorDto: DoctorDto,
     @UploadedFile() file?: Multer.File
   ) {
     const userId = req.user.id;
+
     if (!userId) {
       throw new BadRequestException('User ID is missing from token');
     }
+
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
 
+    const doctor = await this.doctorService.create(doctorDto, userId, file?.path);
 
-console.log(file)
-    //const doctor = await this.doctorService.create(doctorDto, userId, file.path);
     return {
       success: true,
       message: 'Doctor created successfully',
-      //data: doctor,
+      data: doctor,
     };
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/profile/me')
+  getProfile(@Request() req: { user: { id: number; } }) {
+    const userId = req.user.id;
+
+    if (!userId) {
+      throw new BadRequestException('User ID is missing from token');
+    }
+    return this.doctorService.findOneByUserId(userId);
+  }
+
+
+
 
   @Get()
   async findAll() {

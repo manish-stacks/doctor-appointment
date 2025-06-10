@@ -39,9 +39,9 @@ export class DoctorDto {
     @IsNotEmpty()
     expertise: string;
 
-    // @IsString()
-    // @IsOptional()
-    // image?: string;
+    @IsString()
+    @IsOptional()
+    image?: string;
 
     @IsString()
     @IsOptional()
@@ -52,10 +52,28 @@ export class DoctorDto {
     @Type(() => EducationDto)
     educations: EducationDto[];
 
+
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CertificateDto)
     certificates: CertificateDto[];
+
+
+    @IsOptional()
+    hospitalId: number;
+
+    @IsOptional()
+    hospitalName: string;
+    @IsOptional()
+    hospitalNumber: string;
+    @IsOptional()
+    hospitalFacility: string;
+    @IsOptional()
+    hospitalLocation: string;
+    @IsOptional()
+    hospitalAddress: string;
+
+
 
     @IsString()
     @IsNotEmpty()

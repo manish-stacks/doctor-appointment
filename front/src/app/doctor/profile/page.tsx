@@ -2,25 +2,29 @@
 import EducationCertificates, { Certificate, Education } from '@/components/doctor/profile/EducationCertificates'
 import OtherInformation from '@/components/doctor/profile/OtherInformation'
 import PersonalInformationForm from '@/components/doctor/profile/PersonalInformationForm'
+import Loader from '@/components/Loader'
 import { AxiosInstance } from '@/helpers/Axios.instance'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
+import useSWR from 'swr';
 
+const fetcher = (url: string) => AxiosInstance.get(url).then(res => res);
 
 export interface PersonalInfo {
-    image: File |  undefined;
+    image: File | undefined;
     name: string;
     email: string;
     phoneNumber: string;
     countryCode: string;
     dateOfBirth: string;
     gender: string;
+    hospitalAddress: string;
     professionalBio: string;
     hospitalName: string;
     hospitalNumber: string;
     hospitalFacility: string;
     hospitalLocation: string;
-    // other information    
+    hospitalId: string;
     experience: string,
     appointmentFees: string,
     categories: string,
@@ -31,28 +35,62 @@ export interface PersonalInfo {
 
 const Profile = () => {
 
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<PersonalInfo>({
         image: undefined,
-        name: "Dr. Michael Nguyen",
-        email: "Confidential",
-        phoneNumber: "1234567890",
+        name: "",
+        email: "",
+        phoneNumber: "",
         countryCode: "+91",
-        dateOfBirth: "1978-11-05",
-        gender: "male",
-        professionalBio: "Dr. Michael Nguyen is a skilled orthopedic surgeon specializing in sports medicine.",
-        hospitalName: "Toronto General Hospital",
-        hospitalNumber: "1234",
-        hospitalFacility: "Orthopedic Surgery",
-        hospitalLocation: "123456/123456",
+        dateOfBirth: "",
+        gender: "",
+        professionalBio: "",
+        hospitalName: "",
+        hospitalNumber: "",
+        hospitalFacility: "",
+        hospitalLocation: "",
+        hospitalId: '',
+        hospitalAddress: '',
 
-        experience: '12',
-        appointmentFees: '1800',
-        categories: 'Orthopedic Surgery',
-        treatments: 'Orthopedics',
-        expertise: 'Orthopedic Surgical Procedures',
+        experience: '',
+        appointmentFees: '',
+        categories: '',
+        treatments: '',
+        expertise: '',
         timeSlots: '30',
-       
+
     })
+
+    const { data, isLoading } = useSWR('/doctor/profile/me', fetcher);
+    console.log(data)
+    useEffect(() => {
+        if (data) {
+            setFormData({
+                image: data.image || "",
+                name: data.name || "",
+                email: data.email || "",                 
+                phoneNumber: data.phoneNumber || "",      
+                countryCode: data.countryCode || "+91",   
+                dateOfBirth: data.dob || "",
+                gender: data.gender || "",
+                professionalBio: data.desc || "",
+                hospitalName: data.hospital?.name || "",      
+                hospitalNumber: data.hospital?.phone || "",
+                hospitalFacility: data.hospital?.facility || "",
+                hospitalLocation: data.hospital?.lat && data.hospital?.lng
+                    ? `${data.hospital.lat}/${data.hospital.lng}` : "",
+                hospitalId: data.hospitalId || "",
+                hospitalAddress: data.hospital?.address || "",
+
+                experience: data.experience || '',
+                appointmentFees: data.appointmentFees || '',
+                categories: data.categoryId || '',
+                treatments: data.treatmentId || '',
+                expertise: data.expertise || '',
+                timeSlots: data.timeSlot || '30',
+            });
+        }
+    }, [data]);
+
 
     const [educations, setEducations] = useState<Education[]>([
         { id: 1, degree: 'MD', institution: 'Medical University', year: '2003' }
@@ -63,13 +101,16 @@ const Profile = () => {
     ]);
 
 
-
     const handleUpdate = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         const updatedForm = { ...formData, educations, certificates };
 
         try {
-            const response = await AxiosInstance.post(`/doctor/profile`, updatedForm)
+            const response = await AxiosInstance.post(`/doctor/profile`, updatedForm, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
             console.log(response)
         } catch (error) {
             if (error instanceof Error) {
@@ -81,6 +122,11 @@ const Profile = () => {
         }
         console.log('Button clicked. Form data:', updatedForm);
     };
+
+
+    if (isLoading) {
+        return <Loader />;
+    }
 
     return (
         <>

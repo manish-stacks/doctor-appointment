@@ -51,7 +51,7 @@ export class AuthService {
         return { success: false, message: 'Invalid OTP.', role: '', user: {} };
       }
 
-      if (otpExpiresAt < currentTime) {
+      if (otpExpiresAt! < currentTime) {
         return {
           success: false,
           message: 'OTP has expired.',
