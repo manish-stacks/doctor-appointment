@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class treatmentsDto {
@@ -5,20 +6,9 @@ export class treatmentsDto {
   name: string;
 
   @IsNumber()
-  category: number;
+  categoryId: number;
 
   @IsOptional()
   isActive?: boolean;
 }
 
-
-export class updateDto {
-    @IsString()
-    name: string;
-  
-    @IsNumber()
-    category: number;
-  
-    @IsOptional()
-    isActive?: boolean;
-}

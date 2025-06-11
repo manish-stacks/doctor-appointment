@@ -8,7 +8,7 @@ import { Multer } from 'multer';
 import { multerOptions } from 'src/config/multer.config';
 
 
-@Controller('category')
+@Controller('categories')
 export class CategoryController {
     constructor(
         private readonly categoryService: CategoryService,

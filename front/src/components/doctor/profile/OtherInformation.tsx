@@ -9,6 +9,8 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { PersonalInfo } from '@/app/doctor/profile/page';
+import { useEffect, useState } from 'react';
+import { AxiosInstance } from '@/helpers/Axios.instance';
 
 
 interface otherPops {
@@ -16,13 +18,57 @@ interface otherPops {
   setFormData: React.Dispatch<React.SetStateAction<PersonalInfo>>;
   handleUpdate: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
+
+interface Category {
+  id: string;
+  name: string;
+}
+interface Treatment {
+  id: string;
+  name: string;
+}
+
+
+
+
 export default function OtherInformation({ formData, setFormData, handleUpdate }: otherPops) {
+
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [treatments, setTreatments] = useState<Treatment[]>([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await AxiosInstance.get('/categories');
+      setCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchTreatments = async (value: string) => {
+    try {
+      const response = await AxiosInstance.get(`/treatments/category/${value}`);
+      setTreatments(response.data);
+    } catch (error) {
+      console.error('Error fetching treatments:', error);
+    }
+  };
+
 
   const handleChange = (field: string, value: string) => {
     setFormData({
       ...formData,
       [field]: value
     });
+
+    if (field === 'categoryId') {
+      fetchTreatments(value);
+    }
+
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +92,7 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
             value={formData.experience}
             onChange={handleInputChange}
             className="w-full border border-gray-200 focus:border-blue-500 focus:ring-0 rounded px-3 py-2"
+            placeholder="Enter years of experience"
           />
         </div>
         <div>
@@ -55,6 +102,7 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
             value={formData.appointmentFees}
             onChange={handleInputChange}
             className="w-full border border-gray-200 focus:border-blue-500 focus:ring-0 rounded px-3 py-2"
+            placeholder="Enter appointment fees"
           />
         </div>
       </div>
@@ -65,50 +113,61 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
         <div>
           <p className="text-sm text-gray-600 mb-2">Categories</p>
           <Select
-            value={formData.categories}
-            onValueChange={(value) => handleChange('categories', value)}
+            value={formData.categoryId}
+            onValueChange={(value) => handleChange('categoryId', value)}
           >
             <SelectTrigger className="w-full border border-gray-200 focus:border-blue-500 focus:ring-0 rounded h-10">
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Orthopedic Surgery">Orthopedic Surgery</SelectItem>
-              <SelectItem value="Sports Medicine">Sports Medicine</SelectItem>
-              <SelectItem value="Joint Replacement">Joint Replacement</SelectItem>
+              <SelectItem value="Choose" disabled>Choose</SelectItem>
+              {
+                categories.length > 0 ? categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name.toLocaleUpperCase()}
+                  </SelectItem>
+                )) : (
+                  <SelectItem value="Npt">Not Found</SelectItem>
+                )
+              }
             </SelectContent>
           </Select>
         </div>
         <div>
           <p className="text-sm text-gray-600 mb-2">Treatments</p>
           <Select
-            value={formData.treatments}
-            onValueChange={(value) => handleChange('treatments', value)}
+            value={formData.treatmentId}
+            onValueChange={(value) => handleChange('treatmentId', value)}
           >
             <SelectTrigger className="w-full border border-gray-200 focus:border-blue-500 focus:ring-0 rounded h-10">
               <SelectValue placeholder="Select treatment" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Orthopedics">Orthopedics</SelectItem>
-              <SelectItem value="Cardiology">Cardiology</SelectItem>
-              <SelectItem value="Neurology">Neurology</SelectItem>
+              <SelectItem value="Choose" disabled>Choose</SelectItem>
+              {
+                treatments.length > 0 ? treatments.map((treatment) => (
+                  <SelectItem key={treatment.id} value={treatment.id}>
+                    {treatment.name.toLocaleUpperCase()}
+                  </SelectItem>
+                )) : (
+                  <SelectItem value="Npt">Not Found</SelectItem>
+                )
+              }
+
             </SelectContent>
           </Select>
         </div>
         <div>
           <p className="text-sm text-gray-600 mb-2">Expertise</p>
-          <Select
+
+          <Input
+            name="expertise"
             value={formData.expertise}
-            onValueChange={(value) => handleChange('expertise', value)}
-          >
-            <SelectTrigger className="w-full border border-gray-200 focus:border-blue-500 focus:ring-0 rounded h-10">
-              <SelectValue placeholder="Select expertise" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Orthopedic Surgical Procedures">Orthopedic Surgical Procedures</SelectItem>
-              <SelectItem value="Knee Surgery">Knee Surgery</SelectItem>
-              <SelectItem value="Hip Replacement">Hip Replacement</SelectItem>
-            </SelectContent>
-          </Select>
+            onChange={handleInputChange}
+            className="w-full border border-gray-200 focus:border-blue-500 focus:ring-0 rounded px-3 py-2"
+            placeholder="Enter expertise"
+          />
+
         </div>
       </div>
 
@@ -117,8 +176,8 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
         <div>
           <p className="text-sm text-gray-600 mb-2">Timeslots(In Minutes)</p>
           <Select
-            value={formData.timeSlots}
-            onValueChange={(value) => handleChange('timeSlots', value)}
+            value={formData.timeSlot}
+            onValueChange={(value) => handleChange('timeSlot', value)}
           >
             <SelectTrigger className="w-full border border-gray-200 focus:border-blue-500 focus:ring-0 rounded h-10">
               <SelectValue placeholder="Select time" />
@@ -134,7 +193,7 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
 
       </div>
 
-    
+
 
       {/* Submit Button */}
       <div className="flex justify-end mt-8">

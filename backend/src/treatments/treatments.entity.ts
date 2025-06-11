@@ -1,24 +1,25 @@
 /* eslint-disable prettier/prettier */
 import { Category } from "src/category/category.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Treatments {
-    @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-    id: number;
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
+  id: number;
 
-    @Column()
-    name: string;
+  @Column()
+  name: string;
 
-    @Column({ type: 'tinyint', default: 1 })
-    isActive: boolean;
+  @ManyToOne(() => Category, (category) => category.treatments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'categoryId' })
+  category: Category;
 
-    @ManyToOne(() => Category, (category) => category.treatments)
-    category: Category;
+  @Column({ default: true })
+  isActive: boolean;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

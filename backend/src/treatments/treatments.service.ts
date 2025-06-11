@@ -1,8 +1,8 @@
+/* eslint-disable prettier/prettier */
 import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { Treatments } from './treatments.entity';
@@ -25,146 +25,113 @@ export class TreatmentsService {
 
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<ResponseFormat> {
-    try {
-      const treatments = await this.treatmentsRepository.find({
-        relations: ['category'],
-      });
 
-      return {
-        success: true,
-        message: 'Treatments retrieved successfully',
-        data: treatments,
-      };
-    } catch (error) {
-      throw new InternalServerErrorException({
-        success: false,
-        message: 'Failed to retrieve treatments',
-        error: error.message,
-      });
-    }
+    const treatments = await this.treatmentsRepository.find({
+      relations: ['category'],
+    });
+
+    return {
+      success: true,
+      message: 'Treatments retrieved successfully',
+      data: treatments,
+    };
+
   }
 
   async create(treatmentsDto: treatmentsDto): Promise<ResponseFormat> {
-    try {
-      // Validate input data
-      if (!treatmentsDto.name || treatmentsDto.name.trim() === '') {
-        throw new BadRequestException({
-          success: false,
-          message: 'Treatment name is required',
-        });
-      }
 
-      if (
-        treatmentsDto.category === undefined ||
-        treatmentsDto.category === null
-      ) {
-        throw new BadRequestException({
-          success: false,
-          message: 'Category is required',
-        });
-      }
-
-      // Check if treatment with same name already exists
-      const existingTreatment = await this.treatmentsRepository.findOne({
-        where: { name: treatmentsDto.name },
-      });
-
-      if (existingTreatment) {
-        throw new BadRequestException({
-          success: false,
-          message: `Treatment with name "${treatmentsDto.name}" already exists`,
-        });
-      }
-
-      // Find the category
-      const category = await this.categoryRepository.findOne({
-        where: { id: treatmentsDto.category },
-      });
-
-      if (!category) {
-        throw new NotFoundException({
-          success: false,
-          message: `Category with ID ${treatmentsDto.category} not found`,
-        });
-      }
-
-      // Create and save the treatment
-      const treatment = this.treatmentsRepository.create({
-        name: treatmentsDto.name,
-        isActive:
-          treatmentsDto.isActive !== undefined ? treatmentsDto.isActive : true,
-        category: category,
-      });
-
-      const savedTreatment = await this.treatmentsRepository.save(treatment);
-
-      return {
-        success: true,
-        message: 'Treatment created successfully',
-        data: savedTreatment,
-      };
-    } catch (error) {
-      // If error is already formatted by us, just throw it again
-      if (
-        error instanceof BadRequestException ||
-        error instanceof NotFoundException ||
-        error instanceof InternalServerErrorException
-      ) {
-        throw error;
-      }
-
-      // Otherwise wrap in internal error
-      throw new InternalServerErrorException({
+    if (!treatmentsDto.name || treatmentsDto.name.trim() === '') {
+      throw new BadRequestException({
         success: false,
-        message: 'Failed to create treatment',
-        error: error.message,
+        message: 'Treatment name is required',
       });
     }
+
+    if (!treatmentsDto.categoryId) {
+      throw new BadRequestException({
+        success: false,
+        message: 'Category is required',
+      });
+    }
+
+    // Check if treatment with same name already exists
+    const existingTreatment = await this.treatmentsRepository.findOne({
+      where: { name: treatmentsDto.name },
+    });
+
+    if (existingTreatment) {
+      throw new BadRequestException({
+        success: false,
+        message: `Treatment with name "${treatmentsDto.name}" already exists`,
+      });
+    }
+
+    // Find the category
+    const category = await this.categoryRepository.findOne({
+      where: { id: treatmentsDto.categoryId },
+    });
+
+    if (!category) {
+      throw new NotFoundException({
+        success: false,
+        message: `Category with ID ${treatmentsDto.categoryId} not found`,
+      });
+    }
+
+    // Create and save the treatment
+    const treatment = this.treatmentsRepository.create({
+      name: treatmentsDto.name,
+      isActive: treatmentsDto.isActive ? treatmentsDto.isActive : false,
+      category: { id: treatmentsDto.categoryId },
+    });
+
+    const savedTreatment = await this.treatmentsRepository.save(treatment);
+
+    return {
+      success: true,
+      message: 'Treatment created successfully',
+      data: savedTreatment,
+    };
+
   }
 
+
+  async findTreatmentsByCategory(categoryId: number): Promise<Treatments[]> {
+    return await this.treatmentsRepository.find({
+      where: { category: { id: categoryId } },
+      relations: ['category'],
+    });
+  }
   async findOne(id: number): Promise<ResponseFormat> {
-    try {
-      if (!id || isNaN(id)) {
-        throw new BadRequestException({
-          success: false,
-          message: 'Valid treatment ID is required',
-        });
-      }
 
-      const treatment = await this.treatmentsRepository.findOne({
-        where: { id },
-        relations: ['category'],
-      });
-
-      if (!treatment) {
-        throw new NotFoundException({
-          success: false,
-          message: `Treatment with ID ${id} not found`,
-        });
-      }
-
-      return {
-        success: true,
-        message: 'Treatment retrieved successfully',
-        data: treatment,
-      };
-    } catch (error) {
-      if (
-        error instanceof BadRequestException ||
-        error instanceof NotFoundException
-      ) {
-        throw error;
-      }
-
-      throw new InternalServerErrorException({
+    if (!id || isNaN(id)) {
+      throw new BadRequestException({
         success: false,
-        message: 'Failed to retrieve treatment',
-        error: error.message,
+        message: 'Valid treatment ID is required',
       });
     }
+
+    const treatment = await this.treatmentsRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+
+    if (!treatment) {
+      throw new NotFoundException({
+        success: false,
+        message: `Treatment with ID ${id} not found`,
+      });
+    }
+
+    return {
+      success: true,
+      message: 'Treatment retrieved successfully',
+      data: treatment,
+    };
+
   }
 
   update(id: number, name: string) {
@@ -172,92 +139,65 @@ export class TreatmentsService {
   }
 
   async delete(id: number): Promise<ResponseFormat> {
-    try {
-      if (!id || isNaN(id)) {
-        throw new BadRequestException({
-          success: false,
-          message: 'Valid treatment ID is required',
-        });
-      }
 
-      // Check if treatment exists
-      const treatment = await this.treatmentsRepository.findOne({
-        where: { id },
-      });
-
-      if (!treatment) {
-        throw new NotFoundException({
-          success: false,
-          message: `Treatment with ID ${id} not found`,
-        });
-      }
-
-      // Delete the treatment
-      await this.treatmentsRepository.delete(id);
-
-      return {
-        success: true,
-        message: 'Treatment deleted successfully',
-      };
-    } catch (error) {
-      if (
-        error instanceof BadRequestException ||
-        error instanceof NotFoundException
-      ) {
-        throw error;
-      }
-
-      throw new InternalServerErrorException({
+    if (!id || isNaN(id)) {
+      throw new BadRequestException({
         success: false,
-        message: 'Failed to delete treatment',
-        error: error.message,
+        message: 'Valid treatment ID is required',
       });
     }
+
+    // Check if treatment exists
+    const treatment = await this.treatmentsRepository.findOne({
+      where: { id },
+    });
+
+    if (!treatment) {
+      throw new NotFoundException({
+        success: false,
+        message: `Treatment with ID ${id} not found`,
+      });
+    }
+
+    // Delete the treatment
+    await this.treatmentsRepository.delete(id);
+
+    return {
+      success: true,
+      message: 'Treatment deleted successfully',
+    };
+
   }
 
   async toggleStatus(id: number): Promise<ResponseFormat> {
-    try {
-      if (!id || isNaN(id)) {
-        throw new BadRequestException({
-          success: false,
-          message: 'Valid treatment ID is required',
-        });
-      }
 
-      // Check if treatment exists
-      const treatment = await this.treatmentsRepository.findOne({
-        where: { id },
-      });
-
-      if (!treatment) {
-        throw new NotFoundException({
-          success: false,
-          message: `Treatment with ID ${id} not found`,
-        });
-      }
-
-      // Toggle the status
-      treatment.isActive = !treatment.isActive;
-      await this.treatmentsRepository.save(treatment);
-
-      return {
-        success: true,
-        message: `Treatment status ${treatment.isActive ? 'activated' : 'deactivated'} successfully`,
-        data: treatment,
-      };
-    } catch (error) {
-      if (
-        error instanceof BadRequestException ||
-        error instanceof NotFoundException
-      ) {
-        throw error;
-      }
-
-      throw new InternalServerErrorException({
+    if (!id || isNaN(id)) {
+      throw new BadRequestException({
         success: false,
-        message: 'Failed to toggle treatment status',
-        error: error.message,
+        message: 'Valid treatment ID is required',
       });
     }
+
+    // Check if treatment exists
+    const treatment = await this.treatmentsRepository.findOne({
+      where: { id },
+    });
+
+    if (!treatment) {
+      throw new NotFoundException({
+        success: false,
+        message: `Treatment with ID ${id} not found`,
+      });
+    }
+
+    // Toggle the status
+    treatment.isActive = !treatment.isActive;
+    await this.treatmentsRepository.save(treatment);
+
+    return {
+      success: true,
+      message: `Treatment status ${treatment.isActive ? 'activated' : 'deactivated'} successfully`,
+      data: treatment,
+    };
   }
 }

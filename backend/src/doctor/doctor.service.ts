@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from './doctor.entity';
 import { DeepPartial, Repository } from 'typeorm';
@@ -27,62 +27,44 @@ export class DoctorService {
         const user = await this.userRepository.findOne({ where: { id: userId } });
         if (!user) throw new NotFoundException('User not found');
 
-        let hospital = await this.hospitalRepository.findOne({
-            where: { id: doctorDto.hospitalId },
+        const hospital = await this.hospitalRepository.findOne({
+            where: { id: Number(doctorDto.hospitalId) },
         });
+
+        if(!hospital) throw new NotFoundException('Hospital not found');
 
         if (filePath) {
             const result: { secure_url: string } = await uploadToCloudinary(filePath);
             doctorDto.image = result.secure_url;
         }
 
-        if (
-            doctorDto.hospitalName &&
-            doctorDto.hospitalNumber &&
-            doctorDto.hospitalFacility &&
-            doctorDto.hospitalLocation
-        ) {
-            const [lat, lng] = doctorDto.hospitalLocation.split('/') ?? [];
-            if (!lat || !lng) {
-                throw new BadRequestException('Invalid hospital location format');
-            }
-
-            hospital = await this.hospitalRepository.save({
-                name: doctorDto.hospitalName,
-                phone: doctorDto.hospitalNumber,
-                address: doctorDto.hospitalAddress,
-                facility: doctorDto.hospitalFacility,
-                lat,
-                lng,
-                isActive: false,
-            });
-        }
-
-        user.email = doctorDto.email;
+        
+        user.email = doctorDto.user.email;
+        user.phone = doctorDto.user.phone;
         user.username = doctorDto.name;
-        user.dob = doctorDto.dateOfBirth;
+        user.dob = doctorDto.dob;
         user.gender = doctorDto.gender;
         user.image = doctorDto.image ?? '';
 
         const doctorData: DeepPartial<Doctor> = {
             name: doctorDto.name,
-            categoryId: doctorDto.categories,
-            treatmentId: doctorDto.treatments,
+            categoryId: Number(doctorDto.categoryId),
+            treatmentId: Number(doctorDto.treatmentId),
             expertise: doctorDto.expertise,
             hospitalId: hospital?.id,
             userId: userId,
             image: doctorDto.image,
-            desc: doctorDto.professionalBio,
-            education: JSON.stringify(doctorDto.certificates),
-            certificate: JSON.stringify(doctorDto.certificates),
+            desc: doctorDto.desc,
+            education: JSON.stringify(doctorDto.certificate),
+            certificate: JSON.stringify(doctorDto.certificate),
             appointmentFees: doctorDto.appointmentFees,
             experience: doctorDto.experience,
-            timeSlot: doctorDto.timeSlots.toString(),
-            dob: doctorDto.dateOfBirth,
+            timeSlot: doctorDto.timeSlot.toString(),
+            dob: doctorDto.dob,
             gender: doctorDto.gender,
             isActive: false,
             subscriptionStatus: true,
-            isPopular: false,
+            isPopular: true,
             patientVideoCall: false,
         };
 

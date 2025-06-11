@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */ 
+
 import {
   Body,
   Controller,
@@ -24,6 +26,16 @@ export class TreatmentsController {
   @Post()
   create(@Body() treatmentsDto: treatmentsDto) {
     return this.treatmentsService.create(treatmentsDto);
+  }
+  @Get('category/:id')
+  async findTreatmentsByCategory(@Param('id', ParseIntPipe) id: number) {
+    const treatments = await this.treatmentsService.findTreatmentsByCategory(id);
+    
+    return {
+      success: true,
+      message: 'Treatments retrieved successfully',
+      data: treatments,
+    }
   }
 
   @Get(':id')

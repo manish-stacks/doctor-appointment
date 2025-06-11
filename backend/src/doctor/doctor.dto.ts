@@ -21,6 +21,18 @@ class CertificateDto {
     @IsString()
     year: string;
 }
+
+
+class UserDto {
+    @IsString()
+    @IsNotEmpty()
+    phone: string;
+
+    @IsString()
+    @IsNotEmpty()
+    email: string;
+
+}
 export class DoctorDto {
 
     @IsString()
@@ -29,15 +41,19 @@ export class DoctorDto {
 
     @IsString()
     @IsNotEmpty()
-    categories: string;
+    categoryId: string;
 
     @IsString()
     @IsNotEmpty()
-    treatments: string;
+    treatmentId: string;
 
     @IsString()
     @IsNotEmpty()
     expertise: string;
+
+    @IsString()
+    @IsNotEmpty()
+    hospitalId: string;
 
     @IsString()
     @IsOptional()
@@ -45,71 +61,49 @@ export class DoctorDto {
 
     @IsString()
     @IsOptional()
-    professionalBio: string;
+    desc?: string;
 
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => EducationDto)
-    educations: EducationDto[];
+    education: EducationDto[];
 
 
     @IsArray()
     @ValidateNested({ each: true })
     @Type(() => CertificateDto)
-    certificates: CertificateDto[];
+    certificate: CertificateDto[];
 
+    @IsString()
+    @IsOptional()
+    appointmentFees?: string;
 
+    @IsString()
     @IsOptional()
-    hospitalId: number;
-
-    @IsOptional()
-    hospitalName: string;
-    @IsOptional()
-    hospitalNumber: string;
-    @IsOptional()
-    hospitalFacility: string;
-    @IsOptional()
-    hospitalLocation: string;
-    @IsOptional()
-    hospitalAddress: string;
-
-
+    experience?: string;
 
     @IsString()
     @IsNotEmpty()
-    appointmentFees: string;
-
-    @IsString()
-    @IsOptional()
-    experience: string;
+    timeSlot: string;
 
     @IsString()
     @IsNotEmpty()
-    dateOfBirth: string;
+    dob: string;
+
 
     @IsString()
     @IsNotEmpty()
     gender: string;
 
-    @IsString()
-    @IsNotEmpty()
-    phoneNumber: string;
 
-    @IsString()
-    @IsNotEmpty()
-    email: string;
+    @ValidateNested()
+    @Type(() => UserDto)
+    user: UserDto;
+
 
     @IsNumber()
     @IsOptional()
-    subscriptionStatus: number;
-
-    @IsNumber()
-    @IsOptional()
-    isPopular: number;
-
-    @IsString()
-    @IsNotEmpty()
-    timeSlots: number;
+    isPopular?: number;
 
 
 }

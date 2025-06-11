@@ -22,10 +22,10 @@ export class Doctor {
   name: string;
 
   @Column({ nullable: true })
-  categoryId: string;
+  categoryId: number;
 
   @Column({ nullable: true })
-  treatmentId: string;
+  treatmentId: number;
 
   @Column({ nullable: true })
   expertise: string;

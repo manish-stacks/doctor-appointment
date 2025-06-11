@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useState } from "react"
 import { PlusCircle, X, Check, ChevronsUpDown } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -14,21 +13,14 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { PersonalInfo } from "@/app/doctor/profile/page"
+import { AxiosInstance } from "@/helpers/Axios.instance"
+import { useRouter } from "next/navigation"
 
-// Sample hospitals data
-const hospitals = [
-    { value: "montreal-general", label: "Montreal General Hospital" },
-    { value: "toronto-general", label: "Toronto General Hospital" },
-    { value: "vancouver-general", label: "Vancouver General Hospital" },
-    { value: "ottawa-civic", label: "Ottawa Civic Hospital" },
-    { value: "calgary-general", label: "Calgary General Hospital" },
-    { value: "edmonton-royal", label: "Royal Alexandra Hospital" },
-    { value: "winnipeg-health", label: "Health Sciences Centre" },
-    { value: "halifax-medical", label: "QEII Health Sciences Centre" },
-    { value: "other", label: "Other's" },
-]
-
-
+interface Hospital {
+    id: string;
+    value: string;
+    label: string;
+}
 
 interface PersonalInformationFormProps {
     formData: PersonalInfo;
@@ -36,33 +28,32 @@ interface PersonalInformationFormProps {
 }
 
 export default function PersonalInformationForm({ formData, setFormData }: PersonalInformationFormProps) {
-
     const [profileImage, setProfileImage] = useState<string>("https://res.cloudinary.com/do34gd7bu/image/upload/v1746015026/360_F_565224180_QNRiRQkf9Fw0dKRoZGwUknmmfk51SuSS_cn2bqt.jpg")
     const [open, setOpen] = useState(false)
-    const [openHospitals, setOpenHospitals] = useState(false)
-    // Sample data
-
-
-    // Selected hospitals state
-    const [selectedHospitals, setSelectedHospitals] = useState([
-        { value: "montreal-general", label: "Montreal General Hospital" },
-    ])
-
-
+    const [hospitals, setHospitals] = useState<Hospital[]>([])
+    const [selectedHospitals, setSelectedHospitals] = useState<Hospital[]>([])
+    const router = useRouter();
     useEffect(() => {
-        const hasOther = selectedHospitals.some(
-            (hospital) => hospital.value === "other"
-        );
-        if (hasOther) {
-            setOpenHospitals(true)
-            return
+        fetchHospitals()
+    }, [])
+
+    const fetchHospitals = async () => {
+        try {
+            const response = await AxiosInstance.get('/hospitals')
+            const hospitalData = response.map((hospital: { id: string, name: string }) => ({
+                id: hospital.id,
+                value: hospital.id,
+                label: hospital.name
+            }))
+            setHospitals([...hospitalData, { id: "add-new", value: "add-new", label: "+ Add New Hospital" }])
+        } catch (error) {
+            console.error('Error fetching hospitals:', error)
         }
-        setOpenHospitals(false)
-    }, [selectedHospitals])
+    }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        
+
         if (file) {
             setFormData({ ...formData, image: file })
             const reader = new FileReader()
@@ -75,26 +66,31 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
         }
     }
 
-    const toggleHospital = (hospital: { value: string; label: string }) => {
+    const toggleHospital = (hospital: Hospital) => {
+
+        if (hospital.value === "add-new") {
+            router.push('/doctor/profile/hospitals')
+            return
+        }
+
         setSelectedHospitals((current) => {
-
-
-            // Check if hospital is already selected
             const isSelected = current.some((h) => h.value === hospital.value)
 
             if (isSelected) {
-                // Remove hospital if already selected
                 return current.filter((h) => h.value !== hospital.value)
             } else {
-                // Add hospital if not selected
                 return [...current, hospital]
             }
         })
+
+        setFormData({ ...formData, hospitalId: hospital.id })
     }
 
     const removeHospital = (hospitalValue: string) => {
         setSelectedHospitals((current) => current.filter((h) => h.value !== hospitalValue))
     }
+
+
 
     return (
         <div className="w-full mx-auto p-8 bg-white rounded-lg">
@@ -143,35 +139,31 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Name */}
                         <div className="space-y-2">
-                            <Label htmlFor="name" className="text-gray-600">
-                                Name
-                            </Label>
+                            <Label htmlFor="name" className="text-gray-600">Name</Label>
                             <Input
                                 id="name"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 className="bg-gray-100"
+                                placeholder="Enter your name"
                             />
                         </div>
 
                         {/* Email */}
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="text-gray-600">
-                                Email
-                            </Label>
+                            <Label htmlFor="email" className="text-gray-600">Email</Label>
                             <Input
                                 id="email"
                                 value={formData.email}
                                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                                 className="bg-gray-100"
+                                placeholder="Enter your email"
                             />
                         </div>
 
                         {/* Phone Number */}
                         <div className="space-y-2">
-                            <Label htmlFor="phone" className="text-gray-600">
-                                Phone Number
-                            </Label>
+                            <Label htmlFor="phone" className="text-gray-600">Phone Number</Label>
                             <div className="flex">
                                 <div className="w-16 flex-shrink-0">
                                     <Select
@@ -188,18 +180,17 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
                                 </div>
                                 <Input
                                     id="phone"
-                                    value={formData.phoneNumber}
-                                    onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                    value={formData.phone}
+                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     className="flex-1 bg-gray-100 rounded-l-none"
+                                    placeholder="Enter your phone number"
                                 />
                             </div>
                         </div>
 
                         {/* Hospital Multi-Select */}
                         <div className="space-y-2">
-                            <Label htmlFor="hospital" className="text-gray-600">
-                                Hospital
-                            </Label>
+                            <Label htmlFor="hospital" className="text-gray-600">Hospital</Label>
                             <Popover open={open} onOpenChange={setOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -264,26 +255,21 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
                             )}
                         </div>
 
-
                         {/* Date of Birth */}
                         <div className="space-y-2">
-                            <Label htmlFor="dob" className="text-gray-600">
-                                Date Of Birth
-                            </Label>
+                            <Label htmlFor="dob" className="text-gray-600">Date Of Birth</Label>
                             <Input
                                 id="dob"
                                 type="date"
-                                value={formData.dateOfBirth}
-                                onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                                value={formData.dob}
+                                onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
                                 className="bg-gray-100"
                             />
                         </div>
 
                         {/* Gender */}
-                        <div className="space-y-2 ">
-                            <Label htmlFor="gender" className="text-gray-600">
-                                Gender
-                            </Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="gender" className="text-gray-600">Gender</Label>
                             <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
                                 <SelectTrigger className="bg-gray-100 w-full">
                                     <SelectValue placeholder="Select gender" />
@@ -299,101 +285,76 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
 
                     {/* Professional Bio */}
                     <div className="space-y-2">
-                        <Label htmlFor="bio" className="text-gray-600">
-                            Professional Bio
-                        </Label>
+                        <Label htmlFor="bio" className="text-gray-600">Professional Bio</Label>
                         <Textarea
                             id="bio"
-                            value={formData.professionalBio}
-                            onChange={(e) => setFormData({ ...formData, professionalBio: e.target.value })}
+                            value={formData.desc}
+                            onChange={(e) => setFormData({ ...formData, desc: e.target.value })}
                             className="bg-gray-100 min-h-[100px]"
+                            placeholder="Enter professional bio"
                         />
                     </div>
                 </div>
             </div>
 
-            {
-                openHospitals && (
-                    <div className="gap-8 py-5">
-                        <h2 className="text-lg font-normal text-blue-500 mb-2">Hospitals Details</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Name */}
-                            <div className="space-y-2">
-                                <Label htmlFor="hospitalName" className="text-gray-600">
-                                    Hospital Name
-                                </Label>
-                                <Input
-                                    id="hospitalName"
-                                    value={formData.hospitalName}
-                                    onChange={(e) => setFormData({ ...formData, hospitalName: e.target.value })}
-                                    className="bg-gray-100"
-                                />
-                            </div>
-
-
-                            <div className="space-y-2">
-                                <Label htmlFor="hospitalNumber" className="text-gray-600">
-                                    Phone number
-                                </Label>
-                                <Input
-                                    id="hospitalNumber"
-                                    value={formData.hospitalNumber}
-                                    onChange={(e) => setFormData({ ...formData, hospitalNumber: e.target.value })}
-                                    className="bg-gray-100"
-                                />
-                            </div>
-
-
-
-
-                            <div className="space-y-2">
-                                <Label htmlFor="hospitalFacility" className="text-gray-600">
-                                    Hospital Facility
-                                </Label>
-                                <Input
-                                    id="hospitalFacility"
-                                    value={formData.hospitalFacility}
-                                    onChange={(e) => setFormData({ ...formData, hospitalFacility: e.target.value })}
-                                    className="bg-gray-100"
-                                />
-                            </div>
-
-
-                            <div className="space-y-2 ">
-                                <Label htmlFor="hospitalLocation" className="text-gray-600">
-                                    Location based on latitude/longitude
-                                </Label>
-                                <Input
-                                    id="hospitalLocation"
-                                    value={formData.hospitalLocation}
-                                    onChange={(e) => setFormData({ ...formData, hospitalLocation: e.target.value })}
-                                    className="bg-gray-100"
-                                />
-                            </div>
+            {/* Hospital Details (shown when hospital is selected) */}
+            {/* {openHospitals && !showAddHospital && selectedHospitals.length > 0 && (
+                <div className="gap-8 py-5">
+                    <h2 className="text-lg font-normal text-blue-500 mb-2">Hospital Details</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="hospitalName" className="text-gray-600">Hospital Name</Label>
+                            <Input
+                                id="hospitalName"
+                                value={formData.hospitalName}
+                                onChange={(e) => setFormData({ ...formData, hospitalName: e.target.value })}
+                                className="bg-gray-100"
+                            />
                         </div>
 
-                        {/* Professional Bio */}
-                        <div className="space-y-2 mt-3">
-                            <Label htmlFor="bio" className="text-gray-600">
-                                Map
-                            </Label>
-                            <div>
-                                <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4188.11341618486!2d77.1517968!3d28.690584100000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390d031bd35247f5%3A0x167e7ad1ee25b7c7!2sHover%20Business%20Services%20LLP!5e1!3m2!1sen!2sin!4v1747310025227!5m2!1sen!2sin"
-                                    className="w-full h-[300px]"
-                                    style={{ border: 0 }}
-                                    allowFullScreen={true}
-                                    loading="lazy"
-                                    referrerPolicy="no-referrer-when-downgrade"
-                                />
-
-                            </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="hospitalNumber" className="text-gray-600">Phone number</Label>
+                            <Input
+                                id="hospitalNumber"
+                                value={formData.hospitalNumber}
+                                onChange={(e) => setFormData({ ...formData, hospitalNumber: e.target.value })}
+                                className="bg-gray-100"
+                            />
                         </div>
 
+                        <div className="space-y-2">
+                            <Label htmlFor="hospitalFacility" className="text-gray-600">Hospital Facility</Label>
+                            <Input
+                                id="hospitalFacility"
+                                value={formData.hospitalFacility}
+                                onChange={(e) => setFormData({ ...formData, hospitalFacility: e.target.value })}
+                                className="bg-gray-100"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="hospitalLocation" className="text-gray-600">Location (latitude/longitude)</Label>
+                            <Input
+                                id="hospitalLocation"
+                                value={formData.hospitalLocation}
+                                onChange={(e) => setFormData({ ...formData, hospitalLocation: e.target.value })}
+                                className="bg-gray-100"
+                            />
+                        </div>
                     </div>
-                )
-            }
 
+                    <div className="space-y-2 mt-3">
+                        <Label htmlFor="hospitalAddress" className="text-gray-600">Address</Label>
+                        <Textarea
+                            id="hospitalAddress"
+                            value={formData.hospitalAddress}
+                            onChange={(e) => setFormData({ ...formData, hospitalAddress: e.target.value })}
+                            className="bg-gray-100"
+                        />
+                    </div>
+
+                </div>
+            )} */}
         </div>
     )
 }

@@ -1,7 +1,9 @@
+/* eslint-disable prettier/prettier */
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { HospitalService } from './hospital.service';
+import { HospitalDto } from './hospital.dto';
 
-@Controller('hospital')
+@Controller('hospitals')
 export class HospitalController {
 
     constructor(private readonly hospitalService: HospitalService) { }
@@ -18,8 +20,8 @@ export class HospitalController {
     }
 
     @Post()
-    async createHospital(@Body() body: { name: string; }) {
-        return this.hospitalService.createHospital(body.name);
+    async createHospital(@Body() hospitalDto: HospitalDto) {
+        return this.hospitalService.createHospital(hospitalDto);
     }
 
     @Put(':id')

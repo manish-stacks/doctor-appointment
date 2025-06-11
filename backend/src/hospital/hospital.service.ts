@@ -1,13 +1,14 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Hospital } from './hospital.entity';
+import { HospitalDto } from './hospital.dto';
 
 @Injectable()
 export class HospitalService {
     constructor(@InjectRepository(Hospital)
     private readonly hospitalRepository: Repository<Hospital>) { }
-
 
 
     getHospitals() {
@@ -18,8 +19,8 @@ export class HospitalService {
         return this.hospitalRepository.findOne({ where: { id } });
     }
 
-    createHospital(name: string) {
-        return this.hospitalRepository.save({ name });
+    createHospital(hospitalDto: HospitalDto) {
+        return this.hospitalRepository.save(hospitalDto);
     }
 
     updateHospital(id: number, name: string) {

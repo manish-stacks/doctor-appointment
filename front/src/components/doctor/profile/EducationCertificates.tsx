@@ -22,9 +22,9 @@ interface educationProps {
   setEducations: (educations: Education[]) => void;
   setCertificates: (certificates: Certificate[]) => void;
 }
+
 export default function EducationCertificates({ educations, certificates, setEducations, setCertificates }: educationProps) {
   
-
   const addEducation = () => {
     const newId = educations.length > 0 ? Math.max(...educations.map(e => e.id)) + 1 : 1;
     setEducations([...educations, { id: newId, degree: '', institution: '', year: '' }]);
@@ -123,6 +123,8 @@ export default function EducationCertificates({ educations, certificates, setEdu
       
       {/* Certificate Section */}
       <div className="mb-8">
+        <p className="text-gray-700 mb-4">Add Certificate</p>
+        
         <div className="mb-6">
           {certificates.map((certificate, index) => (
             <div key={certificate.id} className="mb-6">
