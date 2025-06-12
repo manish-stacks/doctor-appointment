@@ -35,7 +35,7 @@ export class DoctorService {
 
         if (filePath) {
             const result: { secure_url: string } = await uploadToCloudinary(filePath);
-            doctorDto.image = result.secure_url;
+            doctorDto.profileImage = result.secure_url;
         }
 
         
@@ -44,7 +44,7 @@ export class DoctorService {
         user.username = doctorDto.name;
         user.dob = doctorDto.dob;
         user.gender = doctorDto.gender;
-        user.image = doctorDto.image ?? '';
+        user.image = doctorDto.profileImage ?? '';
 
         const doctorData: DeepPartial<Doctor> = {
             name: doctorDto.name,
@@ -53,9 +53,9 @@ export class DoctorService {
             expertise: doctorDto.expertise,
             hospitalId: hospital?.id,
             userId: userId,
-            image: doctorDto.image,
+            image: doctorDto.profileImage,
             desc: doctorDto.desc,
-            education: JSON.stringify(doctorDto.certificate),
+            education: JSON.stringify(doctorDto.education),
             certificate: JSON.stringify(doctorDto.certificate),
             appointmentFees: doctorDto.appointmentFees,
             experience: doctorDto.experience,

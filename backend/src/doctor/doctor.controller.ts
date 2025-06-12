@@ -28,12 +28,13 @@ export class DoctorController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/profile')
-  @UseInterceptors(FileInterceptor('image', multerOptions))
+  @UseInterceptors(FileInterceptor('profileImage', multerOptions))
   async create(
     @Request() req: { user: { id: number; } },
     @Body() doctorDto: DoctorDto,
     @UploadedFile() file?: Multer.File
   ) {
+    console.log(doctorDto)
     const userId = req.user.id;
 
     if (!userId) {

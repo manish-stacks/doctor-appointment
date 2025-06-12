@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Type } from 'class-transformer';
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsArray, ValidateNested } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsArray, ValidateNested, IsBoolean } from 'class-validator';
 
 
 class EducationDto {
@@ -57,7 +57,7 @@ export class DoctorDto {
 
     @IsString()
     @IsOptional()
-    image?: string;
+    profileImage?: string;
 
     @IsString()
     @IsOptional()
@@ -101,11 +101,9 @@ export class DoctorDto {
     user: UserDto;
 
 
-    @IsNumber()
+    @IsString()
     @IsOptional()
-    isPopular?: number;
-
-
+    isPopular?: boolean;
 }
 
 

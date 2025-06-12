@@ -12,7 +12,8 @@ import useSWR from 'swr';
 
 export interface PersonalInfo {
     // Basic Doctor fields
-    image: File | string | undefined;
+    profileImage: File | string | undefined;
+    image: string;
     name: string;
     categoryId: string;
     treatmentId: string;
@@ -73,27 +74,33 @@ const Profile = () => {
         phone: "",
         countryCode: "+91",
 
-       
+
     })
 
     // const { data, isLoading } = useSWR('/doctor/profile/me', fetcher);
     // console.log(data)
-    useEffect(() => {
+
+    const getUserProfile = async () => {
         try {
             setIsLoading(true);
-            const response = AxiosInstance.get('/doctor/profile/me');
+            const response = await AxiosInstance.get('/doctor/profile/me');
+            console.log(response)
             setData(response);
         } catch (error) {
             console.log(error)
         } finally {
             setIsLoading(false);
         }
+    }
+    useEffect(() => {
+        getUserProfile();
     }, [])
 
     useEffect(() => {
         if (data) {
             setFormData({
                 // Doctor entity fields
+                profileImage: undefined,
                 image: data.image || "",
                 name: data.name || "",
                 categoryId: data.categoryId || "",
@@ -120,7 +127,7 @@ const Profile = () => {
                 email: data.user?.email || "",
                 phone: data.user?.phone || "",
                 countryCode: data.user?.countryCode || "+91",
-            
+
             });
         }
     }, [data]);
@@ -161,6 +168,7 @@ const Profile = () => {
     const handleUpdate = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
 
+
         const doctorData = {
             name: formData.name,
             categoryId: formData.categoryId,
@@ -168,7 +176,8 @@ const Profile = () => {
             expertise: formData.expertise,
             hospitalId: formData.hospitalId ? parseInt(formData.hospitalId) : null,
             userId: formData.userId ? parseInt(formData.userId) : null,
-            image: formData.image,
+            profileImage: formData.profileImage,
+            // image: formData.image,
             desc: formData.desc,
             education: educations,
             certificate: certificates,
@@ -191,11 +200,12 @@ const Profile = () => {
                 countryCode: formData.countryCode,
             },
 
-           
+
         };
-       
+
 
         try {
+            setIsLoading(true);
             const response = await AxiosInstance.post(`/doctor/profile`, doctorData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
@@ -210,7 +220,10 @@ const Profile = () => {
             } else {
                 console.error('Unexpected error:', error);
             }
+        } finally {
+            setIsLoading(false);
         }
+
         console.log('Button clicked. Doctor data:', doctorData);
     };
 

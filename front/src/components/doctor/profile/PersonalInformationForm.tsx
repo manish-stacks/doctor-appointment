@@ -15,6 +15,7 @@ import Image from "next/image"
 import { PersonalInfo } from "@/app/doctor/profile/page"
 import { AxiosInstance } from "@/helpers/Axios.instance"
 import { useRouter } from "next/navigation"
+import Loader from "@/components/Loader"
 
 interface Hospital {
     id: string;
@@ -28,14 +29,18 @@ interface PersonalInformationFormProps {
 }
 
 export default function PersonalInformationForm({ formData, setFormData }: PersonalInformationFormProps) {
+
     const [profileImage, setProfileImage] = useState<string>("https://res.cloudinary.com/do34gd7bu/image/upload/v1746015026/360_F_565224180_QNRiRQkf9Fw0dKRoZGwUknmmfk51SuSS_cn2bqt.jpg")
     const [open, setOpen] = useState(false)
     const [hospitals, setHospitals] = useState<Hospital[]>([])
     const [selectedHospitals, setSelectedHospitals] = useState<Hospital[]>([])
     const router = useRouter();
     useEffect(() => {
-        fetchHospitals()
-    }, [])
+        fetchHospitals();
+        setProfileImage(formData.image)
+        console.log('formData.treatmentId', formData.treatmentId)
+        // setFormData({ ...formData, treatmentId: formData.treatmentId })
+    }, [formData])
 
     const fetchHospitals = async () => {
         try {
@@ -45,7 +50,20 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
                 value: hospital.id,
                 label: hospital.name
             }))
-            setHospitals([...hospitalData, { id: "add-new", value: "add-new", label: "+ Add New Hospital" }])
+
+            const allHospitals = [
+                ...hospitalData,
+                { id: "add-new", value: "add-new", label: "+ Add New Hospital" }
+            ];
+
+            setHospitals(allHospitals);
+
+            const selected = allHospitals.find(h => h.id === formData.hospitalId);
+
+            if (selected) {
+                setSelectedHospitals([selected]);
+            }
+
         } catch (error) {
             console.error('Error fetching hospitals:', error)
         }
@@ -55,7 +73,7 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
         const file = e.target.files?.[0]
 
         if (file) {
-            setFormData({ ...formData, image: file })
+            setFormData({ ...formData, profileImage: file })
             const reader = new FileReader()
             reader.onload = (e) => {
                 if (e.target?.result) {
@@ -91,7 +109,7 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
     }
 
 
-
+    
     return (
         <div className="w-full mx-auto p-8 bg-white rounded-lg">
             <h2 className="text-xl font-medium text-blue-500 mb-8">Personal Information</h2>
