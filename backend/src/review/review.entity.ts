@@ -1,6 +1,7 @@
+/* eslint-disable prettier/prettier */
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity()
+@Entity('reviews')
 export class Review {
     @PrimaryGeneratedColumn()
     id: number;

@@ -2,7 +2,7 @@
 import { Category } from "src/category/category.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity()
+@Entity('treatments')
 export class Treatments {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;

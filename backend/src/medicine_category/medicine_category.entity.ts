@@ -1,7 +1,8 @@
+/* eslint-disable prettier/prettier */
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 
-@Entity('medicine_category')
+@Entity('medicine_categories')
 export class MedicineCategory {
     @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
     id: number;

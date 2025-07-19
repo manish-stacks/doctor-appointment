@@ -8,7 +8,6 @@ import { User } from 'src/user/user.entity';
 import { Hospital } from 'src/hospital/hospital.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { CloudinaryConfig } from 'src/config/cloudinary.config';
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([Doctor, User, Hospital]),

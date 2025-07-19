@@ -11,14 +11,47 @@ export class HospitalService {
     private readonly hospitalRepository: Repository<Hospital>) { }
 
 
-    getHospitals() {
-        return this.hospitalRepository.find();
+
+
+    async getPublicHospitals() {
+        return await this.hospitalRepository.find({
+            where: {
+                isVerified: true,
+                isActive: true,
+            },
+        });
     }
 
+    async getHospitalsWithUserExtras(userId: number) {
+        const publicHospitals = await this.hospitalRepository.find({
+            where: {
+                isVerified: true,
+                isActive: true,
+            },
+        });
+
+        const userHospitals = await this.hospitalRepository.find({
+            where: {
+                userId: userId,
+            },
+        });
+
+        const combined = [
+            ...publicHospitals,
+            ...userHospitals.filter(
+                (h) => !publicHospitals.some((p) => p.id === h.id)
+            ),
+        ];
+
+        return combined;
+    }
     getHospital(id: number) {
         return this.hospitalRepository.findOne({ where: { id } });
     }
 
+    getHospitalsByUser(userId: number) {
+        return this.hospitalRepository.find({ where: { userId } });
+    }
     createHospital(hospitalDto: HospitalDto) {
         return this.hospitalRepository.save(hospitalDto);
     }

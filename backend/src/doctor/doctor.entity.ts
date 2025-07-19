@@ -13,7 +13,7 @@ import { Category } from 'src/category/category.entity';
 import { Subscription } from 'src/subscription/subscription.entity';
 import { User } from 'src/user/user.entity';
 
-@Entity()
+@Entity('doctors')
 export class Doctor {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
@@ -21,20 +21,23 @@ export class Doctor {
   @Column({ type: 'varchar' })
   name: string;
 
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  userId: number;
+
   @Column({ nullable: true })
+  expertise: string;
+
+  @Column({ type: 'int', unsigned: true, nullable: true })
+  hospitalId: number;
+
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
   categoryId: number;
 
   @Column({ nullable: true })
   treatmentId: number;
 
-  @Column({ nullable: true })
-  expertise: string;
-
-  @Column({ type: 'bigint', unsigned: true, nullable: true })
-  hospitalId: number;
-
-  @Column({ type: 'bigint', unsigned: true, nullable: true })
-  userId: number;
+  @Column({ type: 'int', unsigned: true, nullable: true })
+  subscriptionId: number;
 
   @Column({ type: 'varchar' })
   image: string;
@@ -63,8 +66,6 @@ export class Doctor {
   @Column({ type: 'varchar', length: 50 })
   gender: string;
 
-  @Column({ nullable: true })
-  subscriptionId: number;
 
   @Column({ default: false })
   isActive: boolean;
@@ -103,5 +104,5 @@ export class Doctor {
   @ManyToOne(() => Subscription, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'subscriptionId' })
   subscription: Subscription;
-  
+
 }

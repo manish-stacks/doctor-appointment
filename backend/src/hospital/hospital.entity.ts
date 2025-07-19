@@ -2,7 +2,7 @@
 
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity()
+@Entity('hospitals')
 export class Hospital {
     @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
     id: number;
@@ -30,6 +30,9 @@ export class Hospital {
 
     @Column({ default: false })
     isActive: boolean;
+
+    @Column({nullable: true})
+    userId: number
    
     @CreateDateColumn()
     createdAt: Date;

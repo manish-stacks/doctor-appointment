@@ -1,18 +1,25 @@
+/* eslint-disable prettier/prettier */
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity()
+@Entity('subscriptions')
 export class Subscription {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
     id: number;
 
-    @Column()
+    @Column({ type: 'varchar', length: 255 })
     name: string;
 
     @Column({ type: 'text', nullable: true })
-    plan: string;
+    description: string;
 
     @Column({ type: 'int' })
     totalAppointment: number;
+
+    @Column({ type: 'int' })
+    price: number;
+
+    @Column({ type: 'int' })
+    validity: number;
 
     @CreateDateColumn()
     createdAt: Date;

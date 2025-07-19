@@ -7,9 +7,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('users')
 export class User {
- @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
   @Column({ length: 50 })
@@ -21,7 +21,7 @@ export class User {
   @Column({ length: 100, nullable: true })
   username: string;
 
-  @Column()
+  @Column({nullable: true})
   password: string;
 
   @Column()

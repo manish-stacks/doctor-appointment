@@ -15,7 +15,7 @@ import Image from "next/image"
 import { PersonalInfo } from "@/app/doctor/profile/page"
 import { AxiosInstance } from "@/helpers/Axios.instance"
 import { useRouter } from "next/navigation"
-import Loader from "@/components/Loader"
+// import Loader from "@/components/Loader"
 
 interface Hospital {
     id: string;
@@ -44,7 +44,7 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
 
     const fetchHospitals = async () => {
         try {
-            const response = await AxiosInstance.get('/hospitals')
+            const response = await AxiosInstance.get('/hospital')
             const hospitalData = response.map((hospital: { id: string, name: string }) => ({
                 id: hospital.id,
                 value: hospital.id,

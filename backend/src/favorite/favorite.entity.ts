@@ -1,6 +1,7 @@
+/* eslint-disable prettier/prettier */
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity()
+@Entity('favorites')
 export class Favorite {
     @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
     id: number;

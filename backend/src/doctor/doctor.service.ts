@@ -66,6 +66,7 @@ export class DoctorService {
             subscriptionStatus: true,
             isPopular: true,
             patientVideoCall: false,
+            subscriptionId : 1
         };
 
         const existingDoctor = await this.doctorRepository.findOne({

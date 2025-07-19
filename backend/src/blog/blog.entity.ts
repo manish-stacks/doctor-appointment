@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+/* eslint-disable prettier/prettier */
 
-@Entity()
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+
+@Entity('blogs')
 export class Blog {
   @PrimaryGeneratedColumn()
   id: number;

@@ -1,6 +1,7 @@
+/* eslint-disable prettier/prettier */
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity()
+@Entity('zoom_meeting')
 export class ZoomMeeting {
     @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
     id: number;

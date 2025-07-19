@@ -6,7 +6,7 @@ import Loader from '@/components/Loader'
 import { AxiosInstance } from '@/helpers/Axios.instance'
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import useSWR from 'swr';
+// import useSWR from 'swr';
 
 // const fetcher = (url: string) => AxiosInstance.get(url).then(res => res);
 

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty, IsOptional} from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber} from 'class-validator';
 
 
 export class HospitalDto {
@@ -26,8 +26,11 @@ export class HospitalDto {
 
     @IsString()
     @IsOptional()
-    lng: string;
+    lng?: string;
 
+    @IsNumber()
+    @IsNotEmpty()
+    userId: number;
 
 
 }

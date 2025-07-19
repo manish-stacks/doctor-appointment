@@ -34,7 +34,7 @@ export class DoctorController {
     @Body() doctorDto: DoctorDto,
     @UploadedFile() file?: Multer.File
   ) {
-    console.log(doctorDto)
+
     const userId = req.user.id;
 
     if (!userId) {

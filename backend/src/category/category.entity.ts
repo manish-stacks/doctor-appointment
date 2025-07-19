@@ -9,10 +9,10 @@ import {
   OneToMany,
 } from 'typeorm';
 
-@Entity()
+@Entity('categories')
 export class Category {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
-  id: number;
+  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true }) 
+id: number;
 
   @Column({ length: 150 })
   name: string;

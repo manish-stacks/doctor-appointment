@@ -1,6 +1,7 @@
+/* eslint-disable prettier/prettier */
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity('working_hour')
+@Entity('working_hours')
 export class WorkingHour {
     
     @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
