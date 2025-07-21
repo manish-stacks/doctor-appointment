@@ -52,10 +52,9 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
     try {
       setIsLoadingCategories(true);
       const response = await AxiosInstance.get('/categories');
-      console.log('Categories response:', response);
 
       // Handle different response structures
-      const categoriesData = response.data || response;
+      const categoriesData = response.data;
       setCategories(Array.isArray(categoriesData) ? categoriesData : []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -71,10 +70,8 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
       console.log('Fetching treatments for category:', categoryId);
 
       const response = await AxiosInstance.get(`/treatments/category/${categoryId}`);
-      console.log('Treatments response:', response);
-
-      // Handle different response structures
-      const treatmentsData = response.data || response;
+    
+      const treatmentsData = response.data;
       const treatmentArray = Array.isArray(treatmentsData) ? treatmentsData : [];
       setTreatments(treatmentArray);
 

@@ -1,16 +1,16 @@
 import CryptoJS from 'crypto-js';
+const SECRET_KEY = process.env.NEXT_SECRET_KEY || 'abcdrfghijklmnopqrstuvwxyz';
 
-const SECRET_KEY = '1a04f1f5f699f78354a1fc16dc8274cf3bade0a754884d49603acecd85b683f388d5b03ca5982f35e4ea2dfb36091daba560ea4310ab21ea31dfd57b698fde9d';
-
-export const encryptData = (data: any): string => {
+export const encryptData = (data: unknown): string => {
     return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
 };
 
-export const decryptData = (encryptedData: string): any => {
+export const decryptData = <T>(encryptedData: string): T | null => {
     try {
         const bytes = CryptoJS.AES.decrypt(encryptedData, SECRET_KEY);
         return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-    } catch (error) {
+    } catch (error: unknown) {
+        console.error("Decryption error:", error);
         return null;
     }
 };

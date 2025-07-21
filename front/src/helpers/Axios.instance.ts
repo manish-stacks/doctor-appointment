@@ -35,7 +35,7 @@ AxiosInstance.interceptors.request.use(
 );
 
 AxiosInstance.interceptors.response.use(
-    (response) => response.data,
+    (response) => response,
     (error: AxiosError<ApiErrorResponse>) => {
         const status = error.response?.status;
         const errorMessage = error.response?.data?.message || error.message || 'An error occurred';

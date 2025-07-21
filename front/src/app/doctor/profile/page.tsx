@@ -84,8 +84,7 @@ const Profile = () => {
         try {
             setIsLoading(true);
             const response = await AxiosInstance.get('/doctor/profile/me');
-            console.log(response)
-            setData(response);
+            setData(response.data);
         } catch (error) {
             console.log(error)
         } finally {

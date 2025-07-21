@@ -52,7 +52,7 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
             }))
 
             const allHospitals = [
-                ...hospitalData,
+                ...hospitalData.data,
                 { id: "add-new", value: "add-new", label: "+ Add New Hospital" }
             ];
 

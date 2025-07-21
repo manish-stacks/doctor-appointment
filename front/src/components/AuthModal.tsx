@@ -1,35 +1,39 @@
-"use client";
+'use client';
 
-
-import { AxiosInstance } from '@/helpers/Axios.instance';
-import { userStoreResponse, useUserStore } from '@/store/useUserStore';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Phone, Shield, ArrowLeft, ArrowRight, Mail, Eye, EyeOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AxiosInstance } from '@/helpers/Axios.instance';
+import { useUserStore } from '@/store/useUserStore';
 
-interface AuthModalProps {
+interface LoginModalProps {
     isOpen: boolean;
     onClose: () => void;
-    step: 'role' | 'phone';
-    onRoleSelect: (role: 'patient' | 'doctor') => void;
-    onStepChange: (step: 'role' | 'phone') => void;
-    selectedRole: 'patient' | 'doctor';
 }
 
-export const AuthModal = ({ isOpen, onClose, step, onRoleSelect, onStepChange,selectedRole }: AuthModalProps) => {
+type Step = 'login' | 'mobile' | 'otp';
+type LoginMethod = 'email' | 'mobile';
+
+export function AuthModal({ isOpen, onClose }: LoginModalProps) {
+    const fetchUserDetails = useUserStore((state) => state.fetchUserDetails);
+    const [step, setStep] = useState<Step>('login');
+    const [loginMethod, setLoginMethod] = useState<LoginMethod>('mobile');
+    const [resendDisabled, setResendDisabled] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
-    const [showOTP, setShowOTP] = useState(false);
-    const [otp, setOTP] = useState('');
+    const [otp, setOtp] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [resendDisabled, setResendDisabled] = useState(false);
-    const [timer, setTimer] = useState(30);
-    const fetchUserDetails = useUserStore((state) => state.fetchUserDetails);
     const router = useRouter();
-
-
+    const [timer, setTimer] = useState(30);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -45,241 +49,363 @@ export const AuthModal = ({ isOpen, onClose, step, onRoleSelect, onStepChange,se
         return () => clearInterval(interval);
     }, [resendDisabled, timer]);
 
-    const validateMobileNumber = (number: string) => {
-        const regex = /^[6-9]\d{9}$/;
-        return regex.test(number);
+    const resetModal = () => {
+        setStep('login');
+        setLoginMethod('email');
+        setEmail('');
+        setPassword('');
+        setShowPassword(false);
+        setMobileNumber('');
+        setOtp('');
+        setError('');
+        setIsLoading(false);
     };
 
-    const handleSendOTP = async () => {
-        setError('');
-        if (!validateMobileNumber(mobileNumber)) {
-            setError('Please enter a valid Indian mobile number');
+    const handleClose = () => {
+        resetModal();
+        onClose();
+    };
+
+    const handleEmailLogin = async () => {
+        if (!email || !password) {
+            setError('Please enter both email and password');
             return;
         }
 
         setIsLoading(true);
+        setError('');
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        if (email === 'demo@example.com' && password === 'password') {
+            setIsLoading(false);
+            handleClose();
+            router.push('/dashboard');
+        } else {
+            setIsLoading(false);
+            setError('Invalid email or password. Use demo@example.com / password');
+        }
+    };
+
+    const handleSendOTP = async () => {
+        if (!mobileNumber || mobileNumber.length < 10) {
+            setError('Please enter a valid mobile number');
+            return;
+        }
+
+        setIsLoading(true);
+        setError('');
+
         try {
             await AxiosInstance.post(`/auth/login`, {
                 phone: Number(mobileNumber),
-                role: selectedRole === 'doctor' ? 'doctor' : 'user',
+                role: 'user',
             });
-            setShowOTP(true);
-            setResendDisabled(true);
-            toast.success(`OTP has been sent to ${mobileNumber}`);
-        } catch (error) {
-            toast.error('Failed to send OTP');
+        } catch (error: unknown) {
+            setError(error instanceof Error ? error.message : 'Failed to send OTP. Please try again later.');
+            setIsLoading(false);
+            return null;
+        }
+
+        setIsLoading(false);
+        setStep('otp');
+    };
+
+    const handleVerifyOTP = async () => {
+        if (!otp || otp.length !== 6) {
+            setError('Please enter a valid 6-digit OTP');
+            return;
+        }
+
+        if (otp === '123456') {
+            setError('Invalid OTP. Please try again.');
+            return;
+        }
+
+        setIsLoading(true);
+        setError('');
+
+        try {
+            const response = await AxiosInstance.post(`/auth/verify-otp`, {
+                phone: Number(mobileNumber),
+                otp,
+                type: 'login',
+            });
+
+            if (!response.data || !response.data.success) {
+                setError('OTP verification failed. Please try again.');
+                return;
+            }
+
+            fetchUserDetails(response.data);
+            handleClose();
+            router.push('/patient/dashboard');
+            return;
+        } catch (error: unknown) {
+            setError(error instanceof Error ? error.message : 'Failed to send OTP. Please try again later.');
         } finally {
+            setResendDisabled(true);
             setIsLoading(false);
         }
     };
+
     const handleResendOTP = async () => {
         setError('');
-        setOTP('');
-        if (!validateMobileNumber(mobileNumber)) {
-            setError('Please enter a valid Indian mobile number');
+
+        if (!mobileNumber || mobileNumber.length < 10) {
+            setError('Please enter a valid mobile number');
             return;
         }
 
         setIsLoading(true);
         try {
             await AxiosInstance.post(`/auth/resend`, { phone: Number(mobileNumber), type: 'login' });
-            setShowOTP(true);
             setResendDisabled(true);
-            toast.success(`OTP has been sent to ${mobileNumber}`);
-        } catch (error) {
-            toast.error('Failed to send OTP');
+        } catch (error: unknown) {
+            setError(error instanceof Error ? error.message : 'Failed to send OTP. Please try again later.');
         } finally {
             setIsLoading(false);
         }
+        setStep('otp');
     };
 
-    const handleVerifyOTP = async () => {
-        if (otp.length !== 6) {
-            toast.error('Please enter a valid 6-digit OTP');
-            return;
-        }
-
-        setIsLoading(true);
-        try {
-            const response = await AxiosInstance.post(`/auth/verify-otp`, {
-                phone: Number(mobileNumber),
-                otp,
-                type: 'login',
-            }) as userStoreResponse;
-
-            if (!response.success) {
-                toast.error(response.message)
-                return;
-            }
-            fetchUserDetails(response);
-            toast.success('OTP verified successfully');
-            onClose();
-
-            return router.push(response.role === 'user' ? '/patient/dashboard' : '/doctor/dashboard');
-
-        } catch (error) {
-            toast.error('Invalid OTP');
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleReset = () => {
-        setShowOTP(false);
-        setOTP('');
-        setMobileNumber('');
-        setError('');
+    const slideVariants = {
+        initial: { x: 300, opacity: 0 },
+        animate: { x: 0, opacity: 1 },
+        exit: { x: -300, opacity: 0 },
     };
 
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 bg-black/30 backdrop-blur-lg flex items-center justify-center z-50"
-                    onClick={onClose}
-                >
-                    <motion.div
-                        initial={{ scale: 0.95, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.95, opacity: 0 }}
-                        className="bg-white rounded-xl px-4 sm:px-10 py-6 sm:py-8 w-[95%] sm:w-full max-w-lg relative mx-4 sm:mx-0"
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <button
-                            onClick={onClose}
-                            className="absolute right-2 sm:right-4 top-2 sm:top-4 text-gray-500 hover:text-gray-700"
-                        >
-                            <X size={20} />
-                        </button>
+        <Dialog open={isOpen} onOpenChange={handleClose}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle className="text-center text-2xl font-bold text-gray-900">
+                        Welcome to HealthCare
+                    </DialogTitle>
+                </DialogHeader>
 
-                        <div className="space-y-4 sm:space-y-6">
-                            <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-900">
-                                {showOTP ? 'Verify OTP' : 'Login / Sign Up'}
-                            </h2>
-                            {step === 'role' ? (
-                                <div className="space-y-6">
+                <div className="relative overflow-hidden min-h-[500px]">
+                    <AnimatePresence mode="wait">
+                        {step === 'login' && (
+                            <motion.div
+                                key="login"
+                                variants={slideVariants}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                transition={{ duration: 0.3 }}
+                                className="space-y-6"
+                            >
+                                <div className="flex items-center space-x-4 mb-6">
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <button
-                                            onClick={() => onRoleSelect('patient')}
-                                            className="p-4 border-2 border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
-                                        >
-                                            <h3 className="text-lg font-semibold text-indigo-600">Patient</h3>
-                                            <p className="text-sm text-gray-600">Book appointments and manage your health</p>
-                                        </button>
-                                        <button
-                                            onClick={() => onRoleSelect('doctor')}
-                                            className="p-4 border-2 border-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors"
-                                        >
-                                            <h3 className="text-lg font-semibold text-indigo-600">Doctor</h3>
-                                            <p className="text-sm text-gray-600">Manage your practice and patients</p>
-                                        </button>
+                                    <div className="text-center flex-1">
+                                        <h3 className="text-lg font-semibold">
+                                            Patient Login
+                                        </h3>
+                                        <p className="text-sm text-gray-600">
+                                            Choose your preferred login method
+                                        </p>
                                     </div>
                                 </div>
-                            ) : (
+
+                                <Tabs value={loginMethod} onValueChange={(value) => setLoginMethod(value as LoginMethod)}>
+                                    <TabsList className="grid w-full grid-cols-2">
+                                        <TabsTrigger value="mobile">Mobile OTP</TabsTrigger>
+                                        <TabsTrigger value="email">Email & Password</TabsTrigger>
+                                    </TabsList>
+
+                                    <TabsContent value="email" className="space-y-4 mt-6">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="email">Email Address</Label>
+                                            <div className="relative">
+                                                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                <Input
+                                                    id="email"
+                                                    type="email"
+                                                    placeholder="Enter your email"
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    className="pl-10"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="password">Password</Label>
+                                            <div className="relative">
+                                                <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                <Input
+                                                    id="password"
+                                                    type={showPassword ? "text" : "password"}
+                                                    placeholder="Enter your password"
+                                                    value={password}
+                                                    onChange={(e) => setPassword(e.target.value)}
+                                                    className="pl-10 pr-10"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                                >
+                                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        
+                                        {error && (
+                                            <motion.p
+                                                className="text-red-500 text-sm"
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                            >
+                                                {error}
+                                            </motion.p>
+                                        )}
+
+                                        <Button
+                                            onClick={handleEmailLogin}
+                                            disabled={isLoading}
+                                            className="w-full bg-blue-600 hover:bg-blue-700"
+                                        >
+                                            {isLoading ? 'Signing In...' : 'Sign In'}
+                                            {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
+                                        </Button>
+                                    </TabsContent>
+
+                                    <TabsContent value="mobile" className="space-y-6 mt-6">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="mobile">Mobile Number</Label>
+                                            <div className="relative">
+                                                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                <Input
+                                                    id="mobile"
+                                                    type="tel"
+                                                    placeholder="Enter your mobile number"
+                                                    value={mobileNumber}
+                                                    onChange={(e) => setMobileNumber(e.target.value)}
+                                                    className="pl-10"
+                                                    maxLength={10}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {error && (
+                                            <motion.p
+                                                className="text-red-500 text-sm"
+                                                initial={{ opacity: 0, y: -10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                            >
+                                                {error}
+                                            </motion.p>
+                                        )}
+
+                                        <Button
+                                            onClick={handleSendOTP}
+                                            disabled={isLoading}
+                                            className="w-full bg-blue-600 hover:bg-blue-700"
+                                        >
+                                            {isLoading ? 'Sending...' : 'Send OTP'}
+                                            {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
+                                        </Button>
+
+
+                                    </TabsContent>
+
+                                    <div className="grid grid-cols-2 gap-4 mt-8">
+                                        <button className="flex items-center justify-center gap-2 px-4 py-2  rounded  transition border-2">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png" alt="Google" className="w-5 h-5" />
+                                            Google
+                                        </button>
+                                        <button className="flex items-center justify-center gap-2 px-4 py-2  rounded transition border-2">
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" className="w-5 h-5" />
+                                            Facebook
+                                        </button>
+                                    </div>
+                                </Tabs>
+                            </motion.div>
+                        )}
+
+                        {step === 'otp' && (
+                            <motion.div
+                                key="otp"
+                                variants={slideVariants}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                                transition={{ duration: 0.3 }}
+                                className="space-y-6"
+                            >
+                                <div className="flex items-center space-x-4 mb-6">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setStep('login')}
+                                        className="p-2"
+                                    >
+                                        <ArrowLeft className="w-4 h-4" />
+                                    </Button>
+                                    <div className="text-center flex-1">
+                                        <h3 className="text-lg font-semibold">Verify OTP</h3>
+                                        <p className="text-sm text-gray-600">
+                                            Enter the 6-digit code sent to {mobileNumber}
+                                        </p>
+                                    </div>
+                                </div>
 
                                 <div className="space-y-4">
-                                    <span
-                                        className='cursor-pointer text-indigo-600 hover:text-indigo-800'
-                                        onClick={() => onStepChange('role')}
-                                    >
-                                        ← Back
-                                    </span>
-                                    {!showOTP ? (
-                                        <div className="space-y-3">
-                                            <input
-                                                placeholder="Enter mobile number"
-                                                value={mobileNumber}
-                                                onChange={(e) => {
-                                                    setMobileNumber(e.target.value.replace(/\D/g, ''));
-                                                    setError('');
-                                                }}
-                                                type="tel"
-                                                maxLength={10}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    <div className="space-y-2">
+                                        <Label htmlFor="otp">OTP</Label>
+                                        <div className="relative">
+                                            <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                            <Input
+                                                id="otp"
+                                                type="text"
+                                                placeholder="Enter 6-digit OTP"
+                                                value={otp}
+                                                onChange={(e) => setOtp(e.target.value)}
+                                                className="pl-10 text-center text-lg tracking-widest"
+                                                maxLength={6}
                                             />
-                                            {error && <span className='text-sm text-rose-400 block'>{error}</span>}
-                                            <button
-                                                onClick={handleSendOTP}
-                                                disabled={isLoading}
-                                                className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                            >
-                                                Send OTP
-                                            </button>
                                         </div>
-                                    ) : (
-                                        <div className="space-y-4">
-                                            <span className='mt-3 text-slate-400 text-sm sm:text-base block text-center'>
-                                                Enter OTP sent to +91 {mobileNumber}
-                                            </span>
-                                            <div className='flex justify-center gap-2 sm:gap-4 my-4'>
-                                                {[...Array(6)].map((_, index) => (
-                                                    <input
-                                                        key={index}
-                                                        type='tel'
-                                                        maxLength={1}
-                                                        className="w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                        value={otp[index] || ''}
-                                                        onChange={(e) => {
-                                                            const newOtp = otp.split('');
-                                                            newOtp[index] = e.target.value;
-                                                            setOTP(newOtp.join(''));
-                                                            if (e.target.value && e.target.nextElementSibling) {
-                                                                (e.target.nextElementSibling as HTMLInputElement).focus();
-                                                            }
-                                                        }}
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === 'Backspace' && !otp[index]) {
-                                                                const currentTarget = e.target as HTMLInputElement;
-                                                                const prevInput = currentTarget.previousElementSibling as HTMLInputElement;
-                                                                if (prevInput) {
-                                                                    prevInput.focus();
-                                                                    const newOtp = otp.split('');
-                                                                    newOtp[index - 1] = '';
-                                                                    setOTP(newOtp.join(''));
-                                                                }
-                                                            }
-                                                        }}
-                                                    />
-                                                ))}
-                                            </div>
-                                            <div className="space-y-3">
-                                                <button
-                                                    onClick={handleVerifyOTP}
-                                                    disabled={isLoading}
-                                                    className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                                >
-                                                    Verify OTP
-                                                </button>
-                                                <div className='flex flex-col sm:flex-row gap-2 sm:gap-4 justify-between'>
-                                                    <button
-                                                        onClick={handleReset}
-                                                        className="text-gray-600 hover:text-gray-800 text-sm sm:text-base"
-                                                    >
-                                                        Change Number
-                                                    </button>
-                                                    <button
-                                                        onClick={handleResendOTP}
-                                                        disabled={resendDisabled}
-                                                        className="text-blue-500 hover:text-blue-600 disabled:text-gray-400 text-sm sm:text-base"
-                                                    >
-                                                        {resendDisabled ? `Resend in ${timer}s` : 'Resend OTP'}
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                       
+                                    </div>
+
+                                    {error && (
+                                        <motion.p
+                                            className="text-red-500 text-sm"
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                        >
+                                            {error}
+                                        </motion.p>
                                     )}
+
+                                    <Button
+                                        onClick={handleVerifyOTP}
+                                        disabled={isLoading}
+                                        className="w-full bg-green-600 hover:bg-green-700"
+                                    >
+                                        {isLoading ? 'Verifying...' : 'Verify OTP'}
+                                        {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
+                                    </Button>
+
+                                    <Button
+                                        variant="ghost"
+                                        className="w-full bg-gray-100 text-blue-600 hover:text-blue-700"
+                                        onClick={handleResendOTP}
+                                        disabled={resendDisabled}
+                                    >
+                                        {resendDisabled ? `Resend in ${timer}s` : 'Resend OTP'}
+                                    </Button>
                                 </div>
-                            )}
-                        </div>
-                    </motion.div>
-                </motion.div>
-            )}
+                            </motion.div>
+                        )}
 
-        </AnimatePresence>
 
+                    </AnimatePresence>
+                </div>
+            </DialogContent>
+        </Dialog>
     );
-};
+}

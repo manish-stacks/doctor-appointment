@@ -170,7 +170,7 @@ export class AuthService {
     LoginDto: LoginDto,
   ): Promise<{ success: boolean; message: string; }> {
     const { phone, role } = LoginDto;
-    
+
     if (!phone) {
       throw new BadRequestException('Phone Number are required.');
     }
@@ -181,15 +181,19 @@ export class AuthService {
 
     const user = await this.userRepo.findOne({ where: { phone } });
 
-    if (!user) {
-     
+    if (user) {
+      if (role && role !== 'guest' && user?.role !== role) {
+        throw new BadRequestException(`You are not authorized to login as ${role}.`);
+      }
+    } else {
+
       const createUserDto: CreateUserDto = {
         ...LoginDto,
-        image: '',  
-        contact_number_verified: false
+        image: '',
+        contact_number_verified: false,
       };
-      
-      
+
+
       await this.register(createUserDto);
       return {
         success: true,

@@ -57,8 +57,8 @@ export default function Hospitals() {
 
   const fetchHospitals = async (userId: string | number) => {
     try {
-      const response = await AxiosInstance.get(`/hospital/myHospitals/${userId}`) as Hospital[];
-      setHospitals(response || [])
+      const response = await AxiosInstance.get(`/hospital/myHospitals/${userId}`);
+      setHospitals(response.data || [])
     } catch (error) {
       console.error("Failed to fetch hospitals", error)
     }
