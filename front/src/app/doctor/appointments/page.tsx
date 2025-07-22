@@ -16,7 +16,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Breadcrumb from '@/components/Breadcrumb';
+import Breadcrumb from '@/components/ui/custom/breadcrumb';
 
 type PaymentStatus = 'Remaining' | 'Paid';
 type AppointmentStatus = 'Cancelled' | 'Completed' | 'Approved';

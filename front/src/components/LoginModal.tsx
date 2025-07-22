@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/custom/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +20,7 @@ interface LoginModalProps {
 type Step = 'login' | 'mobile' | 'otp';
 type LoginMethod = 'email' | 'mobile';
 
-export function AuthModal({ isOpen, onClose }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const fetchUserDetails = useUserStore((state) => state.fetchUserDetails);
     const [step, setStep] = useState<Step>('login');
     const [loginMethod, setLoginMethod] = useState<LoginMethod>('mobile');
@@ -76,7 +76,7 @@ export function AuthModal({ isOpen, onClose }: LoginModalProps) {
         setError('');
 
         await new Promise(resolve => setTimeout(resolve, 1000));
-
+        return; // Simulate network delay
         if (email === 'demo@example.com' && password === 'password') {
             setIsLoading(false);
             handleClose();
@@ -139,8 +139,9 @@ export function AuthModal({ isOpen, onClose }: LoginModalProps) {
 
             fetchUserDetails(response.data);
             handleClose();
-            router.push('/patient/dashboard');
-            return;
+            window.location.href = '/patient/dashboard';
+            // router.push('/patient/dashboard');
+            // return;
         } catch (error: unknown) {
             setError(error instanceof Error ? error.message : 'Failed to send OTP. Please try again later.');
         } finally {
@@ -252,7 +253,7 @@ export function AuthModal({ isOpen, onClose }: LoginModalProps) {
                                             </div>
                                         </div>
 
-                                        
+
                                         {error && (
                                             <motion.p
                                                 className="text-red-500 text-sm"
@@ -368,7 +369,7 @@ export function AuthModal({ isOpen, onClose }: LoginModalProps) {
                                                 maxLength={6}
                                             />
                                         </div>
-                                       
+
                                     </div>
 
                                     {error && (

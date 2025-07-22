@@ -10,7 +10,8 @@ interface headerInterface {
     userData: userDetails | undefined;
     logout: () => void
 }
-const Header = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdownOpen, dropdownRef, userData, logout }: headerInterface) => {
+
+const AdminNavigation = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdownOpen, dropdownRef, userData, logout }: headerInterface) => {
     const [showNotifications, setShowNotifications] = React.useState(false);
 
     return (
@@ -121,4 +122,4 @@ const Header = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdownOpen, d
     )
 }
 
-export default Header
+export default AdminNavigation

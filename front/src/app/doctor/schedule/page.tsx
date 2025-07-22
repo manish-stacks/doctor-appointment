@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import Breadcrumb from "@/components/Breadcrumb"
+import Breadcrumb from "@/components/ui/custom/breadcrumb"
 
 type DayOfWeek = "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday"
 

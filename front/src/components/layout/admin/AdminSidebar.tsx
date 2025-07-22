@@ -45,7 +45,7 @@ const doctorNavigation: NavigationItem[] = [
     // { icon: Settings, label: 'Settings', path: '/doctor/settings' },
 ];
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen, logout }: propInterface) => {
+const AdminSidebar = ({ sidebarOpen, setSidebarOpen, logout }: propInterface) => {
     const pathname = usePathname();
     const isPatientRoute = pathname!.startsWith("/patient");
     const navigation = isPatientRoute ? patientNavigation : doctorNavigation;
@@ -131,4 +131,4 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, logout }: propInterface) => {
     )
 }
 
-export default Sidebar
+export default AdminSidebar

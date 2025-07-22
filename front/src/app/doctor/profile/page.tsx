@@ -2,7 +2,7 @@
 import EducationCertificates, { Certificate, Education } from '@/components/doctor/profile/EducationCertificates'
 import OtherInformation from '@/components/doctor/profile/OtherInformation'
 import PersonalInformationForm from '@/components/doctor/profile/PersonalInformationForm'
-import Loader from '@/components/Loader'
+import Loader from '@/components/ui/loader'
 import { AxiosInstance } from '@/helpers/Axios.instance'
 import React, { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'

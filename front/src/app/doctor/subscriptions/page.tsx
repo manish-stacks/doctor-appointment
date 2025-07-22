@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import Breadcrumb from '@/components/Breadcrumb';
+import Breadcrumb from '@/components/ui/custom/breadcrumb';
 import { AxiosInstance } from '@/helpers/Axios.instance';
 
 type Plan = {

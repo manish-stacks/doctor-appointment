@@ -10,7 +10,7 @@ import {
     TableRow
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import Breadcrumb from "@/components/Breadcrumb"
+import Breadcrumb from "@/components/ui/custom/breadcrumb"
 
 const subscriptionData = [
     {

@@ -1,11 +1,13 @@
 "use client"
 import React, { useState, useRef, useEffect } from 'react';
 import { userDetails, useUserStore } from '@/store/useUserStore';
-import Sidebar from './Sidebar';
-import Header from './Header';
+
+import AdminNavigation from './AdminNavigation';
+import AdminSidebar from './AdminSidebar';
+
 // import { usePathname } from 'next/navigation';
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -80,12 +82,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             )}
 
             {/* Sidebar */}
-            <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logout={logout} />
+            <AdminSidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} logout={logout} />
 
             {/* Main Content Container */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Top Header */}
-                <Header setSidebarOpen={setSidebarOpen} setProfileDropdownOpen={setProfileDropdownOpen} profileDropdownOpen={profileDropdownOpen} dropdownRef={dropdownRef} userData={userdata} logout={logout} />
+                <AdminNavigation setSidebarOpen={setSidebarOpen} setProfileDropdownOpen={setProfileDropdownOpen} profileDropdownOpen={profileDropdownOpen} dropdownRef={dropdownRef} userData={userdata} logout={logout} />
 
                 {/* Main Content Area with Scroll */}
                 <main className="flex-1 overflow-y-auto bg-gray-100 p-4">

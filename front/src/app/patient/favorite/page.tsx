@@ -1,5 +1,5 @@
 'use client';
-import Breadcrumb from "@/components/Breadcrumb";
+import Breadcrumb from "@/components/ui/custom/breadcrumb";
 import { Bookmark, BookmarkIcon, MapPin, Star } from "lucide-react";
 
 const doctors = [

@@ -1,6 +1,6 @@
 'use client';
 
-import Breadcrumb from '@/components/Breadcrumb';
+import Breadcrumb from '@/components/ui/custom/breadcrumb';
 import { useState } from 'react';
 
 export default function PatientProfile() {

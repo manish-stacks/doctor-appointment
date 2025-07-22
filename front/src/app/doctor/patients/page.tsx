@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination"
 import { Eye, Pencil, Trash2, CalendarPlus } from "lucide-react"
-import Breadcrumb from "@/components/Breadcrumb"
+import Breadcrumb from "@/components/ui/custom/breadcrumb"
 
 const patients = [
     {
