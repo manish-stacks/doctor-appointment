@@ -313,16 +313,23 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
                                     </TabsContent>
 
-                                    <div className="grid grid-cols-2 gap-4 mt-8">
-                                        <button className="flex items-center justify-center gap-2 px-4 py-2  rounded  transition border-2">
-                                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png" alt="Google" className="w-5 h-5" />
-                                            Google
-                                        </button>
-                                        <button className="flex items-center justify-center gap-2 px-4 py-2  rounded transition border-2">
-                                            <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" className="w-5 h-5" />
-                                            Facebook
-                                        </button>
+                                    <div className="mt-8 pt-6 border-t border-gray-200">
+                                        <p className="text-xs text-gray-500 text-center mb-4">
+                                            Or continue with professional accounts
+                                        </p>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <button className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition border-2 hover:bg-gray-50 hover:border-gray-300">
+                                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png" alt="Google" className="w-5 h-5" />
+                                                <span className="text-sm font-medium">Google</span>
+                                            </button>
+                                            <button className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition border-2 hover:bg-gray-50 hover:border-gray-300">
+                                                <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" className="w-5 h-5" />
+                                                <span className="text-sm font-medium">Facebook</span>
+                                            </button>
+                                        </div>
                                     </div>
+
+
                                 </Tabs>
                             </motion.div>
                         )}

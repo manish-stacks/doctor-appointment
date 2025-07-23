@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Heart, Navigation, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
 interface HeaderProps {
   isDarkMode: boolean;
@@ -12,7 +13,7 @@ interface HeaderProps {
   isLocationLoading: boolean;
 }
 
-export function Header({
+export default function Header({
   isDarkMode,
   toggleTheme,
   handlePatientLogin,
@@ -23,7 +24,7 @@ export function Header({
 
 
   const goDoctorLogin = () => {
-    window.location.href = '/doctor/login';
+    window.location.href = '/for-doctors';
   };
   
   return (
@@ -72,9 +73,9 @@ export function Header({
             <Button onClick={goDoctorLogin} variant="ghost" className="hidden md:flex text-gray-600 hover:text-blue-600">
               For Doctors
             </Button>
-            <Button variant="ghost" className="hidden md:flex text-gray-600 hover:text-blue-600">
+            <Link href="/about-us"  className="hidden md:flex text-gray-600 hover:text-blue-600">
               About
-            </Button>
+            </Link>
             <Button
               onClick={handlePatientLogin}
               className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2.5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"

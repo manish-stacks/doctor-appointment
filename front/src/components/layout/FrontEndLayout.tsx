@@ -1,9 +1,9 @@
 'use client';
 import React, { useEffect } from 'react';
-import { Header } from './Header';
 import { Footer } from './Footer';
 import { LoginModal } from '../LoginModal';
 import { useUIStore } from '@/store/uiStore';
+import Header from './Header';
 
 
 export const FrontEndLayout = ({ children }: { children: React.ReactNode }) => {
