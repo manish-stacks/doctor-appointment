@@ -16,13 +16,13 @@ type Plan = {
 
 export default function SubscriptionPanel() {
   const [plans, setPlans] = useState<Plan[]>([]);
-  const [currentSubId, setCurrentSubId] = useState<number | null>(null);
+  // const [currentSubId, setCurrentSubId] = useState<number | null>(null);
 
   const fetchPlans = async () => {
     try {
       const allPlans = await AxiosInstance.get('/subscription');
       const userSub = await AxiosInstance.get('/subscription/userbuy');
-
+      console.log('userSub', userSub.data);
 
       const activeSubId = userSub?.data?.subscriptionId || null;
 
@@ -32,7 +32,7 @@ export default function SubscriptionPanel() {
       }));
 
       setPlans(updatedPlans);
-      setCurrentSubId(activeSubId);
+      // setCurrentSubId(activeSubId);
     } catch (error) {
       console.error("Failed to fetch subscription data:", error);
     }
@@ -42,6 +42,18 @@ export default function SubscriptionPanel() {
     fetchPlans();
   }, []);
 
+
+
+  const handleSubscribe = async (planId: number) => {
+    try {
+      return;
+      const response = await AxiosInstance.post('/subscription/buy', { subscriptionId: planId });
+      console.log(response);
+      // await fetchPlans();
+    } catch (error) {
+      console.error("Failed to subscribe:", error);
+    }
+  }
   return (
     <div className="p-6 min-h-screen">
       <Breadcrumb title="Your Subscription Plan" />
@@ -71,6 +83,7 @@ export default function SubscriptionPanel() {
             </div>
             {!plan.isCurrent && (
               <motion.button
+                onClick={() => handleSubscribe(plan.id)}
                 whileHover={{ scale: 1.05 }}
                 className="mt-6 w-full bg-indigo-600 text-white py-2 rounded-xl shadow-md hover:bg-indigo-700 transition"
               >

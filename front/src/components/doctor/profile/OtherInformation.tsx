@@ -52,9 +52,7 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
     try {
       setIsLoadingCategories(true);
       const response = await AxiosInstance.get('/categories');
-
-      // Handle different response structures
-      const categoriesData = response.data;
+      const categoriesData = response.data.data;
       setCategories(Array.isArray(categoriesData) ? categoriesData : []);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -67,15 +65,11 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
   const fetchTreatments = async (categoryId: string) => {
     try {
       setIsLoadingTreatments(true);
-      console.log('Fetching treatments for category:', categoryId);
-
       const response = await AxiosInstance.get(`/treatments/category/${categoryId}`);
-    
-      const treatmentsData = response.data;
+      const treatmentsData = response.data.data;
       const treatmentArray = Array.isArray(treatmentsData) ? treatmentsData : [];
       setTreatments(treatmentArray);
 
-      // If current treatmentId is not in the new treatments list, clear it
       if (formData.treatmentId && !treatmentArray.some(t => t.id === formData.treatmentId)) {
         console.log('Current treatmentId not found in new treatments, clearing it');
         setFormData(prev => ({ ...prev, treatmentId: "" }));

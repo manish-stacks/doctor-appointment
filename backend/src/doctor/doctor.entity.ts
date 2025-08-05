@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { Hospital } from 'src/hospital/hospital.entity';
 import { Category } from 'src/category/category.entity';
-import { Subscription } from 'src/subscription/subscription.entity';
+// import { Subscription } from 'src/subscription/subscription.entity';
 import { User } from 'src/user/user.entity';
 
 @Entity('doctors')
@@ -36,8 +36,8 @@ export class Doctor {
   @Column({ nullable: true })
   treatmentId: number;
 
-  @Column({ type: 'int', unsigned: true, nullable: true })
-  subscriptionId: number;
+  // @Column({ type: 'int', unsigned: true, nullable: true })
+  // subscriptionId: number;
 
   @Column({ type: 'varchar' })
   image: string;
@@ -73,8 +73,8 @@ export class Doctor {
   @Column({ default: false })
   isVerified: boolean;
 
-  @Column({ default: false })
-  subscriptionStatus: boolean;
+  // @Column({ default: false })
+  // subscriptionStatus: boolean;
 
   @Column({ default: false })
   isPopular: boolean;
@@ -101,8 +101,8 @@ export class Doctor {
   @JoinColumn({ name: 'categoryId' })
   category: Category;
 
-  @ManyToOne(() => Subscription, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'subscriptionId' })
-  subscription: Subscription;
+  // @ManyToOne(() => Subscription, { nullable: true, onDelete: 'SET NULL' })
+  // @JoinColumn({ name: 'subscriptionId' })
+  // subscription: Subscription;
 
 }

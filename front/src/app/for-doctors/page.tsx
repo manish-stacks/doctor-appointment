@@ -63,9 +63,11 @@ export default function DoctorLoginPage() {
 
         setIsLoading(true);
         setError('');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return;
 
         try {
-            const response = await AxiosInstance.post(`/auth/doctor/login`, {
+            const response = await AxiosInstance.post(`/auth/login`, {
                 email,
                 password,
                 role: 'doctor',
@@ -96,7 +98,7 @@ export default function DoctorLoginPage() {
         setError('');
 
         try {
-            await AxiosInstance.post(`/auth/doctor/login`, {
+            await AxiosInstance.post(`/auth/login`, {
                 phone: Number(mobileNumber),
                 role: 'doctor',
             });
@@ -125,7 +127,7 @@ export default function DoctorLoginPage() {
         setError('');
 
         try {
-            const response = await AxiosInstance.post(`/auth/doctor/verify-otp`, {
+            const response = await AxiosInstance.post(`/auth/verify-otp`, {
                 phone: Number(mobileNumber),
                 otp,
                 type: 'login',
@@ -158,8 +160,8 @@ export default function DoctorLoginPage() {
 
         setIsLoading(true);
         try {
-            await AxiosInstance.post(`/auth/doctor/resend`, { 
-                phone: Number(mobileNumber), 
+            await AxiosInstance.post(`/auth/resend`, {
+                phone: Number(mobileNumber),
                 type: 'login',
                 role: 'doctor'
             });
@@ -181,7 +183,7 @@ export default function DoctorLoginPage() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
-                
+
 
                 {/* Main Card */}
                 <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
@@ -413,7 +415,7 @@ export default function DoctorLoginPage() {
                 {/* Footer */}
                 <div className="text-center mt-8 space-y-2">
                     <p className="text-sm text-gray-600">
-                        Don&apos;t have an account? 
+                        Don&apos;t have an account?
                         <button className="text-blue-600 hover:text-blue-700 hover:underline ml-1">
                             Register as Doctor
                         </button>

@@ -103,6 +103,9 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             });
         } catch (error: unknown) {
             setError(error instanceof Error ? error.message : 'Failed to send OTP. Please try again later.');
+            if (error.message == 'You are not authorized to login as user.') {
+                window.location.href = '/for-doctors';
+            }
             setIsLoading(false);
             return null;
         }

@@ -45,14 +45,14 @@ export default function PersonalInformationForm({ formData, setFormData }: Perso
     const fetchHospitals = async () => {
         try {
             const response = await AxiosInstance.get('/hospital')
-            const hospitalData = response.map((hospital: { id: string, name: string }) => ({
+            const hospitalData = response.data.map((hospital: { id: string, name: string }) => ({
                 id: hospital.id,
                 value: hospital.id,
                 label: hospital.name
             }))
 
             const allHospitals = [
-                ...hospitalData.data,
+                ...hospitalData,
                 { id: "add-new", value: "add-new", label: "+ Add New Hospital" }
             ];
 

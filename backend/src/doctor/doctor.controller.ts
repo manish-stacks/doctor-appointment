@@ -34,19 +34,11 @@ export class DoctorController {
     @Body() doctorDto: DoctorDto,
     @UploadedFile() file?: Multer.File
   ) {
-
     const userId = req.user.id;
-
     if (!userId) {
       throw new BadRequestException('User ID is missing from token');
     }
-
-    if (!file) {
-      throw new BadRequestException('No file uploaded');
-    }
-
     const doctor = await this.doctorService.create(doctorDto, userId, file?.path);
-
     return {
       success: true,
       message: 'Doctor created successfully',

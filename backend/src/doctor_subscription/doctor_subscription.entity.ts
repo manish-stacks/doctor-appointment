@@ -1,17 +1,17 @@
 /* eslint-disable prettier/prettier */
-import { Entity, Column, PrimaryGeneratedColumn, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Doctor } from 'src/doctor/doctor.entity';
+import { Subscription } from 'src/subscription/subscription.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity('doctor_subscriptions')
 export class DoctorSubscription {
     @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
     id: number;
 
-    @Index()
-    @Column({ type: 'bigint', unsigned: true })
+    @Column({ type: 'bigint', unsigned: true, nullable: true })
     doctorId: number;
 
-    @Index()
-    @Column({ type: 'bigint', unsigned: true })
+    @Column({ type: 'int', unsigned: true, nullable: true })
     subscriptionId: number;
 
     @Column({ type: 'int' })
@@ -30,13 +30,19 @@ export class DoctorSubscription {
     amount: number;
 
     @Column({ type: 'varchar', length: 255, nullable: true })
-    paymentToken: string;
+    paymentId?: string | null;
 
     @Column({ type: 'tinyint' })
     paymentStatus: boolean;
 
-    @Column({ type: 'int', default: 0 })
-    bookedAppointment: number;
+    @Column({ type: 'varchar', length: 255, default: 0 })
+    appointmentLimit?: string | null;
+
+    @Column({ type: 'varchar', length: 255, default: 0 })
+    usedAppointments?: string;
+
+    @Column({ type: 'enum', enum: ['active', 'expired'], default: 'active', })
+    status: string;
 
     @Column({ type: 'tinyint', default: 1 })
     isActive: boolean;
@@ -46,4 +52,12 @@ export class DoctorSubscription {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @ManyToOne(() => Doctor, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'doctorId' })
+    doctor: Doctor;
+
+    @ManyToOne(() => Subscription, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'subscriptionId' })
+    subscription: Subscription;
 }

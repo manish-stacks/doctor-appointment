@@ -9,9 +9,6 @@ export class Subscription {
     @Column({ type: 'varchar', length: 255 })
     name: string;
 
-    @Column({ type: 'text', nullable: true })
-    description: string;
-
     @Column({ type: 'int' })
     totalAppointment: number;
 
@@ -20,7 +17,9 @@ export class Subscription {
 
     @Column({ type: 'int' })
     validity: number;
-
+    
+    @Column({ type: 'text', nullable: true })
+    description: string;
     @CreateDateColumn()
     createdAt: Date;
 

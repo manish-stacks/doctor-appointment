@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 23, 2025 at 09:14 AM
+-- Generation Time: Aug 05, 2025 at 03:02 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -111,7 +111,6 @@ CREATE TABLE `doctors` (
   `hospitalId` bigint(20) UNSIGNED DEFAULT NULL,
   `categoryId` bigint(20) UNSIGNED DEFAULT NULL,
   `treatmentId` int(11) DEFAULT NULL,
-  `subscriptionId` bigint(20) UNSIGNED DEFAULT NULL,
   `image` varchar(255) NOT NULL,
   `desc` text DEFAULT NULL,
   `education` text DEFAULT NULL,
@@ -123,7 +122,6 @@ CREATE TABLE `doctors` (
   `gender` varchar(50) NOT NULL,
   `isActive` tinyint(4) NOT NULL DEFAULT 0,
   `isVerified` tinyint(4) NOT NULL DEFAULT 0,
-  `subscriptionStatus` tinyint(4) NOT NULL DEFAULT 0,
   `isPopular` tinyint(4) NOT NULL DEFAULT 0,
   `patientVideoCall` tinyint(4) NOT NULL DEFAULT 0,
   `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6),
@@ -134,8 +132,8 @@ CREATE TABLE `doctors` (
 -- Dumping data for table `doctors`
 --
 
-INSERT INTO `doctors` (`id`, `name`, `userId`, `expertise`, `hospitalId`, `categoryId`, `treatmentId`, `subscriptionId`, `image`, `desc`, `education`, `certificate`, `appointmentFees`, `experience`, `timeSlot`, `dob`, `gender`, `isActive`, `isVerified`, `subscriptionStatus`, `isPopular`, `patientVideoCall`, `createdAt`, `updatedAt`) VALUES
-(1, 'Suman', 1, 'surgical procedures', 1, 2, 3, 1, 'https://res.cloudinary.com/do34gd7bu/image/upload/v1752926900/uploads/jpz2wkizogm0aqf4vncz.png', 'Experience the future of healthcare with our comprehensive platform designed for modern patients and healthcare providers.\r\n\r\nSmart Scheduling\r\nAI-powered appointment booking that finds the perfect time slot for you\r\n\r\n24/7 Telemedicine\r\nConnect with doctors instantly through video consultations anytime\r\n\r\n', '[{\"id\":\"1\",\"degree\":\"10\",\"institution\":\"Delhi\",\"year\":\"2012\"},{\"id\":\"2\",\"degree\":\"12\",\"institution\":\"Delhi\",\"year\":\"2015\"}]', '[{\"id\":\"1\",\"name\":\"BPSC\",\"year\":\"2013\"}]', '500', '10', '30', '1998-07-19', 'male', 0, 0, 1, 1, 0, '2025-07-19 17:38:22.499802', '2025-07-19 17:40:16.265590');
+INSERT INTO `doctors` (`id`, `name`, `userId`, `expertise`, `hospitalId`, `categoryId`, `treatmentId`, `image`, `desc`, `education`, `certificate`, `appointmentFees`, `experience`, `timeSlot`, `dob`, `gender`, `isActive`, `isVerified`, `isPopular`, `patientVideoCall`, `createdAt`, `updatedAt`) VALUES
+(1, 'Suman', 1, 'Surgical Procedures', 1, 1, 2, 'https://res.cloudinary.com/do34gd7bu/image/upload/v1754387890/uploads/r9aj0v245pcwz3scif75.jpg', 'Experience the future of healthcare with our comprehensive platform designed for modern patients and healthcare providers.\r\n\r\nSmart Scheduling\r\nAI-powered appointment booking that finds the perfect time slot for you\r\n\r\n24/7 Telemedicine\r\nConnect with doctors instantly through video consultations anytime\r\n\r\n', '[{\"id\":\"1\",\"degree\":\"10\",\"institution\":\"Delhi\",\"year\":\"2012\"},{\"id\":\"2\",\"degree\":\"12\",\"institution\":\"Delhi\",\"year\":\"2015\"}]', '[{\"id\":\"1\",\"name\":\"BPSC\",\"year\":\"2013\"}]', '500', '10', '30', '1998-07-19', 'male', 0, 0, 1, 0, '2025-07-19 17:38:22.499802', '2025-08-05 15:43:29.385826');
 
 -- --------------------------------------------------------
 
@@ -145,16 +143,18 @@ INSERT INTO `doctors` (`id`, `name`, `userId`, `expertise`, `hospitalId`, `categ
 
 CREATE TABLE `doctor_subscriptions` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `doctorId` bigint(20) UNSIGNED NOT NULL,
-  `subscriptionId` bigint(20) UNSIGNED NOT NULL,
+  `doctorId` bigint(20) UNSIGNED DEFAULT NULL,
+  `subscriptionId` bigint(20) UNSIGNED DEFAULT NULL,
   `duration` int(11) NOT NULL,
   `startDate` varchar(255) NOT NULL,
   `endDate` varchar(255) NOT NULL,
   `paymentType` varchar(255) DEFAULT NULL,
   `amount` int(11) DEFAULT NULL,
-  `paymentToken` varchar(255) DEFAULT NULL,
+  `paymentId` varchar(255) DEFAULT NULL,
   `paymentStatus` tinyint(4) NOT NULL,
-  `bookedAppointment` int(11) NOT NULL DEFAULT 0,
+  `appointmentLimit` varchar(255) NOT NULL DEFAULT '0',
+  `usedAppointments` varchar(255) NOT NULL DEFAULT '0',
+  `status` enum('active','expired') NOT NULL DEFAULT 'active',
   `isActive` tinyint(4) NOT NULL DEFAULT 1,
   `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6),
   `updatedAt` datetime(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6)
@@ -200,7 +200,7 @@ CREATE TABLE `hospitals` (
 --
 
 INSERT INTO `hospitals` (`id`, `name`, `phone`, `address`, `lat`, `lng`, `facility`, `isVerified`, `isActive`, `userId`, `createdAt`, `updatedAt`) VALUES
-(1, 'Suman Hospital', '6200027897', 'Address 916 , 9th Floor, Toweer-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL, NULL, '10', 0, 0, 1, '2025-07-19 17:14:34.410063', '2025-07-19 17:14:34.410063');
+(1, 'Suman Hospital', '6200027897', 'Address 916 , 9th Floor, Toweer-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL, NULL, '10', 1, 1, 1, '2025-07-19 17:14:34.410063', '2025-08-05 16:41:00.687611');
 
 -- --------------------------------------------------------
 
@@ -289,10 +289,10 @@ CREATE TABLE `reviews` (
 CREATE TABLE `subscriptions` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
-  `description` text DEFAULT NULL,
   `totalAppointment` int(11) NOT NULL,
   `price` int(11) NOT NULL,
   `validity` int(11) NOT NULL,
+  `description` text DEFAULT NULL,
   `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6),
   `updatedAt` datetime(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -301,10 +301,10 @@ CREATE TABLE `subscriptions` (
 -- Dumping data for table `subscriptions`
 --
 
-INSERT INTO `subscriptions` (`id`, `name`, `description`, `totalAppointment`, `price`, `validity`, `createdAt`, `updatedAt`) VALUES
-(1, 'Free', NULL, 500, 0, 1, '2025-07-19 16:39:26.000000', '2025-07-19 16:39:29.163295'),
-(2, 'Standard', NULL, 3000, 750, 3, '2025-07-19 16:39:31.000000', '2025-07-19 16:39:33.209696'),
-(3, 'Premium', NULL, 10000, 1200, 12, '2025-07-19 16:39:38.000000', '2025-07-19 16:40:48.000000');
+INSERT INTO `subscriptions` (`id`, `name`, `totalAppointment`, `price`, `validity`, `description`, `createdAt`, `updatedAt`) VALUES
+(1, 'Free', 500, 0, 1, NULL, '2025-07-19 16:39:26.000000', '2025-08-05 18:12:32.707019'),
+(2, 'Standard', 3000, 750, 3, NULL, '2025-07-19 16:39:31.000000', '2025-08-05 18:12:30.620531'),
+(3, 'Premium', 10000, 1200, 12, NULL, '2025-07-19 16:39:38.000000', '2025-07-19 16:40:48.000000');
 
 -- --------------------------------------------------------
 
@@ -364,7 +364,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `email`, `email_verified_at`, `username`, `password`, `HowManyOtpSend`, `phone`, `otp`, `login_otp`, `otp_expires_at`, `dob`, `gender`, `role`, `image`, `isActive`, `contact_number_verified`, `doctor_id`, `createdAt`, `updatedAt`) VALUES
-(1, 'mks957678@gmail.com', NULL, 'Suman', NULL, 0, '6200027897', 810737, 0, '2025-07-21 12:29:40', '1998-07-19', 'male', 'doctor', 'https://res.cloudinary.com/do34gd7bu/image/upload/v1752926900/uploads/jpz2wkizogm0aqf4vncz.png', 0, 0, 1, '2025-07-19 17:10:10.754959', '2025-07-21 17:59:07.000000'),
+(1, 'mks957678@gmail.com', NULL, 'Suman', NULL, 0, '6200027897', 810737, 0, '2025-08-05 10:12:07', '1998-07-19', 'male', 'doctor', 'https://res.cloudinary.com/do34gd7bu/image/upload/v1754387890/uploads/r9aj0v245pcwz3scif75.jpg', 0, 0, 1, '2025-07-19 17:10:10.754959', '2025-08-05 15:41:19.000000'),
 (3, '', NULL, 'Guest', NULL, 0, '7050494706', 990459, NULL, '2025-07-21 13:01:41', NULL, NULL, 'user', 'https://ui-avatars.com/api/?name=Guest&background=F7F460&color=66F0B3', 0, 0, NULL, '2025-07-21 18:29:41.615401', '2025-07-21 18:29:41.615401');
 
 -- --------------------------------------------------------
@@ -465,16 +465,15 @@ ALTER TABLE `doctors`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_55651e05e46413d510215535edf` (`userId`),
   ADD KEY `FK_b7c9cc719c797fa0e4f9e2b1303` (`hospitalId`),
-  ADD KEY `FK_114c4b17c58a98f20b1f9385bee` (`categoryId`),
-  ADD KEY `FK_0cc4cb5db9f4c8a35b9e83504d4` (`subscriptionId`);
+  ADD KEY `FK_114c4b17c58a98f20b1f9385bee` (`categoryId`);
 
 --
 -- Indexes for table `doctor_subscriptions`
 --
 ALTER TABLE `doctor_subscriptions`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `IDX_37220a1b86d4338fc396406fd6` (`doctorId`),
-  ADD KEY `IDX_339ba4af5d5b5ef52fde09e011` (`subscriptionId`);
+  ADD KEY `FK_37220a1b86d4338fc396406fd6c` (`doctorId`),
+  ADD KEY `FK_339ba4af5d5b5ef52fde09e0114` (`subscriptionId`);
 
 --
 -- Indexes for table `favorites`
@@ -589,7 +588,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `doctors`
 --
 ALTER TABLE `doctors`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `doctor_subscriptions`
@@ -655,7 +654,7 @@ ALTER TABLE `treatments`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `user_address`
@@ -689,10 +688,16 @@ ALTER TABLE `zoom_meeting`
 -- Constraints for table `doctors`
 --
 ALTER TABLE `doctors`
-  ADD CONSTRAINT `FK_0cc4cb5db9f4c8a35b9e83504d4` FOREIGN KEY (`subscriptionId`) REFERENCES `subscriptions` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
   ADD CONSTRAINT `FK_114c4b17c58a98f20b1f9385bee` FOREIGN KEY (`categoryId`) REFERENCES `categories` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
   ADD CONSTRAINT `FK_55651e05e46413d510215535edf` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `FK_b7c9cc719c797fa0e4f9e2b1303` FOREIGN KEY (`hospitalId`) REFERENCES `hospitals` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `doctor_subscriptions`
+--
+ALTER TABLE `doctor_subscriptions`
+  ADD CONSTRAINT `FK_339ba4af5d5b5ef52fde09e0114` FOREIGN KEY (`subscriptionId`) REFERENCES `subscriptions` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION,
+  ADD CONSTRAINT `FK_37220a1b86d4338fc396406fd6c` FOREIGN KEY (`doctorId`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `treatments`

@@ -7,6 +7,9 @@ import { DoctorDto } from './doctor.dto';
 import { uploadToCloudinary } from 'src/helper/cloudinary.helper';
 import { User } from 'src/user/user.entity';
 import { Hospital } from 'src/hospital/hospital.entity';
+import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.entity';
+import { Subscription } from 'src/subscription/subscription.entity';
+
 
 @Injectable()
 export class DoctorService {
@@ -17,6 +20,10 @@ export class DoctorService {
         private userRepository: Repository<User>,
         @InjectRepository(Hospital)
         private hospitalRepository: Repository<Hospital>,
+        @InjectRepository(DoctorSubscription)
+        private doctorSubscriptionRepository: Repository<DoctorSubscription>,
+        @InjectRepository(Subscription)
+        private subscriptionsRepository: Repository<Subscription>,
     ) { }
 
     async create(
@@ -30,15 +37,15 @@ export class DoctorService {
         const hospital = await this.hospitalRepository.findOne({
             where: { id: Number(doctorDto.hospitalId) },
         });
+        if (!hospital) throw new NotFoundException('Hospital not found');
 
-        if(!hospital) throw new NotFoundException('Hospital not found');
 
         if (filePath) {
             const result: { secure_url: string } = await uploadToCloudinary(filePath);
             doctorDto.profileImage = result.secure_url;
         }
 
-        
+
         user.email = doctorDto.user.email;
         user.phone = doctorDto.user.phone;
         user.username = doctorDto.name;
@@ -63,33 +70,57 @@ export class DoctorService {
             dob: doctorDto.dob,
             gender: doctorDto.gender,
             isActive: false,
-            subscriptionStatus: true,
             isPopular: true,
             patientVideoCall: false,
-            subscriptionId : 1
+            // subscriptionStatus: true,
+            // subscriptionId: 1
         };
 
-        const existingDoctor = await this.doctorRepository.findOne({
-            where: { userId },
-        });
+        const existingDoctor = await this.doctorRepository.findOne({ where: { userId } });
+
+        let doctor: Doctor;
 
         if (existingDoctor) {
             Object.assign(existingDoctor, doctorData);
-            const updatedDoctor = await this.doctorRepository.save(existingDoctor);
-            user.doctor_id = updatedDoctor.id;
-            await this.userRepository.save(user);
-            return updatedDoctor;
+            doctor = await this.doctorRepository.save(existingDoctor);
         } else {
+            const newDoctor = this.doctorRepository.create(doctorData);
+            doctor = await this.doctorRepository.save(newDoctor);
 
-            const newDoctor = this.doctorRepository.create({ ...doctorData, userId });
-            const savedDoctor = await this.doctorRepository.save(newDoctor);
-            user.doctor_id = savedDoctor.id;
-            await this.userRepository.save(user);
-            return savedDoctor;
+            await this.createDoctorSubscription(doctor.id, 1); // 1 = Free Trial
         }
 
+        user.doctor_id = doctor.id;
+        await this.userRepository.save(user);
 
+        return doctor;
     }
+    async createDoctorSubscription(doctorId: number, subscriptionId: number) {
+        const subscription = await this.subscriptionsRepository.findOne({ where: { id: subscriptionId } });
+
+        if (!subscription) throw new NotFoundException('Subscription not found');
+
+        const startDate = new Date();
+        const endDate = new Date(startDate);
+        endDate.setMonth(startDate.getMonth() + subscription.validity); // assuming validity is in months
+
+        const doctorSubscription = this.doctorSubscriptionRepository.create({
+            doctorId: doctorId,
+            subscriptionId: subscriptionId,
+            duration: subscription.validity,
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            paymentType: 'free',
+            amount: 0,
+            paymentId: null,
+            paymentStatus: true,
+            appointmentLimit: subscription.totalAppointment.toString(),
+            isActive: true,
+        });
+
+        await this.doctorSubscriptionRepository.save(doctorSubscription);
+    }
+
 
     async findOneByUserId(userId: number) {
         return this.doctorRepository.findOne({
