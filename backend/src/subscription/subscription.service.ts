@@ -1,9 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Subscription } from './subscription.entity';
 import { Doctor } from 'src/doctor/doctor.entity';
+import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.entity';
 
 @Injectable()
 export class SubscriptionService {
@@ -11,21 +12,32 @@ export class SubscriptionService {
         @InjectRepository(Subscription)
         private subscriptionRepository: Repository<Subscription>,
         @InjectRepository(Doctor)
-        private doctorRepository: Repository<Doctor>
+        private doctorRepository: Repository<Doctor>,
+        @InjectRepository(DoctorSubscription)
+        private doctorSubscriptionRepository: Repository<DoctorSubscription>
     ) { }
 
     async findAll() {
         return this.subscriptionRepository.find();
     }
 
-
     async findUserBuy(userId: number) {
-        return this.doctorRepository
-            .createQueryBuilder('doctors')
-            .select(['doctors.subscriptionId'])
-            .where('doctors.userId = :userId', { userId })
+        const doctor = await this.doctorRepository.findOne({ where: { userId } });
+        if (!doctor) {
+            throw new NotFoundException('Doctor not found');
+        }
+
+        const subscription = await this.doctorSubscriptionRepository
+            .createQueryBuilder('ds')
+            .select(['ds.subscriptionId'])
+            .where('ds.doctorId = :doctorId', { doctorId: doctor.id })
+            .andWhere('ds.status = :status', { status: 'active' })
+            .orderBy('ds.startDate', 'DESC')
             .getOne();
+
+        return subscription ? subscription : null;
     }
+
 
     async create(name: string, plan: string, totalAppointment: number) {
         const subscription = new Subscription();

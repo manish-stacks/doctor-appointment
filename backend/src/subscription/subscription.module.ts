@@ -6,10 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Subscription } from './subscription.entity';
 import { Doctor } from 'src/doctor/doctor.entity';
 import { AuthModule } from 'src/auth/auth.module';
+import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Subscription, Doctor]),
+    TypeOrmModule.forFeature([Subscription, Doctor, DoctorSubscription]),
     AuthModule
   ],
   controllers: [SubscriptionController],

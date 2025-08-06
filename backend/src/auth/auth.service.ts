@@ -1,5 +1,5 @@
-import { LoginDto } from './../user/user.dto';
 /* eslint-disable prettier/prettier */
+import { LoginDto } from './../user/user.dto';
 import {
   Injectable,
   BadRequestException,
@@ -78,6 +78,7 @@ export class AuthService {
         phone: user.phone,
         image: user.image,
         role: user.role,
+        doctor_id: user?.doctor_id,
       };
       const token = this.jwtService.sign(payload);
       const send_user = {

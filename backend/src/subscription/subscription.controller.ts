@@ -12,11 +12,12 @@ export class SubscriptionController {
         return this.subscriptionService.findAll();
     }
 
-
+   
     @UseGuards(JwtAuthGuard)
-    @Get('userbuy')
-     findUserBuy(@Request() req: { user: { id: number; } }) {
+    @Get('userBuy')
+    findUserBuy(@Request() req: { user: { id: number; } }) {
         const userId = req.user.id;
+        console.log(userId)
         return this.subscriptionService.findUserBuy(userId);
     }
 

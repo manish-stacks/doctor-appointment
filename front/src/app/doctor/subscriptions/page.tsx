@@ -21,7 +21,7 @@ export default function SubscriptionPanel() {
   const fetchPlans = async () => {
     try {
       const allPlans = await AxiosInstance.get('/subscription');
-      const userSub = await AxiosInstance.get('/subscription/userbuy');
+      const userSub = await AxiosInstance.get('/subscription/userBuy');
       console.log('userSub', userSub.data);
 
       const activeSubId = userSub?.data?.subscriptionId || null;

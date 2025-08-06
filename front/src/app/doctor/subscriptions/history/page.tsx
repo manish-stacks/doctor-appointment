@@ -1,5 +1,8 @@
 'use client'
 
+import { useEffect, useState } from "react";
+
+
 import {
     Table,
     TableBody,
@@ -8,45 +11,59 @@ import {
     TableHead,
     TableHeader,
     TableRow
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import Breadcrumb from "@/components/ui/custom/breadcrumb"
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import Breadcrumb from "@/components/ui/custom/breadcrumb";
+import { AxiosInstance } from "@/helpers/Axios.instance";
 
-const subscriptionData = [
-    {
-        id: 1,
-        plan: "Basic",
-        doctor: "Admin",
-        payment: "$1200",
-        paymentType: "Online",
-        paymentStatus: "Paid",
-        date: "2024-03-19 to 2032-04-19",
-        isActive: true,
-    },
-    {
-        id: 2,
-        plan: "Advanced",
-        doctor: "Admin",
-        payment: "$1800",
-        paymentType: "Online",
-        paymentStatus: "Pending",
-        date: "2023-02-10 to 2024-02-10",
-        isActive: false,
-    },
-]
-
+interface Subscription {
+    id: number;
+    planName: string;
+    startDate: string;
+    endDate: string;
+    amount: string;
+    paymentType: string;
+    paymentStatus: string;
+    appointmentLimit: number;
+    usedAppointments: number;
+    status: string;
+    isActive: string;
+    subscription:{
+        name: string;
+    }
+}
 export default function SubscriptionTable() {
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchSubscriptions = async () => {
+            try {
+                const res = await AxiosInstance.get("doctor-subscription/get-all");
+                setSubscriptions(res.data || []);
+            } catch (error) {
+                console.error("Error fetching subscriptions:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSubscriptions();
+    }, []);
+
     return (
         <div className="p-6">
             <Breadcrumb title="Subscription History" />
             <div className="p-6 space-y-6 rounded-md border bg-white shadow-sm overflow-hidden">
                 <Table>
-                    <TableCaption>A list of your past subscriptions.</TableCaption>
+                    <TableCaption>
+                        {loading ? "Loading subscriptions..." : "A list of your past subscriptions."}
+                    </TableCaption>
                     <TableHeader className="bg-gray-100">
                         <TableRow>
                             <TableHead>#</TableHead>
                             <TableHead>Subscription Name</TableHead>
-                            <TableHead>Doctor Name</TableHead>
+                            <TableHead>Appointment</TableHead>
                             <TableHead>Payment</TableHead>
                             <TableHead>Payment Type</TableHead>
                             <TableHead>Payment Status</TableHead>
@@ -55,31 +72,45 @@ export default function SubscriptionTable() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {subscriptionData.map((sub, index) => (
-                            <TableRow key={sub.id}>
-                                <TableCell className="font-medium">{index + 1}</TableCell>
-                                <TableCell>{sub.plan}</TableCell>
-                                <TableCell>{sub.doctor}</TableCell>
-                                <TableCell>{sub.payment}</TableCell>
-                                <TableCell>{sub.paymentType}</TableCell>
-                                <TableCell>
-                                    <Badge
-                                        variant={sub.paymentStatus === "Paid" ? "success" : "destructive"}
-                                    >
-                                        {sub.paymentStatus}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>{sub.date}</TableCell>
-                                <TableCell>
-                                    <Badge variant={sub.isActive ? "success" : "outline"}>
-                                        {sub.isActive ? "Currently Available" : "Expired"}
-                                    </Badge>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {subscriptions.length > 0 ? (
+                            subscriptions.map((sub, index) => (
+                                <TableRow key={sub.id}>
+                                    <TableCell className="font-medium">{index + 1}</TableCell>
+                                    <TableCell>{sub.subscription.name}</TableCell>
+                                    <TableCell>{sub.appointmentLimit - sub.usedAppointments}</TableCell>
+                                    <TableCell>{`${sub.amount}`}</TableCell>
+                                    <TableCell>{sub.paymentType}</TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            variant={sub.paymentStatus === "1" ? "success" : "destructive"}
+                                        >
+                                            {sub.paymentStatus === "1" ? "Paid" : "Unpaid"}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        {`${new Date(sub.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} 
+                                        to 
+                                        ${new Date(sub.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge variant={sub.isActive ? "success" : "outline"}>
+                                            {sub.isActive ? "Currently Available" : "Expired"}
+                                        </Badge>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            !loading && (
+                                <TableRow>
+                                    <TableCell colSpan={8} className="text-center text-gray-500">
+                                        No subscriptions found.
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        )}
                     </TableBody>
                 </Table>
             </div>
         </div>
-    )
+    );
 }
