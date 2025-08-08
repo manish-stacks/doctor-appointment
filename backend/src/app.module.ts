@@ -22,6 +22,7 @@ import { WorkingHourModule } from './working_hour/working_hour.module';
 import { ZoomMeetingModule } from './zoom_meeting/zoom_meeting.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { ReviewModule } from './review/review.module';
+import { TimeSlotModule } from './time-slot/time-slot.module';
 
 @Module({
   imports: [
@@ -69,6 +70,7 @@ import { ReviewModule } from './review/review.module';
     ZoomMeetingModule,
     FavoriteModule,
     ReviewModule,
+    TimeSlotModule,
   ],
 })
 export class AppModule {}
