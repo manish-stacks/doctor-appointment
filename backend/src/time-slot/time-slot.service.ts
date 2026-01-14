@@ -5,17 +5,15 @@ import { Repository } from 'typeorm'
 import { TimeSlotEntity } from './time-slot.entity'
 import { CreateTimeSlotDto, UpdateTimeSlotDto } from './time-slot.dto'
 
-
 @Injectable()
 export class TimeSlotService {
   constructor(
     @InjectRepository(TimeSlotEntity)
     private readonly repo: Repository<TimeSlotEntity>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Record<string, any>> {
     const records = await this.repo.find()
-    // Convert to { Sunday: {...}, Monday: {...} }
     return records.reduce((acc, curr) => {
       acc[curr.day] = { active: curr.active, slots: curr.slots }
       return acc
@@ -33,11 +31,16 @@ export class TimeSlotService {
     return this.repo.save(slot)
   }
 
-  async update(day: string, dto: UpdateTimeSlotDto) {
-    const existing = await this.repo.findOne({ where: { day } })
-    if (!existing) throw new NotFoundException(`No time slot for ${day}`)
-    Object.assign(existing, dto)
-    return this.repo.save(existing)
+  async update(doctorId: number, dto: UpdateTimeSlotDto) {
+    const existing = await this.repo.findOne({ where: { doctorId, day: dto.day } });
+
+    if (!existing) {
+      const created = this.repo.create({ ...dto, doctorId });
+      return this.repo.save(created);
+    }
+
+    Object.assign(existing, dto);
+    return this.repo.save(existing);
   }
 
   async remove(day: string) {

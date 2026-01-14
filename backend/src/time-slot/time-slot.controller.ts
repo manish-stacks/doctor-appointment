@@ -1,12 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Post, Put, Param, Body, Delete } from '@nestjs/common'
+import { Controller, Get, Post, Put, Param, Body, Delete, UseGuards, Request } from '@nestjs/common'
 import { TimeSlotService } from './time-slot.service'
 import { CreateTimeSlotDto, UpdateTimeSlotDto } from './time-slot.dto'
-
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard'
 
 @Controller('time-slot')
 export class TimeSlotController {
-  constructor(private readonly service: TimeSlotService) {}
+  constructor(private readonly service: TimeSlotService) { }
 
   @Get()
   findAll() {
@@ -23,9 +23,10 @@ export class TimeSlotController {
     return this.service.create(dto)
   }
 
+  @UseGuards(JwtAuthGuard)
   @Put()
-  update(@Body() dto: UpdateTimeSlotDto) {
-    return this.service.update(dto.day, dto)
+  update(@Request() req: { user: { id: number } }, @Body() dto: UpdateTimeSlotDto) {
+    return this.service.update(req.user.id, dto);
   }
 
   @Delete(':day')

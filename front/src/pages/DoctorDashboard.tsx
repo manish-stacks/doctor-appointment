@@ -4,35 +4,66 @@ import { userDetails, useUserStore } from "@/store/useUserStore";
 import { Calendar, Clock, FileText, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import confetti from 'canvas-confetti';
+import {  encryptDoctorId } from "@/helpers/Helper";
 
 export function DoctorDashboard() {
   const userDetails = useUserStore((state) => state.getUserDetails);
   const [userdata, setUserData] = useState<userDetails | null>(null);
+  const [doctorId, setDoctorId] = useState<string | null>(null);
   const router = useRouter();
 
-
   useEffect(() => {
-    const details = userDetails();
+    const getUserDetails = async () => {
+      try {
+        const details = userDetails();
 
-    if (!details || !details.doctor_id) {
-      // Safe redirect inside useEffect
-      router.push("/doctor/profile");
-      return;
+        if (!details || !details.doctor_id) {
+          router.push("/doctor/profile");
+          return;
+        }
+        setUserData(details);
+        setDoctorId(details.doctor_id);
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+      }
     }
 
-    setUserData(details);
-  }, [userDetails, router]);
+    getUserDetails();
+  }, [userDetails, router, doctorId]);
 
+
+
+  function copyProfileLink() {
+    
+    if (!doctorId) {
+      console.error('Doctor ID is not available');
+      return;
+    }
+    const encryptedDoctorId = encryptDoctorId(String(doctorId));
+    // const decryptedDoctorId = decryptDoctorId(String(encryptedDoctorId));
+
+    // console.log('Decrypted Doctor ID:', decryptedDoctorId);
+    // console.log('Encrypted Doctor ID:', encryptedDoctorId)
+
+    const link = `${window.location.origin}/doctor-profile/${encryptedDoctorId}`;
+
+    navigator.clipboard.writeText(link).then(() => {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { x: 0.5, y: 0.5 },
+      });
+    }).catch(err => {
+      console.error('Failed to copy link: ', err);
+    });
+  }
 
 
 
   if (!userdata) {
     return <div>Loading...</div>;
   }
-
-
-
-
 
   if (!userdata?.doctor_id) {
     router.push('/doctor/profile');
@@ -44,10 +75,23 @@ export function DoctorDashboard() {
 
       <div className="flex-1 overflow-y-auto p-2 lg:p-4">
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-semibold mb-4">Welcome back, {userdata?.username || 'Doctor'}</h2>
-          <p className="text-gray-600">Your dashboard content goes here.</p>
+        <div className="bg-white rounded-lg shadow p-6 flex justify-between items-center">
+          <div className="mb-6">  {/* Left aligned section */}
+            <h2 className="text-2xl font-semibold mb-2">Welcome back, {userdata?.username || 'Doctor'}</h2>
+            <p className="text-gray-600">Your dashboard content goes here.</p>
+          </div>
+
+          <div className="mt-6">  {/* Right aligned section */}
+            <button
+              onClick={copyProfileLink}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300"
+            >
+              Send Link
+            </button>
+          </div>
         </div>
+
+
 
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mt-3">

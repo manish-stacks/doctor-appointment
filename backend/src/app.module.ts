@@ -23,6 +23,8 @@ import { ZoomMeetingModule } from './zoom_meeting/zoom_meeting.module';
 import { FavoriteModule } from './favorite/favorite.module';
 import { ReviewModule } from './review/review.module';
 import { TimeSlotModule } from './time-slot/time-slot.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -58,7 +60,6 @@ import { TimeSlotModule } from './time-slot/time-slot.module';
     DoctorSubscriptionModule,
     SubscriptionModule,
     MedicineModule,
-
     TreatmentsModule,
     HospitalModule,
     MedicineCategoryModule,
@@ -72,5 +73,7 @@ import { TimeSlotModule } from './time-slot/time-slot.module';
     ReviewModule,
     TimeSlotModule,
   ],
+  controllers: [AppController],   
+  providers: [AppService],       
 })
 export class AppModule {}

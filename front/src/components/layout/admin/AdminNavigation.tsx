@@ -13,7 +13,6 @@ interface headerInterface {
 
 const AdminNavigation = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdownOpen, dropdownRef, userData, logout }: headerInterface) => {
     const [showNotifications, setShowNotifications] = React.useState(false);
-
     return (
         <>
             <header className="sticky top-0 z-30 h-16 bg-white shadow-sm flex items-center justify-between px-4 lg:px-8">

@@ -1,9 +1,8 @@
 /* eslint-disable prettier/prettier */
 
-import { IsBoolean, IsString, IsArray, ValidateNested } from 'class-validator'
-import { Type } from 'class-transformer'
+import { IsBoolean, IsString, IsArray } from 'class-validator'
 
-class SlotDto {
+export class TimeSlotDto {
   @IsString()
   start: string
 
@@ -19,9 +18,7 @@ export class CreateTimeSlotDto {
   active: boolean
 
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => SlotDto)
-  slots: SlotDto[]
+  slots: TimeSlotDto[]
 }
 
-export class UpdateTimeSlotDto extends CreateTimeSlotDto{}
+export class UpdateTimeSlotDto extends CreateTimeSlotDto {}

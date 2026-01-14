@@ -39,6 +39,11 @@ export interface PersonalInfo {
     email: string;
     phone: string;
     countryCode: string;
+    user?:{
+        email: string;
+        phone: string;
+        countryCode: string;
+    }
 
 };
 
@@ -91,6 +96,7 @@ const Profile = () => {
             setIsLoading(false);
         }
     }
+    
     useEffect(() => {
         getUserProfile();
     }, [])
@@ -102,8 +108,8 @@ const Profile = () => {
                 profileImage: undefined,
                 image: data.image || "",
                 name: data.name || "",
-                categoryId: data.categoryId || "",
-                treatmentId: data.treatmentId || "",
+                categoryId: data.categoryId ? String(data.categoryId) : "",
+                treatmentId: data.treatmentId ? String(data.treatmentId) : "",
                 expertise: data.expertise || "",
                 hospitalId: data.hospitalId?.toString() || "",
                 userId: data.userId?.toString() || "",
@@ -170,8 +176,9 @@ const Profile = () => {
 
         const doctorData = {
             name: formData.name,
-            categoryId: formData.categoryId,
-            treatmentId: formData.treatmentId,
+            categoryId: parseInt(formData.categoryId),
+            // treatmentId: formData.treatmentId,
+            treatmentId: parseInt(formData.treatmentId),
             expertise: formData.expertise,
             hospitalId: formData.hospitalId ? parseInt(formData.hospitalId) : null,
             userId: formData.userId ? parseInt(formData.userId) : null,

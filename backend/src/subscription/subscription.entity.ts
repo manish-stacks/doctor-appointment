@@ -20,6 +20,7 @@ export class Subscription {
     
     @Column({ type: 'text', nullable: true })
     description: string;
+    
     @CreateDateColumn()
     createdAt: Date;
 

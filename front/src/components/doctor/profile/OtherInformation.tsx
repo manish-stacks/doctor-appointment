@@ -38,6 +38,7 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
     fetchCategories();
   }, []);
 
+  
   // Fetch treatments when categoryId changes
   useEffect(() => {
     if (formData.categoryId) {
@@ -70,7 +71,7 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
       const treatmentArray = Array.isArray(treatmentsData) ? treatmentsData : [];
       setTreatments(treatmentArray);
 
-      if (formData.treatmentId && !treatmentArray.some(t => t.id === formData.treatmentId)) {
+      if (formData.treatmentId && !treatmentArray.some(t => String(t.id) === formData.treatmentId)) {
         console.log('Current treatmentId not found in new treatments, clearing it');
         setFormData(prev => ({ ...prev, treatmentId: "" }));
       }
@@ -153,7 +154,7 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
                 <SelectItem value="loading" disabled>Loading categories...</SelectItem>
               ) : categories.length > 0 ? (
                 categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
+                  <SelectItem key={category.id} value={String(category.id)}>
                     {category.name.toUpperCase()}
                   </SelectItem>
                 ))
@@ -189,7 +190,7 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
                 <SelectItem value="loading" disabled>Loading treatments...</SelectItem>
               ) : treatments.length > 0 ? (
                 treatments.map((treatment) => (
-                  <SelectItem key={treatment.id} value={treatment.id}>
+                  <SelectItem key={treatment.id} value={String(treatment.id)}>
                     {treatment.name.toUpperCase()}
                   </SelectItem>
                 ))

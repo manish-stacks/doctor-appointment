@@ -25,7 +25,7 @@ interface Subscription {
     usedAppointments: number;
     status: string;
     isActive: string;
-    subscription:{
+    subscription: {
         name: string;
     }
 }
@@ -75,13 +75,13 @@ export default function SubscriptionTable() {
                                     <TableCell className="font-medium">{index + 1}</TableCell>
                                     <TableCell>{sub.subscription.name}</TableCell>
                                     <TableCell>{sub.appointmentLimit - sub.usedAppointments}</TableCell>
-                                    <TableCell>{`${sub.amount}`}</TableCell>
+                                    <TableCell>{Number(sub?.amount) === 0 ? "Free" : sub?.amount}</TableCell>
                                     <TableCell>{sub.paymentType}</TableCell>
                                     <TableCell>
                                         <Badge
-                                            variant={sub.paymentStatus === "1" ? "success" : "destructive"}
+                                            variant={sub.paymentStatus == "1" ? "success" : "destructive"}
                                         >
-                                            {sub.paymentStatus === "1" ? "Paid" : "Unpaid"}
+                                            {sub.paymentStatus == "1" ? "Paid" : "Unpaid"}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>

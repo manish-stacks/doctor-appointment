@@ -110,7 +110,7 @@ export class DoctorService {
             duration: subscription.validity,
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
-            paymentType: 'free',
+            paymentType: 'Welcome Plan',
             amount: 0,
             paymentId: null,
             paymentStatus: true,
