@@ -4,13 +4,28 @@ import { Calendar, Clock, FileText, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 
 const PatientDashboard = () => {
-  const userDetails = useUserStore((state) => state.userDetails);
+  const userDetails = useUserStore((state) => state.getUserDetails);
   const [userdata, setUserData] = useState<userDetails>();
-  // console.log(userdata)
+
   useEffect(() => {
-    if (!userDetails) return;
-    setUserData(userDetails)
-  }, []);
+    const getUserDetails = async () => {
+      try {
+        const details = userDetails();
+        if (!details) {
+          console.warn('No user details available');
+          return;
+        }
+        try {
+          setUserData(details);
+        } catch (error) {
+          console.error('Error setting user data:', error);
+        }
+      } catch (error) {
+        console.error('Error fetching user details:', error);
+      }
+    }
+    getUserDetails();
+  }, [userDetails]);
 
   return (
     <>

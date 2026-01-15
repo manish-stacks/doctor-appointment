@@ -10,9 +10,10 @@ import { AuthModule } from 'src/auth/auth.module';
 import { CloudinaryConfig } from 'src/config/cloudinary.config';
 import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.entity';
 import { Subscription } from 'src/subscription/subscription.entity';
+import { TimeSlotEntity } from 'src/time-slot/time-slot.entity';
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Doctor, User, Hospital, DoctorSubscription, Subscription]),
+    TypeOrmModule.forFeature([Doctor, User, Hospital, DoctorSubscription, Subscription, TimeSlotEntity]),
     AuthModule,
   ],
   providers: [

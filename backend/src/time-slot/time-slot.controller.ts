@@ -17,7 +17,7 @@ export class TimeSlotController {
   findOne(@Param('day') day: string) {
     return this.service.findOne(day)
   }
-
+  
   @Post()
   create(@Body() dto: CreateTimeSlotDto) {
     return this.service.create(dto)

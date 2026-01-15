@@ -11,6 +11,7 @@ import { Phone, Shield, ArrowLeft, ArrowRight, Mail, Eye, EyeOff } from 'lucide-
 import { motion, AnimatePresence } from 'framer-motion';
 import { AxiosInstance } from '@/helpers/Axios.instance';
 import { useUserStore } from '@/store/useUserStore';
+import toast from 'react-hot-toast';
 
 interface LoginModalProps {
     isOpen: boolean;
@@ -142,7 +143,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
             fetchUserDetails(response.data);
             handleClose();
-            window.location.href = '/patient/dashboard';
+            toast.success('Login successful!');
+            // window.location.href = '/patient/dashboard';
             // router.push('/patient/dashboard');
             // return;
         } catch (error: unknown) {

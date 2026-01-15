@@ -58,8 +58,6 @@ export class DoctorController {
   }
 
 
-
-
   @Get()
   async findAll() {
     return this.doctorService.findAll();
@@ -67,9 +65,17 @@ export class DoctorController {
 
   @Get(':id')
   async findOne(@Param('id') id: number) {
-    return this.doctorService.findOne(id);
+    return this.doctorService.findOneByUserId(id);
   }
 
+  @Get(':id/schedule')
+  async findSchedule(@Param('id') id: number) {
+    return this.doctorService.findScheduleByUserId(id);
+  }
+  @Get(':id/bookings')
+  async findBookings(@Param('id') id: number) {
+    return this.doctorService.findScheduleByUserId(id);
+  }
   // @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(@Param('id') id: number, @Body() doctorDto: DoctorDto) {

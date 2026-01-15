@@ -82,7 +82,7 @@ export const FrontEndLayout = ({ children }: { children: React.ReactNode }) => {
             setLocationLoading(false);
           },
           (error: unknown) => {
-            console.error(error);
+            console.log(error);
             setLocation('Location unavailable');
             setLocationLoading(false);
           },

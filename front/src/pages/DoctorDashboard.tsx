@@ -5,7 +5,7 @@ import { Calendar, Clock, FileText, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import confetti from 'canvas-confetti';
-import {  encryptDoctorId } from "@/helpers/Helper";
+import { encryptDoctorId } from "@/helpers/Helper";
 
 export function DoctorDashboard() {
   const userDetails = useUserStore((state) => state.getUserDetails);
@@ -35,18 +35,18 @@ export function DoctorDashboard() {
 
 
   function copyProfileLink() {
-    
+
     if (!doctorId) {
       console.error('Doctor ID is not available');
       return;
     }
+    // const encryptedDoctorId = encryptDoctorId(String(doctorId));
+    // const link = `${window.location.origin}/doctor-profile/${encryptedDoctorId}`;
+
     const encryptedDoctorId = encryptDoctorId(String(doctorId));
-    // const decryptedDoctorId = decryptDoctorId(String(encryptedDoctorId));
+    const encodedEncryptedDoctorId = encodeURIComponent(encryptedDoctorId);
+    const link = `${window.location.origin}/profile/${encodedEncryptedDoctorId}`;
 
-    // console.log('Decrypted Doctor ID:', decryptedDoctorId);
-    // console.log('Encrypted Doctor ID:', encryptedDoctorId)
-
-    const link = `${window.location.origin}/doctor-profile/${encryptedDoctorId}`;
 
     navigator.clipboard.writeText(link).then(() => {
       confetti({
