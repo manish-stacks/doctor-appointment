@@ -1,5 +1,5 @@
-PORT = 5000
 
+PORT=5000
 ## Mail smtp
 EMAIL_HOST=sandbox.smtp.mailtrap.io
 EMAIL_USERNAME=d4fcacf2914220
@@ -7,7 +7,7 @@ EMAIL_PASSWORD=bc35cc67ad73c6
 
 ## Database 
 DB_HOST=localhost
-DB_PORT=3306
+DB_PORT=3306N
 DB_USER=root
 DB_PASS=
 DB_NAME=medicare

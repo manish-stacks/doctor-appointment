@@ -1,4 +1,4 @@
-// src/auth/auth.module.ts
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';

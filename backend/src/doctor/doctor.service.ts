@@ -10,6 +10,7 @@ import { Hospital } from 'src/hospital/hospital.entity';
 import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.entity';
 import { Subscription } from 'src/subscription/subscription.entity';
 import { TimeSlotEntity } from 'src/time-slot/time-slot.entity';
+import { Appointment } from 'src/appointment/appointment.entity';
 
 
 @Injectable()
@@ -27,6 +28,8 @@ export class DoctorService {
         private subscriptionsRepository: Repository<Subscription>,
         @InjectRepository(TimeSlotEntity)
         private timeSlotRepository: Repository<TimeSlotEntity>,
+        @InjectRepository(Appointment)
+        private appointmentRepository: Repository<Appointment>,
     ) { }
 
     async create(
@@ -161,5 +164,10 @@ export class DoctorService {
         const doctor = await this.doctorRepository.findOne({ where: { id } });
         if (!doctor) throw new NotFoundException('Doctor not found');
         return this.timeSlotRepository.find({ where: { doctorId: doctor.id } });
+    }
+    async findBookedSlots(id: number) {
+        const doctor = await this.doctorRepository.findOne({ where: { id } });
+        if (!doctor) throw new NotFoundException('Doctor not found');
+        return this.appointmentRepository.find({ where: { doctorId: doctor.id, status: 'Confirmed' } });
     }
 }

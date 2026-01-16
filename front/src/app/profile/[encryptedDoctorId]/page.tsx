@@ -1,13 +1,15 @@
 "use client";
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { decryptDoctorId } from '@/helpers/Helper';
+import { decryptId, encryptId } from '@/helpers/Helper';
 import { AxiosInstance } from '@/helpers/Axios.instance';
 import { Mail, Phone, MapPin, Award, GraduationCap, Calendar, Clock, Stethoscope, Building2, CheckCircle, Video, User, IndianRupee } from 'lucide-react';
 import Image from 'next/image';
 import { BookedSlot, Certificate, DaySchedule, DoctorDetails, Education } from '@/types/doctor';
 import { useUIStore } from '@/store/uiStore';
-import { userDetails, useUserStore } from '@/store/useUserStore';
+import { useUserStore } from '@/store/useUserStore';
+import { userDetails } from '@/types/store';
+import toast from 'react-hot-toast';
 
 
 const DoctorProfilePage = () => {
@@ -19,7 +21,7 @@ const DoctorProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState<string>('');
-  const [showBookingSection, setShowBookingSection] = useState(false);
+  // const [showBookingSection, setShowBookingSection] = useState(false);
   const { openLoginModal } = useUIStore();
   // const userDetails = useUserStore((state) => state.userDetails);
   const userDetails = useUserStore((state) => state.getUserDetails);
@@ -30,7 +32,7 @@ const DoctorProfilePage = () => {
     const getUserDetails = async () => {
       try {
         const details = userDetails();
-        if (!details ) {
+        if (!details) {
           openLoginModal();
           console.warn('No user details available');
           return;
@@ -51,7 +53,7 @@ const DoctorProfilePage = () => {
 
   useEffect(() => {
     const decodedEncryptedId = decodeURIComponent(encryptedDoctorId);
-    const doctorId = decryptDoctorId(decodedEncryptedId);
+    const doctorId = decryptId(decodedEncryptedId);
 
     const getDoctorDetails = async () => {
       try {
@@ -76,7 +78,7 @@ const DoctorProfilePage = () => {
 
         // Fetch booked appointments
         try {
-          const bookingsResponse = await AxiosInstance.get("/doctor/" + doctorId + "/bookings");
+          const bookingsResponse = await AxiosInstance.get("/doctor/" + doctorId + "/booked-slots");
           if (bookingsResponse?.data) {
             setBookedSlots(bookingsResponse.data);
           }
@@ -160,7 +162,7 @@ const DoctorProfilePage = () => {
 
   const handleTimeSlotClick = (time: string) => {
     setSelectedTime(time);
-    setShowBookingSection(true);
+    // setShowBookingSection(true);
 
     // Scroll to booking section
     setTimeout(() => {
@@ -172,23 +174,26 @@ const DoctorProfilePage = () => {
   };
 
   const handleBookAppointment = async () => {
-
+    console.log('selectedTime', selectedTime)
     const BookingData = {
-      date: selectedDate.toISOString().split('T')[0],
-      time: selectedTime,
-      doctor: doctorData?.name,
-      doctorId: doctorData?.id,
-      patient: userdata?.username,
-      userId: userdata?.id
+      // date: selectedDate.toISOString().split('T')[0],
+      // time: selectedTime,
+      doctorId: Number(doctorData?.id),
+      hospitalId: Number(doctorData?.hospitalId),
+      userId: Number(userdata?.id)
     };
     try {
       const response = await AxiosInstance.post("/appointment", BookingData);
-      console.log(response.data);
+      const appointmentId = response.data.appointmentId;
+      const encryptedDoctorId = encryptId(String(appointmentId));
+      const encodedEncryptedDoctorId = encodeURIComponent(encryptedDoctorId);
+      const link = `${window.location.origin}/booking/${encodedEncryptedDoctorId}`;
+      window.location.href = link;
     } catch (error) {
+      toast.error('Failed to book appointment.');
       console.error('Error booking appointment:', error);
     }
-    // After successful booking, you can redirect or show success message
-    alert(`Appointment booked for ${formatDate(selectedDate)} at ${selectedTime}`);
+
   };
 
   if (loading) {
@@ -256,9 +261,9 @@ const DoctorProfilePage = () => {
                 </span>
               </div>
             </div>
-            <a href="#booking" className="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            <button onClick={handleBookAppointment} className="px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors">
               Book Appointment
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -294,7 +299,7 @@ const DoctorProfilePage = () => {
                           if (isActive) {
                             setSelectedDate(date);
                             setSelectedTime('');
-                            setShowBookingSection(false);
+                            // setShowBookingSection(false);
                           }
                         }}
                         disabled={!isActive}
@@ -334,22 +339,17 @@ const DoctorProfilePage = () => {
                           <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                             {timeSlots.map((time) => {
                               const booked = isSlotBooked(selectedDate, time);
-                              const isSelected = selectedTime === time;
-
                               return (
                                 <button
                                   key={time}
                                   disabled={booked}
                                   onClick={() => handleTimeSlotClick(time)}
-                                  className={`p-3 rounded-lg text-sm font-medium transition-all ${isSelected
-                                    ? 'bg-blue-600 text-white border-2 border-blue-600'
-                                    : booked
-                                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                                      : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
-                                    }`}
-                                >
+                                  className={`p-3 rounded-lg text-sm font-medium transition-all ${booked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white border-2 border-blue-600'}`}>
                                   {time}
-                                  {booked && <div className="text-xs text-gray-400 mt-1">Booked</div>}
+                                  <div className={`text-xs ${booked ? 'text-gray-400' : 'text-white'}  mt-1`}>
+                                    {booked ? 'Booked' : 'Available'}
+                                  </div>
+
                                 </button>
                               );
                             })}
@@ -370,7 +370,7 @@ const DoctorProfilePage = () => {
             </div>
 
             {/* Booking Confirmation Section */}
-            {showBookingSection && selectedTime && (
+            {/* {showBookingSection && selectedTime && (
               <div id="booking-confirmation" className="bg-blue-50 rounded-lg p-6 border-2 border-blue-200">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Confirm Appointment</h2>
 
@@ -429,7 +429,7 @@ const DoctorProfilePage = () => {
                 </div>
               </div>
 
-            )}
+            )} */}
 
 
 

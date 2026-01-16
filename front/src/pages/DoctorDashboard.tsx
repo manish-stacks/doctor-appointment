@@ -1,11 +1,12 @@
 "use client"
 
-import { userDetails, useUserStore } from "@/store/useUserStore";
+import { useUserStore } from "@/store/useUserStore";
 import { Calendar, Clock, FileText, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import confetti from 'canvas-confetti';
-import { encryptDoctorId } from "@/helpers/Helper";
+import { encryptId } from "@/helpers/Helper";
+import { userDetails } from "@/types/store";
 
 export function DoctorDashboard() {
   const userDetails = useUserStore((state) => state.getUserDetails);
@@ -40,10 +41,10 @@ export function DoctorDashboard() {
       console.error('Doctor ID is not available');
       return;
     }
-    // const encryptedDoctorId = encryptDoctorId(String(doctorId));
+    // const encryptedDoctorId = encryptId(String(doctorId));
     // const link = `${window.location.origin}/doctor-profile/${encryptedDoctorId}`;
 
-    const encryptedDoctorId = encryptDoctorId(String(doctorId));
+    const encryptedDoctorId = encryptId(String(doctorId));
     const encodedEncryptedDoctorId = encodeURIComponent(encryptedDoctorId);
     const link = `${window.location.origin}/profile/${encodedEncryptedDoctorId}`;
 

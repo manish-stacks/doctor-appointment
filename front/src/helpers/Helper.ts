@@ -1,21 +1,21 @@
 import cryptoJS from 'crypto-js';
 
-export function encryptDoctorId(doctorId: string) {
+export function encryptId(Id: string) {
     const SECRET_KEY = process.env.NEXT_PUBLIC_SECRET_KEY;
-    if (!doctorId || !SECRET_KEY) {
-        console.error('Doctor ID or SECRET_KEY is missing');
+    if (!Id || !SECRET_KEY) {
+        console.error('ID or SECRET_KEY is missing');
         return '';
     }
-    return cryptoJS.AES.encrypt(doctorId, SECRET_KEY).toString();
+    return cryptoJS.AES.encrypt(Id, SECRET_KEY).toString();
 }
 
-export function decryptDoctorId(encryptedDoctorId: string) {
+export function decryptId(encryptedId: string) {
     const SECRET_KEY = process.env.NEXT_PUBLIC_SECRET_KEY;
-    if (!encryptedDoctorId || !SECRET_KEY) {
-        console.error('Encrypted Doctor ID or SECRET_KEY is missing');
+    if (!encryptedId || !SECRET_KEY) {
+        console.error('Encrypted ID or SECRET_KEY is missing');
         return '';
     }
-    const bytes = cryptoJS.AES.decrypt(encryptedDoctorId, SECRET_KEY);
+    const bytes = cryptoJS.AES.decrypt(encryptedId, SECRET_KEY);
     const decrypted = bytes.toString(cryptoJS.enc.Utf8);
     if (!decrypted) {
         console.error('Decryption failed');

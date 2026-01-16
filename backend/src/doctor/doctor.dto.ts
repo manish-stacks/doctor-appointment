@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Type } from 'class-transformer';
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsArray, ValidateNested, IsBoolean } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsArray, ValidateNested } from 'class-validator';
 
 
 class EducationDto {
@@ -107,3 +107,24 @@ export class DoctorDto {
 }
 
 
+export class doctorDtoCreate {
+    // @IsString()
+    // @IsNotEmpty()
+    // date: string;
+
+    // @IsString()
+    // @IsNotEmpty()
+    // time: string;
+
+    @IsNotEmpty()
+    @IsNumber()
+    doctorId: number;
+
+
+    @IsNotEmpty()
+    @IsNumber()
+    userId: number;
+
+    @IsNumber()
+    hospitalId: number
+}

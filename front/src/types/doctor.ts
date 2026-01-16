@@ -38,6 +38,7 @@ export interface DaySchedule {
 }
 
 export interface DoctorDetails {
+  hospitalId: number;
   id?: number;
   image: string;
   name: string;

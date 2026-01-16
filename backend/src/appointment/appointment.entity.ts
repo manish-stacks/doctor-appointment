@@ -1,5 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Doctor } from 'src/doctor/doctor.entity';
+import { Hospital } from 'src/hospital/hospital.entity';
+import { User } from 'src/user/user.entity';
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 
 @Entity('appointments')
 export class Appointment {
@@ -16,6 +19,10 @@ export class Appointment {
     @Index()
     @Column({ type: 'bigint', unsigned: true })
     doctorId: number;
+
+    @Index()
+    @Column({ type: 'bigint', unsigned: true, nullable: true })
+    hospitalId: number;
 
     @Column({ type: 'varchar', length: 10 })
     amount: number;
@@ -56,8 +63,7 @@ export class Appointment {
     @Column({ type: 'text', nullable: true })
     paymentToken: string;
 
-    @Column({ type: 'varchar', length: 255, nullable: true })
-    appointmentStatus: string;
+
 
     @Column({ type: 'text' })
     note: string;
@@ -74,16 +80,32 @@ export class Appointment {
     @Column({ type: 'int', nullable: true })
     discountPrice: number;
 
-    @Index()
-    @Column({ type: 'bigint', unsigned: true, nullable: true })
-    hospitalId: number;
+
 
     @Column({ type: 'varchar', length: 255, nullable: true })
     zoomUrl: string;
+
+    @Column({ type: 'enum', enum: ['AVAILABLE', 'BOOKED', 'HOLD', 'RESCHEDULED', 'COMPLETED', 'CANCELLED_BY_USER', 'CANCELLED_BY_DOCTOR'], default: 'HOLD' })
+    appointmentStatus: string;
+
+    @Column({ type: 'enum', enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled'], default: 'Pending' })
+    status: string;
 
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @ManyToOne(() => User, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'userId' })
+    user: User;
+
+    @ManyToOne(() => Hospital, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'hospitalId' })
+    hospital: Hospital;
+
+    @ManyToOne(() => Doctor, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'doctorId' })
+    doctor: Doctor;
 }

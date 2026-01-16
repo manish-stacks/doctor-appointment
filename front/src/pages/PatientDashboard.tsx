@@ -1,5 +1,6 @@
 'use client'
-import { userDetails, useUserStore } from '@/store/useUserStore';
+import {useUserStore } from '@/store/useUserStore';
+import { userDetails } from '@/types/store';
 import { Calendar, Clock, FileText, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react'
 

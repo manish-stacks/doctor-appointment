@@ -72,9 +72,10 @@ export class DoctorController {
   async findSchedule(@Param('id') id: number) {
     return this.doctorService.findScheduleByUserId(id);
   }
-  @Get(':id/bookings')
-  async findBookings(@Param('id') id: number) {
-    return this.doctorService.findScheduleByUserId(id);
+  
+  @Get(':id/booked-slots')
+  async findBookedSlots(@Param('id') id: number) {
+    return this.doctorService.findBookedSlots(id);
   }
   // @UseGuards(JwtAuthGuard)
   @Put(':id')
