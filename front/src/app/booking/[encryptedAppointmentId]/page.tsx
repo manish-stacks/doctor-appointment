@@ -79,7 +79,7 @@ export default function Booking() {
 
   useEffect(() => {
     const decodedEncryptedId = decodeURIComponent(encryptedAppointmentId);
-    const appointmentId = decryptId(decodedEncryptedId);
+    const appointmentId = decryptId(decodedEncryptedId) || decodedEncryptedId;
 
     const getDetails = async () => {
       try {
@@ -174,12 +174,13 @@ export default function Booking() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === 1) {
       if (!patientName || !patientAge || !phoneNumber) {
         alert('Please fill all required fields (Name, Age, Phone)');
         return;
       }
+      await updateStep1();
       setCurrentStep(2);
     } else if (currentStep === 2) {
       if (!selectedTime) {
@@ -189,6 +190,28 @@ export default function Booking() {
       setCurrentStep(3);
     }
   };
+
+  const updateStep1 = async () => {
+    try {
+      const response = await AxiosInstance.post(`/appointment/${appointmentDetails?.id}/step1`, {
+        appointmentFor,
+        patientName,
+        patientAge,
+        phoneNumber,
+        illnessInfo,
+        address,
+        sideEffects,
+        doctorNotes,
+        isInsured,
+      });
+
+      if (response.data) {
+        setAppointmentDetails(response.data);
+      }
+    } catch (error) {
+      console.error('Error updating step 1:', error);
+    }
+  }
 
   const handlePrevious = () => {
     if (currentStep > 1) {
@@ -255,12 +278,12 @@ export default function Booking() {
       const formData = new FormData();
       formData.append('appointmentFor', appointmentFor);
       formData.append('patientName', patientName);
-      formData.append('age', patientAge);
-      formData.append('phoneNo', phoneNumber);
+      formData.append('patientAge', patientAge);
+      formData.append('phoneNumber', phoneNumber);
       formData.append('illnessInfo', illnessInfo);
-      formData.append('patientAddress', address);
-      formData.append('drugEffect', sideEffects);
-      formData.append('note', doctorNotes);
+      formData.append('address', address);
+      formData.append('sideEffects', sideEffects);
+      formData.append('doctorNotes', doctorNotes);
       formData.append('isInsured', isInsured);
       formData.append('paymentType', paymentMethod);
       formData.append('couponCode', couponCode);
@@ -284,7 +307,6 @@ export default function Booking() {
 
       if (response.data) {
         alert('Appointment booked successfully!');
-        router.push('/appointments');
       }
     } catch (error) {
       console.error('Error booking appointment:', error);

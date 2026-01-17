@@ -107,14 +107,7 @@ export class DoctorDto {
 }
 
 
-export class doctorDtoCreate {
-    // @IsString()
-    // @IsNotEmpty()
-    // date: string;
-
-    // @IsString()
-    // @IsNotEmpty()
-    // time: string;
+export class AppointmentCreateDto {
 
     @IsNotEmpty()
     @IsNumber()

@@ -1,8 +1,12 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
-import { doctorDtoCreate } from 'src/doctor/doctor.dto';
+import { AppointmentCreateDto } from 'src/doctor/doctor.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { stepOneDto } from './appointment.dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { multerOptions } from 'src/config/multer.config';
+import { Multer } from 'multer';
 
 @Controller('appointment')
 export class AppointmentController {
@@ -15,7 +19,7 @@ export class AppointmentController {
 
     @UseGuards(JwtAuthGuard)
     @Post()
-    async create(@Body() body: doctorDtoCreate) {
+    async create(@Body() body: AppointmentCreateDto) {
         return this.appointmentService.create(body);
     }
 
@@ -29,6 +33,30 @@ export class AppointmentController {
     async findByAppointmentId(@Param('appointmentId') appointmentId: string) {
         return this.appointmentService.findByAppointmentId(appointmentId);
     }
+
+
+    @Post(':id/step1')
+    updateStep1(
+        @Param('id') id: number,
+        @Body() body: stepOneDto,
+    ) {
+        return this.appointmentService.updateStep1(id, body);
+    }
+
+
+    @Post(':id/complete-booking')
+    @UseInterceptors(FilesInterceptor('reportImage', 5, multerOptions))
+    updateBooking(
+        @Param('id') id: number,
+        @Body() body: stepOneDto,
+        @UploadedFiles() files: Multer.File[]
+    ) {
+        const paths = files.map(f => f.path);
+        return this.appointmentService.updateBooking(id, body, paths);
+    }
+
+
+
 
 
     @Put(':id')

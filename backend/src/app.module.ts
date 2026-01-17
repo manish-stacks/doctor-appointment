@@ -25,6 +25,8 @@ import { ReviewModule } from './review/review.module';
 import { TimeSlotModule } from './time-slot/time-slot.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { BullModule } from '@nestjs/bull';
+
 
 @Module({
   imports: [
@@ -52,6 +54,15 @@ import { AppService } from './app.service';
         },
       },
     }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        redis: {
+          host: configService.get<string>('REDIS_HOST', 'localhost'),
+          port: configService.get<number>('REDIS_PORT', 6379),
+        },
+      }),
+    }),
     AuthModule,
     BlogModule,
     DoctorModule,
@@ -73,7 +84,7 @@ import { AppService } from './app.service';
     ReviewModule,
     TimeSlotModule,
   ],
-  controllers: [AppController],   
-  providers: [AppService],       
+  controllers: [AppController],
+  providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

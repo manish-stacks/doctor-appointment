@@ -63,7 +63,11 @@ export class Appointment {
     @Column({ type: 'text', nullable: true })
     paymentToken: string;
 
+    @Column({ type: 'varchar', nullable: true })
+    illnessInfo: string;
 
+    @Column({ type: 'varchar', length: 10, nullable: true })
+    isInsured: string;
 
     @Column({ type: 'text' })
     note: string;
@@ -80,7 +84,8 @@ export class Appointment {
     @Column({ type: 'int', nullable: true })
     discountPrice: number;
 
-
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    images: string[];
 
     @Column({ type: 'varchar', length: 255, nullable: true })
     zoomUrl: string;

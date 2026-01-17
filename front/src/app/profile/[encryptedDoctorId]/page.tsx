@@ -162,15 +162,16 @@ const DoctorProfilePage = () => {
 
   const handleTimeSlotClick = (time: string) => {
     setSelectedTime(time);
+    handleBookAppointment();
     // setShowBookingSection(true);
 
     // Scroll to booking section
-    setTimeout(() => {
-      const bookingElement = document.getElementById('booking-confirmation');
-      if (bookingElement) {
-        bookingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, 100);
+    // setTimeout(() => {
+    //   const bookingElement = document.getElementById('booking-confirmation');
+    //   if (bookingElement) {
+    //     bookingElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    //   }
+    // }, 100);
   };
 
   const handleBookAppointment = async () => {

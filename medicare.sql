@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 05, 2025 at 03:02 PM
+-- Generation Time: Jan 17, 2026 at 02:01 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -45,7 +45,6 @@ CREATE TABLE `appointments` (
   `time` varchar(255) NOT NULL,
   `paymentStatus` tinyint(4) NOT NULL,
   `paymentToken` text DEFAULT NULL,
-  `appointmentStatus` varchar(255) DEFAULT NULL,
   `note` text NOT NULL,
   `cancelReason` text DEFAULT NULL,
   `cancelBy` varchar(100) DEFAULT NULL,
@@ -54,8 +53,21 @@ CREATE TABLE `appointments` (
   `hospitalId` bigint(20) UNSIGNED DEFAULT NULL,
   `zoomUrl` varchar(255) DEFAULT NULL,
   `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6),
-  `updatedAt` datetime(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6)
+  `updatedAt` datetime(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
+  `status` enum('Pending','Confirmed','Completed','Cancelled') NOT NULL DEFAULT 'Pending',
+  `appointmentStatus` enum('AVAILABLE','BOOKED','HOLD','RESCHEDULED','COMPLETED','CANCELLED_BY_USER','CANCELLED_BY_DOCTOR') NOT NULL DEFAULT 'HOLD',
+  `illnessInfo` varchar(255) DEFAULT NULL,
+  `isInsured` varchar(10) DEFAULT NULL,
+  `images` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `appointments`
+--
+
+INSERT INTO `appointments` (`id`, `appointmentId`, `userId`, `doctorId`, `amount`, `paymentType`, `appointmentFor`, `patientName`, `age`, `reportImage`, `drugEffect`, `patientAddress`, `phoneNo`, `date`, `time`, `paymentStatus`, `paymentToken`, `note`, `cancelReason`, `cancelBy`, `discountId`, `discountPrice`, `hospitalId`, `zoomUrl`, `createdAt`, `updatedAt`, `status`, `appointmentStatus`, `illnessInfo`, `isInsured`, `images`) VALUES
+(15, 'APP1768646906188', 3, 1, '', '', '', '', 0, NULL, '', '', '', '', '', 0, NULL, '', NULL, NULL, NULL, NULL, 1, NULL, '2026-01-17 16:18:26.191783', '2026-01-17 16:18:26.191783', 'Pending', 'HOLD', NULL, NULL, NULL),
+(16, 'APP1768651177266', 3, 1, '', '', '', '', 0, NULL, '', '', '', '', '', 0, NULL, '', NULL, NULL, NULL, NULL, 1, NULL, '2026-01-17 17:29:37.269694', '2026-01-17 17:29:37.269694', 'Pending', 'HOLD', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -133,7 +145,7 @@ CREATE TABLE `doctors` (
 --
 
 INSERT INTO `doctors` (`id`, `name`, `userId`, `expertise`, `hospitalId`, `categoryId`, `treatmentId`, `image`, `desc`, `education`, `certificate`, `appointmentFees`, `experience`, `timeSlot`, `dob`, `gender`, `isActive`, `isVerified`, `isPopular`, `patientVideoCall`, `createdAt`, `updatedAt`) VALUES
-(1, 'Suman', 1, 'Surgical Procedures', 1, 1, 2, 'https://res.cloudinary.com/do34gd7bu/image/upload/v1754387890/uploads/r9aj0v245pcwz3scif75.jpg', 'Experience the future of healthcare with our comprehensive platform designed for modern patients and healthcare providers.\r\n\r\nSmart Scheduling\r\nAI-powered appointment booking that finds the perfect time slot for you\r\n\r\n24/7 Telemedicine\r\nConnect with doctors instantly through video consultations anytime\r\n\r\n', '[{\"id\":\"1\",\"degree\":\"10\",\"institution\":\"Delhi\",\"year\":\"2012\"},{\"id\":\"2\",\"degree\":\"12\",\"institution\":\"Delhi\",\"year\":\"2015\"}]', '[{\"id\":\"1\",\"name\":\"BPSC\",\"year\":\"2013\"}]', '500', '10', '30', '1998-07-19', 'male', 0, 0, 1, 0, '2025-07-19 17:38:22.499802', '2025-08-05 15:43:29.385826');
+(1, 'Suman', 1, 'Surgical Procedures', 1, 2, 4, 'https://res.cloudinary.com/do34gd7bu/image/upload/v1754387890/uploads/r9aj0v245pcwz3scif75.jpg', 'Experience the future of healthcare with our comprehensive platform designed for modern patients and healthcare providers.\r\n\r\nSmart Scheduling\r\nAI-powered appointment booking that finds the perfect time slot for you\r\n\r\n24/7 Telemedicine\r\nConnect with doctors instantly through video consultations anytime\r\n\r\n', '[{\"id\":\"1\",\"degree\":\"10\",\"institution\":\"Delhi\",\"year\":\"2012\"},{\"id\":\"2\",\"degree\":\"12\",\"institution\":\"Delhi\",\"year\":\"2015\"}]', '[{\"id\":\"1\",\"name\":\"BPSC\",\"year\":\"2013\"}]', '500', '10', '30', '1998-07-19', 'male', 0, 0, 1, 0, '2025-07-19 17:38:22.499802', '2026-01-14 12:12:01.000000');
 
 -- --------------------------------------------------------
 
@@ -159,6 +171,13 @@ CREATE TABLE `doctor_subscriptions` (
   `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6),
   `updatedAt` datetime(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `doctor_subscriptions`
+--
+
+INSERT INTO `doctor_subscriptions` (`id`, `doctorId`, `subscriptionId`, `duration`, `startDate`, `endDate`, `paymentType`, `amount`, `paymentId`, `paymentStatus`, `appointmentLimit`, `usedAppointments`, `status`, `isActive`, `createdAt`, `updatedAt`) VALUES
+(1, 1, 1, 1, '2026-01-14', '2026-02-14', 'Welcome Plan', 0, 'ddddd', 1, '500', '0', 'active', 1, '2026-01-14 15:20:46.000000', '2026-01-14 15:27:42.916110');
 
 -- --------------------------------------------------------
 
@@ -309,6 +328,35 @@ INSERT INTO `subscriptions` (`id`, `name`, `totalAppointment`, `price`, `validit
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `time_slots`
+--
+
+CREATE TABLE `time_slots` (
+  `id` int(11) NOT NULL,
+  `day` varchar(255) NOT NULL,
+  `active` tinyint(4) NOT NULL DEFAULT 1,
+  `slots` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`slots`)),
+  `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  `updatedAt` datetime(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
+  `doctorId` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `time_slots`
+--
+
+INSERT INTO `time_slots` (`id`, `day`, `active`, `slots`, `createdAt`, `updatedAt`, `doctorId`) VALUES
+(1, 'Sunday', 1, '[{\"start\":\"17:29\",\"end\":\"20:29\"}]', '2026-01-14 16:29:29.650474', '2026-01-14 16:43:32.285638', 1),
+(2, 'Monday', 1, '[{\"start\":\"10:00\",\"end\":\"11:00\"},{\"start\":\"16:00\",\"end\":\"18:00\"}]', '2026-01-14 16:31:49.436906', '2026-01-15 13:42:56.766926', 1),
+(3, 'Tuesday', 1, '[{\"start\":\"10:00\",\"end\":\"13:00\"}]', '2026-01-14 16:33:43.672556', '2026-01-14 16:43:35.886423', 1),
+(4, 'Wednesday', 1, '[{\"start\":\"10:00\",\"end\":\"16:00\"}]', '2026-01-14 16:34:24.048462', '2026-01-14 16:43:37.190305', 1),
+(5, 'Thursday', 1, '[{\"start\":\"10:00\",\"end\":\"12:00\"},{\"start\":\"16:00\",\"end\":\"18:00\"}]', '2026-01-14 16:34:45.843374', '2026-01-14 16:58:44.000000', 1),
+(6, 'Friday', 1, '[{\"start\":\"10:00\",\"end\":\"12:00\"}]', '2026-01-14 16:35:10.540816', '2026-01-15 14:57:28.985696', 1),
+(9, 'Saturday', 0, '[{\"start\":\"\",\"end\":\"\"}]', '2026-01-14 16:43:26.009245', '2026-01-14 16:43:26.009245', 1);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `treatments`
 --
 
@@ -364,8 +412,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `email`, `email_verified_at`, `username`, `password`, `HowManyOtpSend`, `phone`, `otp`, `login_otp`, `otp_expires_at`, `dob`, `gender`, `role`, `image`, `isActive`, `contact_number_verified`, `doctor_id`, `createdAt`, `updatedAt`) VALUES
-(1, 'mks957678@gmail.com', NULL, 'Suman', NULL, 0, '6200027897', 810737, 0, '2025-08-05 10:12:07', '1998-07-19', 'male', 'doctor', 'https://res.cloudinary.com/do34gd7bu/image/upload/v1754387890/uploads/r9aj0v245pcwz3scif75.jpg', 0, 0, 1, '2025-07-19 17:10:10.754959', '2025-08-05 15:41:19.000000'),
-(3, '', NULL, 'Guest', NULL, 0, '7050494706', 990459, NULL, '2025-07-21 13:01:41', NULL, NULL, 'user', 'https://ui-avatars.com/api/?name=Guest&background=F7F460&color=66F0B3', 0, 0, NULL, '2025-07-21 18:29:41.615401', '2025-07-21 18:29:41.615401');
+(1, 'mks957678@gmail.com', NULL, 'Suman', NULL, 0, '6200027897', 810737, 0, '2026-01-16 08:19:11', '1998-07-19', 'male', 'doctor', 'https://ui-avatars.com/api/?name=Guest&background=F7F460&color=66F0B3', 0, 0, 1, '2025-07-19 17:10:10.754959', '2026-01-16 13:47:18.000000'),
+(3, '', NULL, 'Guest', NULL, 0, '7050494706', 990459, 0, '2026-01-17 12:01:06', NULL, NULL, 'user', 'https://ui-avatars.com/api/?name=Guest&background=F7F460&color=66F0B3', 0, 0, NULL, '2025-07-21 18:29:41.615401', '2026-01-17 17:29:11.000000');
 
 -- --------------------------------------------------------
 
@@ -525,6 +573,13 @@ ALTER TABLE `subscriptions`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `time_slots`
+--
+ALTER TABLE `time_slots`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `IDX_c31ecfdeea1039c10e01439fd8` (`day`);
+
+--
 -- Indexes for table `treatments`
 --
 ALTER TABLE `treatments`
@@ -570,7 +625,7 @@ ALTER TABLE `zoom_meeting`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `blogs`
@@ -594,7 +649,7 @@ ALTER TABLE `doctors`
 -- AUTO_INCREMENT for table `doctor_subscriptions`
 --
 ALTER TABLE `doctor_subscriptions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `favorites`
@@ -645,6 +700,12 @@ ALTER TABLE `subscriptions`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `time_slots`
+--
+ALTER TABLE `time_slots`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
 -- AUTO_INCREMENT for table `treatments`
 --
 ALTER TABLE `treatments`
@@ -683,6 +744,14 @@ ALTER TABLE `zoom_meeting`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `appointments`
+--
+ALTER TABLE `appointments`
+  ADD CONSTRAINT `FK_01733651151c8a1d6d980135cc4` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `FK_0c1af27b469cb8dca420c160d65` FOREIGN KEY (`doctorId`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  ADD CONSTRAINT `FK_36cc65c41268c0483eb22556e29` FOREIGN KEY (`hospitalId`) REFERENCES `hospitals` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `doctors`

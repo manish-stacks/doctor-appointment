@@ -18,8 +18,8 @@ export function decryptId(encryptedId: string) {
     const bytes = cryptoJS.AES.decrypt(encryptedId, SECRET_KEY);
     const decrypted = bytes.toString(cryptoJS.enc.Utf8);
     if (!decrypted) {
-        console.error('Decryption failed');
-        return '';
+        console.log('Decryption failed');
+        return decrypted;
     }
     return decrypted;
 }
