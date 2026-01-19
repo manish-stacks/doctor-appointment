@@ -1,0 +1,75 @@
+export interface AppointmentDetails {
+  appointmentFor: string;
+  id: string;
+  appointmentId: string;
+  patientName: string;
+  patientAge: number;
+  phoneNumber: string;
+  email: string;
+  illnessInfo: string;
+  patientAddress: string;
+  sideEffects: string;
+  doctorNotes: string;
+  isInsured: string;
+  userId: string;
+  doctorId: string;
+  date: string;
+  time: string;
+  hospitalId: string;
+  user?: {
+    id: string;
+    username: string;
+    phone: string;
+    image: string;
+  };
+  hospital?: {
+    id: string;
+    name: string;
+    address: string;
+    phone: string;
+  };
+  doctor?: {
+    id: string;
+    name: string;
+    expertise: string;
+    image: string;
+    appointmentFees: string;
+    timeSlot: string;
+  };
+}
+
+interface AppointmentDetails {
+  id: string;
+  appointmentId: string;
+  userId: string;
+  doctorId: string;
+  date: string;
+  time: string;
+  hospitalId: string;
+  user?: {
+    id: string;
+    username: string;
+    phone: string;
+    image: string;
+  };
+  hospital?: {
+    id: string;
+    name: string;
+    address: string;
+    phone: string;
+  };
+  doctor?: {
+    id: string;
+    name: string;
+    expertise: string;
+    image: string;
+    appointmentFees: string;
+    timeSlot: string;
+  };
+}
+
+export interface Schedule {
+  day: string;
+  active: boolean;
+  slots: Array<{ start: string; end: string }>;
+}
