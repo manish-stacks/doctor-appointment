@@ -35,7 +35,13 @@ export interface AppointmentDetails {
     image: string;
     appointmentFees: string;
     timeSlot: string;
+    experience?: string;
   };
+  discountAmount?: string;
+  totalAmount?: string;
+  finalAmount?: string;
+  paymentType?: string;
+  appointmentFees?: string;
 }
 
 interface AppointmentDetails {

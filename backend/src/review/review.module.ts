@@ -7,6 +7,6 @@ import { Review } from './review.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Review])],
   controllers: [ReviewController],
-  providers: [ReviewService]
+  providers: [ReviewService],
 })
 export class ReviewModule {}

@@ -3,5 +3,5 @@ import { UserAddressService } from './user_address.service';
 
 @Controller('user-address')
 export class UserAddressController {
-    constructor(private readonly userAddressService: UserAddressService) {}
+  constructor(private readonly userAddressService: UserAddressService) {}
 }

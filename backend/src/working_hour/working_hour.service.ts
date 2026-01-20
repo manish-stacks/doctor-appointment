@@ -4,7 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class WorkingHourService {
-    constructor(
-        @InjectRepository(WorkingHour)
-        private readonly workingHourRepository: typeof WorkingHour) { }
+  constructor(
+    @InjectRepository(WorkingHour)
+    private readonly workingHourRepository: typeof WorkingHour,
+  ) {}
 }

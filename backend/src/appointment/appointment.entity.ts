@@ -24,9 +24,6 @@ export class Appointment {
     @Column({ type: 'bigint', unsigned: true, nullable: true })
     hospitalId: number;
 
-    @Column({ type: 'varchar', length: 10 })
-    amount: number;
-
     @Column({ type: 'varchar', length: 255 })
     paymentType: string;
 
@@ -36,20 +33,23 @@ export class Appointment {
     @Column({ type: 'varchar', length: 255 })
     patientName: string;
 
-    @Column({ type: 'int' })
-    age: number;
-
-    @Column({ type: 'text', nullable: true })
-    reportImage: string;
+    @Column({ type: 'text' })
+    phoneNumber: string;
 
     @Column({ type: 'text' })
-    drugEffect: string;
+    email: string;
+
+    @Column({ type: 'int' })
+    patientAge: number;
+
+    @Column({ type: 'text' })
+    sideEffects: string;
 
     @Column({ type: 'text' })
     patientAddress: string;
 
-    @Column({ type: 'text' })
-    phoneNo: string;
+    @Column({ type: 'varchar', length: 100, nullable: true })
+    razorpayOrderId: string;
 
     @Column({ type: 'varchar', length: 255 })
     date: string;
@@ -57,11 +57,23 @@ export class Appointment {
     @Column({ type: 'varchar', length: 255 })
     time: string;
 
-    @Column({ type: 'tinyint' })
-    paymentStatus: number;
+    @Column({ type: 'varchar', length: 255 })
+    couponCode: string;
 
-    @Column({ type: 'text', nullable: true })
-    paymentToken: string;
+    @Column({ type: 'int', nullable: true })
+    discountAmount: number;
+
+    @Column({ type: 'int' })
+    finalAmount: number;
+
+    @Column({ type: 'int', nullable: true })
+    appointmentFees: number;
+
+    @Column({ type: 'varchar', nullable: true })
+    paymentStatus: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    transactionId: string;
 
     @Column({ type: 'varchar', nullable: true })
     illnessInfo: string;
@@ -70,7 +82,7 @@ export class Appointment {
     isInsured: string;
 
     @Column({ type: 'text' })
-    note: string;
+    doctorNotes: string;
 
     @Column({ type: 'text', nullable: true })
     cancelReason: string;
@@ -84,8 +96,9 @@ export class Appointment {
     @Column({ type: 'int', nullable: true })
     discountPrice: number;
 
-    @Column({ type: 'varchar', length: 255, nullable: true })
+    @Column({ type: 'json', nullable: true })
     images: string[];
+
 
     @Column({ type: 'varchar', length: 255, nullable: true })
     zoomUrl: string;

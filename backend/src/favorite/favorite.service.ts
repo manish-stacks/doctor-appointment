@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class FavoriteService {
-    constructor(
-        @InjectRepository(Favorite)
-        private readonly favoriteRepository: Repository<Favorite>
-    ) { }
+  constructor(
+    @InjectRepository(Favorite)
+    private readonly favoriteRepository: Repository<Favorite>,
+  ) {}
 }

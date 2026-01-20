@@ -47,7 +47,7 @@ const DoctorProfilePage = () => {
       }
     }
     getUserDetails();
-  }, [userDetails]);
+  }, [userDetails, doctorData, openLoginModal]);
 
 
 
@@ -197,6 +197,19 @@ const DoctorProfilePage = () => {
 
   };
 
+  const isSlotInPast = (date: Date, time: string): boolean => {
+    const now = new Date();
+    const slotDate = new Date(date);
+    const [hours, minutes] = time.split(':').map(Number);
+
+    slotDate.setHours(hours, minutes, 0, 0);
+
+    // Current time se 2 ghante add karo
+    const twoHoursLater = new Date(now.getTime() + (2 * 60 * 60 * 1000));
+
+    // Agar slot time 2 ghante ke andar hai to true return karo
+    return slotDate <= twoHoursLater;
+  };
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -340,15 +353,17 @@ const DoctorProfilePage = () => {
                           <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                             {timeSlots.map((time) => {
                               const booked = isSlotBooked(selectedDate, time);
+                              const isPast = isSlotInPast(selectedDate, time);
+
                               return (
                                 <button
                                   key={time}
-                                  disabled={booked}
+                                  disabled={booked || isPast}
                                   onClick={() => handleTimeSlotClick(time)}
-                                  className={`p-3 rounded-lg text-sm font-medium transition-all ${booked ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white border-2 border-blue-600'}`}>
+                                  className={`p-3 rounded-lg text-sm font-medium transition-all ${booked || isPast ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-blue-600 text-white border-2 border-blue-600'}`}>
                                   {time}
-                                  <div className={`text-xs ${booked ? 'text-gray-400' : 'text-white'}  mt-1`}>
-                                    {booked ? 'Booked' : 'Available'}
+                                  <div className={`text-xs ${booked || isPast ? 'text-gray-400' : 'text-white'}  mt-1`}>
+                                    {booked ? 'Booked' : isPast ? 'Not Available' : 'Available'}
                                   </div>
 
                                 </button>

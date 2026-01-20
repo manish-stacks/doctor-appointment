@@ -7,7 +7,9 @@ import { Repository } from 'typeorm';
 import { AppointmentCreateDto } from 'src/doctor/doctor.dto';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
-import { stepOneDto } from './appointment.dto';
+import { BookingPayload, stepOneDto } from './appointment.dto';
+// import { MailService } from 'src/mail/mail.service';
+import { handleMultipleImages } from 'src/helper/cloudinary.helper';
 
 @Injectable()
 export class AppointmentService {
@@ -17,6 +19,7 @@ export class AppointmentService {
 
         @InjectQueue('appointment')
         private readonly appointmentQueue: Queue,
+        // private readonly mailService: MailService,
 
     ) { }
 
@@ -39,16 +42,15 @@ export class AppointmentService {
         const saved = await this.appointmentRepository.save(appointment);
 
         const bookingLink = `${process.env.FRONTEND_URL}/booking/${saved.appointmentId}`;
+        // await this.mailService.sendReminder(userEmail, bookingLink);
 
-        console.log("bookingLink", bookingLink)
-        const userEmail = 'mks957678@gmail.com';
-        if (userEmail) {
+        if (saved.status === 'Pending' && saved.email) {
             // 45 min reminder
             await this.appointmentQueue.add(
                 'sendReminder',
                 {
                     appointmentId: saved.appointmentId,
-                    email: userEmail,
+                    email: saved.email,
                     link: bookingLink,
                 },
                 { delay: 1 * 60 * 1000 },
@@ -60,7 +62,7 @@ export class AppointmentService {
         await this.appointmentQueue.add(
             'deleteIfNotConfirmed',
             { appointmentId: saved.appointmentId },
-            { delay: 1 * 60 * 1000 },
+            { delay: 24 * 60 * 60 * 1000 },
         );
 
         return saved;
@@ -88,10 +90,10 @@ export class AppointmentService {
         return this.appointmentRepository.remove(appointment);
     }
 
-    async deleteIfStillHold(appointmentId: string) {
-
+    async deleteIfStillPending(appointmentId: string) {
+        console.log('deleteIfStillPending', appointmentId);
         const appointment = await this.appointmentRepository.findOne({ where: { appointmentId } });
-        if (appointment && appointment.status === 'Pending') {
+        if (appointment?.status === 'Pending' && appointment?.appointmentStatus === 'HOLD') {
             await this.appointmentRepository.remove(appointment);
         }
     }
@@ -99,38 +101,63 @@ export class AppointmentService {
     async updateStep1(id: number, body: stepOneDto) {
         const appointment = await this.appointmentRepository.findOne({ where: { id } });
         if (!appointment) return 'Appointment not found';
-        return this.appointmentRepository.update(appointment.id, {
+        await this.appointmentRepository.update(appointment.id, {
             appointmentFor: body.appointmentFor,
             patientName: body.patientName,
-            age: Number(body.patientAge),
-            phoneNo: body.phoneNumber,
+            patientAge: Number(body.patientAge),
+            phoneNumber: body.phoneNumber,
+            email: body.email,
             illnessInfo: body.illnessInfo,
-            patientAddress: body.address,
-            drugEffect: body.sideEffects,
-            note: body.doctorNotes,
+            patientAddress: body.patientAddress,
+            sideEffects: body.sideEffects,
+            doctorNotes: body.doctorNotes,
             isInsured: body.isInsured,
         });
+        
+        return this.appointmentRepository.findOne({ where: { id }, relations: ['user', 'hospital', 'doctor'] });
+
     }
 
-    async updateBooking(id: number, data: stepOneDto, images: string[]) {
+
+    async updateBooking(id: number, data: BookingPayload, images: string[]) {
+
         const appointment = await this.appointmentRepository.findOne({ where: { id } });
-        if (!appointment) return 'Appointment not found';
-        return this.appointmentRepository.update(appointment.id, {
-            appointmentFor: data.appointmentFor,
-            patientName: data.patientName,
-            age: Number(data.patientAge),
-            phoneNo: data.phoneNumber,
-            illnessInfo: data.illnessInfo,
-            patientAddress: data.address,
-            drugEffect: data.sideEffects,
-            note: data.doctorNotes,
-            isInsured: data.isInsured,
-            date: data.date,
-            time: data.time,
-            images: images,
-            status: 'Confirmed'
-        });
+        if (!appointment) throw new Error('Appointment not found');
+        appointment.date = data.date;
+        appointment.time = data.time;
+        appointment.paymentType = data.paymentType;
+        appointment.couponCode = data.couponCode;
+        appointment.discountAmount = Number(data.discountAmount);
+        appointment.finalAmount = Number(data.finalAmount);
+        appointment.appointmentFees = Number(data.appointmentFees);
+        appointment.paymentStatus = data.paymentType === 'Online' ? 'Pending' : 'Paid At Hospital';
+        appointment.status = data.paymentType === 'Online' ? 'Pending' : 'Confirmed';
+        appointment.appointmentStatus = data.paymentType === 'Online' ? 'HOLD' : 'BOOKED';
+
+        // appointment.images = images;
+        appointment.images = await handleMultipleImages(
+            images,            // new local file paths
+            appointment.images // old cloudinary urls
+        );
+
+        // await this.mailService.sendReminder(userEmail, bookingLink);
+
+        if (data.paymentType === 'Offline' && appointment.email) {
+            // 45 min reminder
+            await this.appointmentQueue.add(
+                'sendBookingConfirmation',
+                {
+                    appointment,
+                },
+                { delay: 1 * 60 * 1000 },
+            );
+        }
+
+        return this.appointmentRepository.save(appointment);
+        
     }
+
+
 
 
 }

@@ -1,4 +1,14 @@
-import { Controller, Post, Get, Put, Delete, Body, Param, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Put,
+  Delete,
+  Body,
+  Param,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { BlogService } from './blog.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
@@ -8,9 +18,12 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Request() req, @Body() body: { title: string; content: string; author: string }) {
+  async create(
+    @Request() req,
+    @Body() body: { title: string; content: string; author: string },
+  ) {
     const { id, username } = req.user;
-    console.log(username)
+    console.log(username);
     return this.blogService.create(body.title, body.content, body.author);
   }
 
@@ -26,8 +39,16 @@ export class BlogController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  async update(@Param('id') id: number, @Body() body: { title: string; content: string; isPublished: boolean }) {
-    return this.blogService.update(id, body.title, body.content, body.isPublished);
+  async update(
+    @Param('id') id: number,
+    @Body() body: { title: string; content: string; isPublished: boolean },
+  ) {
+    return this.blogService.update(
+      id,
+      body.title,
+      body.content,
+      body.isPublished,
+    );
   }
 
   @UseGuards(JwtAuthGuard)

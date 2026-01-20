@@ -9,7 +9,9 @@ describe('VideocallHistoryController', () => {
       controllers: [VideocallHistoryController],
     }).compile();
 
-    controller = module.get<VideocallHistoryController>(VideocallHistoryController);
+    controller = module.get<VideocallHistoryController>(
+      VideocallHistoryController,
+    );
   });
 
   it('should be defined', () => {

@@ -4,6 +4,8 @@ import { ZoomMeeting } from './zoom_meeting.entity';
 
 @Injectable()
 export class ZoomMeetingService {
-    constructor(@InjectRepository(ZoomMeeting)
-    private readonly zoomMeetingRepository: typeof ZoomMeeting) { }
+  constructor(
+    @InjectRepository(ZoomMeeting)
+    private readonly zoomMeetingRepository: typeof ZoomMeeting,
+  ) {}
 }

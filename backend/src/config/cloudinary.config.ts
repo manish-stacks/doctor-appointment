@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { v2 as cloudinary } from 'cloudinary';
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';

@@ -6,7 +6,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { AuthModule } from './auth/auth.module';
 import { BlogModule } from './blog/blog.module';
 import { DoctorModule } from './doctor/doctor.module';
-import { AppointmentModule } from './appointment/appointment.module';
+// import { AppointmentModule } from './appointment/appointment.module';
 import { CategoryModule } from './category/category.module';
 import { DoctorSubscriptionModule } from './doctor_subscription/doctor_subscription.module';
 import { SubscriptionModule } from './subscription/subscription.module';
@@ -26,6 +26,8 @@ import { TimeSlotModule } from './time-slot/time-slot.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BullModule } from '@nestjs/bull';
+import { PaymentModule } from './payment/payment.module';
+import { AppointmentModule } from './appointment/appointment.module';
 
 
 @Module({
@@ -48,10 +50,15 @@ import { BullModule } from '@nestjs/bull';
     MailerModule.forRoot({
       transport: {
         host: process.env.EMAIL_HOST,
+        port: Number(process.env.EMAIL_PORT),
+        //  secure: false,
         auth: {
           user: process.env.EMAIL_USERNAME,
           pass: process.env.EMAIL_PASSWORD,
         },
+      },
+      defaults: {
+        from: process.env.EMAIL_FROM,
       },
     }),
     BullModule.forRootAsync({
@@ -83,6 +90,7 @@ import { BullModule } from '@nestjs/bull';
     FavoriteModule,
     ReviewModule,
     TimeSlotModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

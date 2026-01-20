@@ -7,6 +7,6 @@ import { WorkingHour } from './working_hour.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([WorkingHour])],
   controllers: [WorkingHourController],
-  providers: [WorkingHourService]
+  providers: [WorkingHourService],
 })
-export class WorkingHourModule { }
+export class WorkingHourModule {}

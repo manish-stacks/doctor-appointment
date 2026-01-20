@@ -25,7 +25,12 @@ export class BlogService {
     return blog;
   }
 
-  async update(id: number, title: string, content: string, isPublished: boolean) {
+  async update(
+    id: number,
+    title: string,
+    content: string,
+    isPublished: boolean,
+  ) {
     const blog = await this.findOne(id);
     blog.title = title;
     blog.content = content;

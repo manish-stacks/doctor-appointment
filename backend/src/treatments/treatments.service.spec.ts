@@ -19,7 +19,9 @@ export class TreatmentsService {
   }
 
   async create(treatmentsDto: treatmentsDto) {
-    const category = await this.categoryRepository.findOne({ where: { id: treatmentsDto.category } });
+    const category = await this.categoryRepository.findOne({
+      where: { id: treatmentsDto.category },
+    });
     if (!category) {
       throw new Error('Category not found');
     }
@@ -34,7 +36,10 @@ export class TreatmentsService {
   }
 
   findOne(id: number) {
-    return this.treatmentsRepository.findOne({ where: { id }, relations: ['category'] });
+    return this.treatmentsRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
   }
 
   update(id: number, name: string) {

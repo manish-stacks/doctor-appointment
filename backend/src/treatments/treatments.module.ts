@@ -6,8 +6,8 @@ import { Treatments } from './treatments.entity';
 import { Category } from 'src/category/category.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Treatments ,Category])],
+  imports: [TypeOrmModule.forFeature([Treatments, Category])],
   controllers: [TreatmentsController],
-  providers: [TreatmentsService]
+  providers: [TreatmentsService],
 })
-export class TreatmentsModule { }
+export class TreatmentsModule {}

@@ -1,7 +1,7 @@
 "use client";
 
 import { AxiosInstance } from "@/helpers/Axios.instance";
-import { decryptId, loadRazorpay } from "@/helpers/Helper";
+import { decryptId, encryptId, loadRazorpay } from "@/helpers/Helper";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Upload, X, Loader2, ChevronLeft, ChevronRight, MapPin, Building2, Phone, Star, IndianRupee, Calendar, GalleryHorizontal } from "lucide-react";
@@ -61,11 +61,31 @@ export default function Booking() {
 
         setAppointmentDetails(details.data);
 
-        // Pre-fill user data if available
+        // Pre-fill form data
+        if (details.data.appointmentFor) setAppointmentFor(details.data.appointmentFor);
+        if (details.data.patientName) setPatientName(details.data.patientName);
+        if (details.data.patientAge) setPatientAge(details.data.patientAge);
+        if (details.data.phoneNumber) setPhoneNumber(details.data.phoneNumber);
+        if (details.data.email) setEmail(details.data.email);
+        if (details.data.illnessInfo) setIllnessInfo(details.data.illnessInfo);
+        if (details.data.patientAddress) setPatientAddress(details.data.patientAddress);
+        if (details.data.sideEffects) setSideEffects(details.data.sideEffects);
+        if (details.data.doctorNotes) setDoctorNotes(details.data.doctorNotes);
+        if (details.data.isInsured) setIsInsured(details.data.isInsured);
+
+        // Pre-fill user data if available and form fields are empty
         if (details.data.user) {
-          setPatientName(details.data.user.username);
-          setPhoneNumber(details.data.user.phone);
+          if (!details.data.patientName && details.data.user.username) {
+            setPatientName(details.data.user.username);
+          }
+          if (!details.data.phoneNumber && details.data.user.phone) {
+            setPhoneNumber(details.data.user.phone);
+          }
         }
+
+        // Set defaults
+        if (!details.data.appointmentFor) setAppointmentFor("For me");
+        if (!details.data.isInsured) setIsInsured("No");
 
         // Fetch doctor's schedule
         if (details.data.doctorId) {
@@ -146,14 +166,15 @@ export default function Booking() {
   const handleNext = async () => {
     if (currentStep === 1) {
       if (!patientName || !patientAge || !phoneNumber) {
-        alert('Please fill all required fields (Name, Age, Phone)');
+        toast.error('Please fill all required fields (Name, Age, Phone)');
         return;
       }
-      await updateStep1();
+      const updated = await updateStep1();
+      if (!updated) return;
       setCurrentStep(2);
     } else if (currentStep === 2) {
       if (!selectedTime) {
-        alert('Please select a time slot');
+        toast.error('Please select a time slot');
         return;
       }
       setCurrentStep(3);
@@ -178,8 +199,10 @@ export default function Booking() {
       if (response.data) {
         setAppointmentDetails(response.data);
       }
+      return true
     } catch (error) {
       console.error('Error updating step 1:', error);
+      return false;
     }
   }
 
@@ -239,6 +262,7 @@ export default function Booking() {
 
   const handleTimeSlotClick = (time: string) => {
     setSelectedTime(time);
+
   };
 
   const next7Days = getNext7Days();
@@ -261,25 +285,30 @@ export default function Booking() {
     formData.append('finalAmount', finalAmount.toString());
     images.forEach(img => formData.append("reportImage", img));
 
-    const response = await AxiosInstance.post(
-      `/appointment/${appointmentDetails?.id}/complete-booking`,
-      formData
-    );
-
-    console.log(response.data)
+    const response = await AxiosInstance.post(`/appointment/${appointmentDetails?.id}/complete-booking`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+    const appointmentId = response.data.appointmentId;
+    const encryptedDoctorId = encryptId(String(appointmentId));
+    const encodedEncryptedDoctorId = encodeURIComponent(encryptedDoctorId);
+    const link = `/booking-confirmation/${encodedEncryptedDoctorId}`;
 
     if (paymentMethod === "Online") {
-      await completeBooking(response.data.appointmentId);
+      await completeBooking(appointmentId, link);
     } else {
-      window.location.href = '/orders/confirmation?success=true';
+      window.location.href = `${link}?success=true`;
     }
   };
 
-  const completeBooking = async (appointmentId: string) => {
+  const completeBooking = async (appointmentId: string, link: string) => {
+
     const { data } = await AxiosInstance.post("/payment/razorpay/create-order", {
       appointmentId: appointmentId,
       amount: finalAmount,
     });
+
     const res = await loadRazorpay();
 
     if (!res) {
@@ -289,9 +318,9 @@ export default function Booking() {
 
     const options = {
       key: data.key,
-      amount: finalAmount * 100,
+      amount: data.amount,
       currency: "INR",
-      name: process.env.APP_NAME,
+      name: process.env.APP_NAME || "Doctor Appointment",
       order_id: data.razorpayOrderId,
       prefill: {
         name: patientName,
@@ -303,7 +332,7 @@ export default function Booking() {
       },
       handler: async function (response: any) {
         await AxiosInstance.post("/payment/razorpay/verify", response);
-        window.location.href = '/orders/confirmation?success=true';
+        window.location.href = `${link}?success=true`;
       },
 
     };
@@ -312,8 +341,22 @@ export default function Booking() {
     rzp.open();
 
     rzp.on("payment.failed", function (response: any) {
-      toast.error("Payment failed");
+      window.location.href = `${link}&success=false`;
     });
+  };
+
+  const isSlotInPast = (date: Date, time: string): boolean => {
+    const now = new Date();
+    const slotDate = new Date(date);
+    const [hours, minutes] = time.split(':').map(Number);
+
+    slotDate.setHours(hours, minutes, 0, 0);
+
+    // Current time se 2 ghante add karo
+    const twoHoursLater = new Date(now.getTime() + (2 * 60 * 60 * 1000));
+
+    // Agar slot time 2 ghante ke andar hai to true return karo
+    return slotDate <= twoHoursLater;
   };
 
 
@@ -370,7 +413,7 @@ export default function Booking() {
                       Appointment For <span className="text-red-500">*</span>
                     </label>
                     <select
-                      value={appointmentFor || appointmentDetails?.appointmentFor}
+                      value={appointmentFor}
                       onChange={(e) => setAppointmentFor(e.target.value)}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
@@ -386,7 +429,7 @@ export default function Booking() {
                     </label>
                     <input
                       type="text"
-                      value={illnessInfo || appointmentDetails?.illnessInfo}
+                      value={illnessInfo}
                       onChange={(e) => setIllnessInfo(e.target.value)}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Describe your illness"
@@ -400,7 +443,7 @@ export default function Booking() {
                     </label>
                     <input
                       type="text"
-                      value={patientName || appointmentDetails?.patientName}
+                      value={patientName}
                       onChange={(e) => setPatientName(e.target.value)}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Enter patient name"
@@ -415,7 +458,7 @@ export default function Booking() {
                     </label>
                     <input
                       type="number"
-                      value={patientAge || appointmentDetails?.patientAge}
+                      value={patientAge}
                       onChange={(e) => setPatientAge(e.target.value)}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Enter age"
@@ -424,34 +467,36 @@ export default function Booking() {
                   </div>
 
                   {/* Phone Number */}
-                  <div className="md:col-span-2">
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Phone Number <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
-                      value={phoneNumber || appointmentDetails?.phoneNo}
+                      value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="Enter phone number"
                       required
                     />
                   </div>
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Enter phone number"
+                      required
+                    />
+                  </div>
                 </div>
-                {/* Email */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    value={email || appointmentDetails?.email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter phone number"
-                    required
-                  />
-                </div>
+
+
               </div>
 
               {/* Address */}
@@ -461,7 +506,7 @@ export default function Booking() {
                 </label>
                 <input
                   type="text"
-                  value={patientAddress || appointmentDetails?.patientAddress}
+                  value={patientAddress}
                   onChange={(e) => setPatientAddress(e.target.value)}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter your address"
@@ -476,7 +521,7 @@ export default function Booking() {
                   </label>
                   <input
                     type="text"
-                    value={sideEffects || appointmentDetails?.sideEffects}
+                    value={sideEffects}
                     onChange={(e) => setSideEffects(e.target.value)}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Describe any side effects"
@@ -490,7 +535,7 @@ export default function Booking() {
                   </label>
                   <input
                     type="text"
-                    value={doctorNotes || appointmentDetails?.doctorNotes}
+                    value={doctorNotes}
                     onChange={(e) => setDoctorNotes(e.target.value)}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Any special notes"
@@ -504,7 +549,7 @@ export default function Booking() {
                   Patient Insured?
                 </label>
                 <select
-                  value={isInsured || appointmentDetails?.isInsured}
+                  value={isInsured}
                   onChange={(e) => setIsInsured(e.target.value)}
                   className="w-full md:w-1/3 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
@@ -644,23 +689,24 @@ export default function Booking() {
                             <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
                               {timeSlots.map((time) => {
                                 const booked = isSlotBooked(selectedDate, time);
+                                const isPast = isSlotInPast(selectedDate, time);
                                 const isSelected = selectedTime === time;
 
                                 return (
                                   <button
                                     key={time}
-                                    disabled={booked}
+                                    disabled={booked || isPast}
                                     onClick={() => handleTimeSlotClick(time)}
                                     className={`p-3 rounded-lg text-sm font-medium transition-all ${isSelected
                                       ? 'bg-blue-600 text-white border-2 border-blue-600'
-                                      : booked
+                                      : booked || isPast
                                         ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
                                         : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
                                       }`}
                                   >
                                     {time}
                                     <div className={`text-xs mt-1`}>
-                                      {booked ? 'Booked' : 'Available'}
+                                      {booked ? 'Booked' : isPast ? 'Not Available' : 'Available'}
                                     </div>
                                   </button>
                                 );
@@ -796,7 +842,7 @@ export default function Booking() {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="w-full mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {submitting ? (
                     <>

@@ -13,6 +13,8 @@ import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.
 import { TimeSlotEntity } from 'src/time-slot/time-slot.entity';
 import { CloudinaryConfig } from 'src/config/cloudinary.config';
 import { BullModule } from '@nestjs/bull';
+import { AppointmentProcessor } from './appointment.queue';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
@@ -30,8 +32,10 @@ import { BullModule } from '@nestjs/bull';
     }),
 
     AuthModule,
+    MailModule
   ],
   controllers: [AppointmentController],
-  providers: [AppointmentService, CloudinaryConfig],
+  providers: [AppointmentService, CloudinaryConfig, AppointmentProcessor],
+  exports: [AppointmentService],
 })
-export class AppointmentModule {}
+export class AppointmentModule { }

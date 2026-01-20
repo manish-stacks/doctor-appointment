@@ -5,28 +5,28 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class MedicineCategoryService {
+  constructor(
+    @InjectRepository(MedicineCategory)
+    private medicineCategoryRepository: Repository<MedicineCategory>,
+  ) {}
 
-    constructor(
-        @InjectRepository(MedicineCategory)
-        private medicineCategoryRepository: Repository<MedicineCategory>) { }
+  findAll() {
+    return this.medicineCategoryRepository.find();
+  }
 
-    findAll() {
-        return this.medicineCategoryRepository.find();
-    }
+  findOne(id: number) {
+    return this.medicineCategoryRepository.findOne({ where: { id } });
+  }
 
-    findOne(id: number) {
-        return this.medicineCategoryRepository.findOne({ where: { id } });
-    }
+  create(name: string) {
+    return this.medicineCategoryRepository.save({ name });
+  }
 
-    create(name: string) {
-        return this.medicineCategoryRepository.save({ name });
-    }
+  update(id: number, name: string) {
+    return this.medicineCategoryRepository.update(id, { name });
+  }
 
-    update(id: number, name: string) {
-        return this.medicineCategoryRepository.update(id, { name });
-    }
-
-    delete(id: number) {
-        return this.medicineCategoryRepository.delete(id);
-    }
+  delete(id: number) {
+    return this.medicineCategoryRepository.delete(id);
+  }
 }

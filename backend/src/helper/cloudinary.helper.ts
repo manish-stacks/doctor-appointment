@@ -1,12 +1,7 @@
-import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
+/* eslint-disable prettier/prettier */
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary';
 import * as fs from 'fs';
 
-/**
- * Uploads an image to Cloudinary.
- * @param filePath - Path of the image file.
- * @param folder - Cloudinary folder name (default: 'nestjs_uploads').
- * @returns The Cloudinary upload response.
- */
 export const uploadToCloudinary = async (filePath: string, folder = 'uploads'): Promise<UploadApiResponse> => {
     try {
         const result = await cloudinary.uploader.upload(filePath, { folder });
@@ -21,21 +16,13 @@ export const uploadToCloudinary = async (filePath: string, folder = 'uploads'): 
     }
 };
 
-/**
- * Extracts the public_id from a Cloudinary image URL.
- * @param imageUrl - The full Cloudinary image URL.
- * @returns The extracted public_id.
- */
+
 export const extractPublicId = (imageUrl: string): string | null => {
     const match = imageUrl.match(/\/v\d+\/(.+)\.\w+$/);
     return match ? match[1] : null;
 };
 
-/**
- * Deletes an image from Cloudinary using its public_id.
- * @param imageUrl - The Cloudinary image URL.
- * @returns The Cloudinary delete response.
- */
+
 export const deleteFromCloudinary = async (imageUrl: string): Promise<{ result: string }> => {
     try {
         const publicId = extractPublicId(imageUrl);
@@ -48,4 +35,27 @@ export const deleteFromCloudinary = async (imageUrl: string): Promise<{ result: 
         console.error('Cloudinary Delete Error:', error);
         throw new Error('Image deletion failed');
     }
+};
+
+
+export const handleMultipleImages = async (
+  newFilePaths: string[] = [],
+  oldImages: string[] = [],
+): Promise<string[]> => {
+ 
+  if (oldImages?.length) {
+    for (const img of oldImages) {
+      await deleteFromCloudinary(img);
+    }
+  }
+
+  
+  const uploadedUrls: string[] = [];
+  for (const path of newFilePaths) {
+    const result = await uploadToCloudinary(path);
+    uploadedUrls.push(result.secure_url);
+  }
+  console.log('uploadedUrls', uploadedUrls);
+
+  return uploadedUrls;
 };

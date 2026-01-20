@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class VideocallHistoryService {
-    constructor(@InjectRepository(VideoCallHistory)
-    private videocallHistoryRepository: Repository<VideoCallHistory>) { }
+  constructor(
+    @InjectRepository(VideoCallHistory)
+    private videocallHistoryRepository: Repository<VideoCallHistory>,
+  ) {}
 }

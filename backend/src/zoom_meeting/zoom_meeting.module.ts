@@ -7,6 +7,6 @@ import { ZoomMeeting } from './zoom_meeting.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([ZoomMeeting])],
   controllers: [ZoomMeetingController],
-  providers: [ZoomMeetingService]
+  providers: [ZoomMeetingService],
 })
 export class ZoomMeetingModule {}

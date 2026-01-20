@@ -7,6 +7,6 @@ import { VideoCallHistory } from './videocall_history.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([VideoCallHistory])],
   controllers: [VideocallHistoryController],
-  providers: [VideocallHistoryService]
+  providers: [VideocallHistoryService],
 })
 export class VideocallHistoryModule {}

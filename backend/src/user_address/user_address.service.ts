@@ -5,9 +5,8 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserAddressService {
-    constructor(@InjectRepository(UserAddress)
-    private userAddressRepository: Repository<UserAddress>) { }
-
-
-    
+  constructor(
+    @InjectRepository(UserAddress)
+    private userAddressRepository: Repository<UserAddress>,
+  ) {}
 }
