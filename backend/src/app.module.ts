@@ -28,6 +28,7 @@ import { AppService } from './app.service';
 import { BullModule } from '@nestjs/bull';
 import { PaymentModule } from './payment/payment.module';
 import { AppointmentModule } from './appointment/appointment.module';
+import { UserModule } from './user/user.module';
 
 
 @Module({
@@ -70,6 +71,7 @@ import { AppointmentModule } from './appointment/appointment.module';
         },
       }),
     }),
+    UserModule,
     AuthModule,
     BlogModule,
     DoctorModule,

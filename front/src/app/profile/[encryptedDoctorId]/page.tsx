@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { decryptId, encryptId } from '@/helpers/Helper';
 import { AxiosInstance } from '@/helpers/Axios.instance';
 import { Mail, Phone, MapPin, Award, GraduationCap, Calendar, Clock, Stethoscope, Building2, CheckCircle, Video, User, IndianRupee } from 'lucide-react';
@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 
 const DoctorProfilePage = () => {
   const params = useParams();
+  const route = useRouter();
   const encryptedDoctorId = params?.encryptedDoctorId as string;
   const [doctorData, setDoctorData] = useState<DoctorDetails | null>(null);
   const [schedules, setSchedules] = useState<DaySchedule[]>([]);
@@ -188,8 +189,9 @@ const DoctorProfilePage = () => {
       const appointmentId = response.data.appointmentId;
       const encryptedDoctorId = encryptId(String(appointmentId));
       const encodedEncryptedDoctorId = encodeURIComponent(encryptedDoctorId);
-      const link = `${window.location.origin}/booking/${encodedEncryptedDoctorId}`;
-      window.location.href = link;
+      const link = `/booking/${encodedEncryptedDoctorId}`;
+      route.push(link);
+      return;
     } catch (error) {
       toast.error('Failed to book appointment.');
       console.error('Error booking appointment:', error);

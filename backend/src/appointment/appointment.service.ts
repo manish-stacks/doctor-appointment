@@ -29,14 +29,14 @@ export class AppointmentService {
     }
 
 
-    async create(body: AppointmentCreateDto) {
+    async create(body: AppointmentCreateDto, userId: number) {
 
         const appointment = this.appointmentRepository.create({
             appointmentId: 'APP' + Date.now().toString(),
             status: 'Pending',
             hospitalId: Number(body.hospitalId),
             doctorId: Number(body.doctorId),
-            userId: Number(body.userId),
+            userId: Number(body.userId || userId),
         });
 
         const saved = await this.appointmentRepository.save(appointment);
@@ -59,11 +59,13 @@ export class AppointmentService {
 
         // 45 * 60 * 1000, 24 * 60 * 60 * 1000
         // 1 day auto delete if still HOLD
-        await this.appointmentQueue.add(
-            'deleteIfNotConfirmed',
-            { appointmentId: saved.appointmentId },
-            { delay: 24 * 60 * 60 * 1000 },
-        );
+        if (saved.status === 'Pending' && saved.appointmentStatus === 'HOLD') {
+            await this.appointmentQueue.add(
+                'deleteIfNotConfirmed',
+                { appointmentId: saved.appointmentId },
+                { delay: 24 * 60 * 60 * 1000 },
+            );
+        }
 
         return saved;
     }
@@ -113,7 +115,7 @@ export class AppointmentService {
             doctorNotes: body.doctorNotes,
             isInsured: body.isInsured,
         });
-        
+
         return this.appointmentRepository.findOne({ where: { id }, relations: ['user', 'hospital', 'doctor'] });
 
     }
@@ -130,7 +132,7 @@ export class AppointmentService {
         appointment.discountAmount = Number(data.discountAmount);
         appointment.finalAmount = Number(data.finalAmount);
         appointment.appointmentFees = Number(data.appointmentFees);
-        appointment.paymentStatus = data.paymentType === 'Online' ? 'Pending' : 'Paid At Hospital';
+        appointment.paymentStatus = data.paymentType === 'Online' ? 'Pending' : 'Remaining';
         appointment.status = data.paymentType === 'Online' ? 'Pending' : 'Confirmed';
         appointment.appointmentStatus = data.paymentType === 'Online' ? 'HOLD' : 'BOOKED';
 
@@ -154,7 +156,37 @@ export class AppointmentService {
         }
 
         return this.appointmentRepository.save(appointment);
-        
+
+    }
+    // async patientAppointments(userId: number) {
+    //     return this.appointmentRepository.find({ where: { userId }, relations: ['user', 'hospital', 'doctor'] });
+    // }
+    async patientAppointments(userId: number, page = 1, limit = 10, search = '') {
+        const qb = this.appointmentRepository
+            .createQueryBuilder('a')
+            .leftJoinAndSelect('a.doctor', 'doctor')
+            .leftJoinAndSelect('a.hospital', 'hospital')
+            .where('a.userId = :userId', { userId });
+
+        if (search) {
+            qb.andWhere(
+                '(a.appointmentId LIKE :search OR doctor.name LIKE :search OR a.status LIKE :search)',
+                { search: `%${search}%` },
+            );
+        }
+
+        const [data, total] = await qb
+            .skip((page - 1) * limit)
+            .take(limit)
+            .orderBy('a.createdAt', 'DESC')
+            .getManyAndCount();
+
+        return {
+            data,
+            total,
+            page,
+            lastPage: Math.ceil(total / limit),
+        };
     }
 
 

@@ -42,37 +42,12 @@ export interface AppointmentDetails {
   finalAmount?: string;
   paymentType?: string;
   appointmentFees?: string;
+  paymentStatus?: string;
+  status?: string;
+  images?: string[];
+  zoomUrl?: string;
 }
 
-interface AppointmentDetails {
-  id: string;
-  appointmentId: string;
-  userId: string;
-  doctorId: string;
-  date: string;
-  time: string;
-  hospitalId: string;
-  user?: {
-    id: string;
-    username: string;
-    phone: string;
-    image: string;
-  };
-  hospital?: {
-    id: string;
-    name: string;
-    address: string;
-    phone: string;
-  };
-  doctor?: {
-    id: string;
-    name: string;
-    expertise: string;
-    image: string;
-    appointmentFees: string;
-    timeSlot: string;
-  };
-}
 
 export interface Schedule {
   day: string;

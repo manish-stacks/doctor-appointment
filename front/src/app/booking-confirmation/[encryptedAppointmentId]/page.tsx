@@ -99,11 +99,11 @@ export default function BookingConfirmation() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 py-12 px-4">
         <div className="max-w-4xl mx-auto">
           {/* Success Header */}
-          <div className="bg-white rounded-2xl shadow-xl p-8 mb-6 text-center">
-            <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-              <CheckCircle className="w-16 h-16 text-green-600" />
+          <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 text-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+              <CheckCircle className="w-12 h-12 text-green-600" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-3">Booking Confirmed! 🎉</h1>
+            <h1 className="text-xl font-bold text-gray-900 mb-3">Booking Confirmed!</h1>
             <p className="text-gray-600 text-lg mb-4">
               Your appointment has been successfully booked
             </p>
@@ -114,7 +114,7 @@ export default function BookingConfirmation() {
           </div>
 
           {/* Appointment Details */}
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-6">
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden mb-6 hidden">
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-4">
               <h2 className="text-xl font-semibold text-white">Appointment Details</h2>
             </div>

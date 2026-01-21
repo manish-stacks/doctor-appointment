@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Request, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 import { AppointmentCreateDto } from 'src/doctor/doctor.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -19,8 +19,8 @@ export class AppointmentController {
 
     @UseGuards(JwtAuthGuard)
     @Post()
-    async create(@Body() body: AppointmentCreateDto) {
-        return this.appointmentService.create(body);
+    async create(@Body() body: AppointmentCreateDto, @Request() req: { user: { id: number; }; }) {
+        return this.appointmentService.create(body, req.user.id);
     }
 
     @Get(':id')
@@ -53,7 +53,7 @@ export class AppointmentController {
         @Body() body: BookingPayload,
         @UploadedFiles() files: Multer.File[]
     ) {
-       
+
         const paths = files?.length ? files.map(f => f.path) : [];
         return this.appointmentService.updateBooking(id, body, paths);
     }
@@ -70,5 +70,28 @@ export class AppointmentController {
         return this.appointmentService.remove(id);
     }
 
+    // @UseGuards(JwtAuthGuard)
+    // @Post('patient/appointments')
+    // async patientAppointments(@Request() req: { user: { id: number; } },) {
+    //     const userId = req.user.id;
+    //     if (!userId) {
+    //         throw new BadRequestException('User ID is missing from token');
+    //     }
+    //     return this.appointmentService.patientAppointments(userId);
+    // }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('patient/appointments')
+    async patientAppointments(
+        @Request() req: { user: { id: number; } },
+        @Body() body: { page: number; limit: number; search: string }
+    ) {
+        return this.appointmentService.patientAppointments(
+            req.user.id,
+            body.page || 1,
+            body.limit || 10,
+            body.search || ''
+        );
+    }
 
 }

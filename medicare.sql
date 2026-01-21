@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 17, 2026 at 02:01 PM
+-- Generation Time: Jan 20, 2026 at 02:09 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -32,20 +32,12 @@ CREATE TABLE `appointments` (
   `appointmentId` varchar(100) NOT NULL,
   `userId` bigint(20) UNSIGNED NOT NULL,
   `doctorId` bigint(20) UNSIGNED NOT NULL,
-  `amount` varchar(10) NOT NULL,
   `paymentType` varchar(255) NOT NULL,
   `appointmentFor` varchar(255) NOT NULL,
   `patientName` varchar(255) NOT NULL,
-  `age` int(11) NOT NULL,
-  `reportImage` text DEFAULT NULL,
-  `drugEffect` text NOT NULL,
   `patientAddress` text NOT NULL,
-  `phoneNo` text NOT NULL,
   `date` varchar(255) NOT NULL,
   `time` varchar(255) NOT NULL,
-  `paymentStatus` tinyint(4) NOT NULL,
-  `paymentToken` text DEFAULT NULL,
-  `note` text NOT NULL,
   `cancelReason` text DEFAULT NULL,
   `cancelBy` varchar(100) DEFAULT NULL,
   `discountId` int(11) DEFAULT NULL,
@@ -58,16 +50,30 @@ CREATE TABLE `appointments` (
   `appointmentStatus` enum('AVAILABLE','BOOKED','HOLD','RESCHEDULED','COMPLETED','CANCELLED_BY_USER','CANCELLED_BY_DOCTOR') NOT NULL DEFAULT 'HOLD',
   `illnessInfo` varchar(255) DEFAULT NULL,
   `isInsured` varchar(10) DEFAULT NULL,
-  `images` varchar(255) DEFAULT NULL
+  `phoneNumber` text NOT NULL,
+  `email` text NOT NULL,
+  `patientAge` int(11) NOT NULL,
+  `sideEffects` text NOT NULL,
+  `razorpayOrderId` varchar(100) DEFAULT NULL,
+  `couponCode` varchar(255) NOT NULL,
+  `discountAmount` int(11) DEFAULT NULL,
+  `finalAmount` int(11) NOT NULL,
+  `appointmentFees` int(11) DEFAULT NULL,
+  `transactionId` varchar(255) DEFAULT NULL,
+  `doctorNotes` text NOT NULL,
+  `paymentStatus` varchar(255) DEFAULT NULL,
+  `images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`images`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `appointments`
 --
 
-INSERT INTO `appointments` (`id`, `appointmentId`, `userId`, `doctorId`, `amount`, `paymentType`, `appointmentFor`, `patientName`, `age`, `reportImage`, `drugEffect`, `patientAddress`, `phoneNo`, `date`, `time`, `paymentStatus`, `paymentToken`, `note`, `cancelReason`, `cancelBy`, `discountId`, `discountPrice`, `hospitalId`, `zoomUrl`, `createdAt`, `updatedAt`, `status`, `appointmentStatus`, `illnessInfo`, `isInsured`, `images`) VALUES
-(15, 'APP1768646906188', 3, 1, '', '', '', '', 0, NULL, '', '', '', '', '', 0, NULL, '', NULL, NULL, NULL, NULL, 1, NULL, '2026-01-17 16:18:26.191783', '2026-01-17 16:18:26.191783', 'Pending', 'HOLD', NULL, NULL, NULL),
-(16, 'APP1768651177266', 3, 1, '', '', '', '', 0, NULL, '', '', '', '', '', 0, NULL, '', NULL, NULL, NULL, NULL, 1, NULL, '2026-01-17 17:29:37.269694', '2026-01-17 17:29:37.269694', 'Pending', 'HOLD', NULL, NULL, NULL);
+INSERT INTO `appointments` (`id`, `appointmentId`, `userId`, `doctorId`, `paymentType`, `appointmentFor`, `patientName`, `patientAddress`, `date`, `time`, `cancelReason`, `cancelBy`, `discountId`, `discountPrice`, `hospitalId`, `zoomUrl`, `createdAt`, `updatedAt`, `status`, `appointmentStatus`, `illnessInfo`, `isInsured`, `phoneNumber`, `email`, `patientAge`, `sideEffects`, `razorpayOrderId`, `couponCode`, `discountAmount`, `finalAmount`, `appointmentFees`, `transactionId`, `doctorNotes`, `paymentStatus`, `images`) VALUES
+(22, 'APP1768886017748', 3, 1, 'Online', 'For me', 'Guest', 'Address', '2026-01-21', '10:00', NULL, NULL, NULL, NULL, 1, NULL, '2026-01-20 10:43:37.751668', '2026-01-20 11:15:02.000000', 'Pending', 'HOLD', 'Illness Information', 'No', '7050494706', 'mks957678@gmail.com', 29, 'no', NULL, '', 0, 500, 500, NULL, 'no', 'Pending', NULL),
+(23, 'APP1768889842613', 3, 1, 'Online', 'For me', 'Manish', 'Address', '2026-01-23', '11:00', NULL, NULL, NULL, NULL, 1, NULL, '2026-01-20 11:47:22.616836', '2026-01-20 12:19:51.000000', 'Confirmed', 'BOOKED', 'Illness Information', 'No', '7050494706', 'mks957678@gmail.com', 30, 'no', 'order_S62WmcFob8tm29', '', 0, 500, 500, 'pay_S62WptiLSULMIf', 'no', 'Paid', NULL),
+(26, 'APP1768891826990', 3, 1, 'Offline', 'For me', 'Guestds', 'ssds', '2026-01-22', '11:30', NULL, NULL, NULL, NULL, 1, NULL, '2026-01-20 12:20:26.991737', '2026-01-20 12:39:31.000000', 'Confirmed', 'BOOKED', 'sdfas', 'Yes', '7050494706', 'w@gmail.com', 34, 'ssdsd', 'order_S62YTcfsq6Aq3Y', '', 0, 500, 500, NULL, 'sddsds', 'Paid At Hospital', NULL),
+(28, 'APP1768909583181', 3, 1, 'Offline', 'For someone else', 'Guest', 'Address Address Address', '2026-01-21', '10:30', NULL, NULL, NULL, NULL, 1, NULL, '2026-01-20 17:16:23.185977', '2026-01-20 18:01:43.000000', 'Confirmed', 'BOOKED', 'ess Information', 'No', '7050494706', 'hbsdevelopersteam@gmail.com', 30, 'n', 'order_S67fdD7KT8mPul', '', 0, 500, 500, 'pay_S67fg8MM3VIEiL', 'n', 'Paid At Hospital', '[]');
 
 -- --------------------------------------------------------
 
@@ -412,8 +418,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `email`, `email_verified_at`, `username`, `password`, `HowManyOtpSend`, `phone`, `otp`, `login_otp`, `otp_expires_at`, `dob`, `gender`, `role`, `image`, `isActive`, `contact_number_verified`, `doctor_id`, `createdAt`, `updatedAt`) VALUES
-(1, 'mks957678@gmail.com', NULL, 'Suman', NULL, 0, '6200027897', 810737, 0, '2026-01-16 08:19:11', '1998-07-19', 'male', 'doctor', 'https://ui-avatars.com/api/?name=Guest&background=F7F460&color=66F0B3', 0, 0, 1, '2025-07-19 17:10:10.754959', '2026-01-16 13:47:18.000000'),
-(3, '', NULL, 'Guest', NULL, 0, '7050494706', 990459, 0, '2026-01-17 12:01:06', NULL, NULL, 'user', 'https://ui-avatars.com/api/?name=Guest&background=F7F460&color=66F0B3', 0, 0, NULL, '2025-07-21 18:29:41.615401', '2026-01-17 17:29:11.000000');
+(1, 'mks957678@gmail.com', NULL, 'Suman', NULL, 0, '6200027897', 810737, 0, '2026-01-19 06:13:31', '1998-07-19', 'male', 'doctor', 'https://ui-avatars.com/api/?name=Guest&background=F7F460&color=66F0B3', 0, 0, 1, '2025-07-19 17:10:10.754959', '2026-01-19 11:41:39.000000'),
+(3, '', NULL, 'Guest', NULL, 0, '7050494706', 990459, 0, '2026-01-20 12:45:50', NULL, NULL, 'user', 'https://ui-avatars.com/api/?name=Guest&background=F7F460&color=66F0B3', 0, 0, NULL, '2025-07-21 18:29:41.615401', '2026-01-20 18:13:54.000000');
 
 -- --------------------------------------------------------
 
@@ -625,7 +631,7 @@ ALTER TABLE `zoom_meeting`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `blogs`

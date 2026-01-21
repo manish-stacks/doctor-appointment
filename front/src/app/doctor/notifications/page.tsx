@@ -6,27 +6,26 @@ export default function Notifications() {
   const notifications = [
     {
       id: 1,
-      user: 'Rob Bye',
+      user: 'Raj Kumar',
       action: 'Replied',
-      group: 'Native All-Hands & Demos • October',
-      message:
-        'Shoutout to @tammy for hitting the ground running and already creating things that will be super impactful for all our teams!',
+      group: 'Project Bharat • October',
+      message: 'Shoutout to @neha for her amazing work on the new feature. Your efforts will make a huge difference!',
       time: '1hr',
-      avatar: 'https://i.pravatar.cc/50?img=3',
+      avatar: 'https://i.pravatar.cc/50?img=4',
       unread: true,
     },
     {
       id: 2,
-      user: 'Rob Bye',
+      user: 'Priya Desai',
       action: 'Commented',
-      group: 'Native All-Hands & Demos • October',
-      message:
-        'Shoutout to @tammy for hitting the ground running and already creating things that will be super impactful for all our teams!',
+      group: 'Project Bharat • October',
+      message: 'Great work @neha! Excited to see how the new changes will improve the app experience.',
       time: '1hr',
-      avatar: 'https://i.pravatar.cc/50?img=3',
+      avatar: 'https://i.pravatar.cc/50?img=5',
       unread: true,
     },
   ];
+
 
   return (
     <div className="p-4">
