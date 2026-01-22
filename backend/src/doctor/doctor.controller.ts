@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Request,
   UploadedFile,
   UseGuards,
@@ -63,6 +64,13 @@ export class DoctorController {
     return this.doctorService.findAll();
   }
 
+
+  @Get('search')
+  async searchDoctor(@Query('q') q: string) {
+    return this.doctorService.searchDoctor(q);
+  }
+
+
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return this.doctorService.findOneByUserId(id);
@@ -72,20 +80,22 @@ export class DoctorController {
   async findSchedule(@Param('id') id: number) {
     return this.doctorService.findScheduleByUserId(id);
   }
-  
+
   @Get(':id/booked-slots')
   async findBookedSlots(@Param('id') id: number) {
     return this.doctorService.findBookedSlots(id);
   }
-  // @UseGuards(JwtAuthGuard)
+
   @Put(':id')
   async update(@Param('id') id: number, @Body() doctorDto: DoctorDto) {
     return this.doctorService.update(id, doctorDto);
   }
 
-  // @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: number) {
     return this.doctorService.remove(id);
   }
+
+
+
 }

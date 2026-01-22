@@ -13,8 +13,9 @@ import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.
 import { TimeSlotEntity } from 'src/time-slot/time-slot.entity';
 import { CloudinaryConfig } from 'src/config/cloudinary.config';
 import { BullModule } from '@nestjs/bull';
-import { AppointmentProcessor } from './appointment.queue';
 import { MailModule } from 'src/mail/mail.module';
+import { AppointmentProcessor } from 'src/queues/appointment.queue';
+import { MailProcessor } from 'src/queues/mail.queue';
 
 @Module({
   imports: [
@@ -28,14 +29,19 @@ import { MailModule } from 'src/mail/mail.module';
     ]),
 
     BullModule.registerQueue({
-      name: 'appointment',
+      name: 'appointment'
     }),
-
+    BullModule.registerQueue({
+      name: 'mail'
+    }),
+    BullModule.registerQueue({
+      name: 'notification'
+    }),
     AuthModule,
     MailModule
   ],
   controllers: [AppointmentController],
-  providers: [AppointmentService, CloudinaryConfig, AppointmentProcessor],
+  providers: [AppointmentService, CloudinaryConfig, AppointmentProcessor, MailProcessor],
   exports: [AppointmentService],
 })
 export class AppointmentModule { }

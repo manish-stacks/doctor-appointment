@@ -76,6 +76,8 @@ export class CreateUserDto {
   @IsString()
   @MaxLength(255, { message: 'Gender cannot be longer than 255 characters' })
   gender?: string;
+
+  isActive?: boolean;
 }
 
 export class LoginDto {
@@ -87,6 +89,8 @@ export class LoginDto {
   @IsOptional()
   @IsNotEmpty({ message: 'Role is required' })
   role: string;
+
+  
 }
 
 export class resendOtpDto {

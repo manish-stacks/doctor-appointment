@@ -1,102 +1,159 @@
 'use client'
-import {useUserStore } from '@/store/useUserStore';
-import { userDetails } from '@/types/store';
+import { useUserStore } from '@/store/useUserStore';
+import { AppointmentDetails } from '@/types/appointment';
 import { Calendar, Clock, FileText, User } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
+import { AxiosInstance } from '@/helpers/Axios.instance';
+import { encryptId } from '@/helpers/Helper';
 
 const PatientDashboard = () => {
-  const userDetails = useUserStore((state) => state.getUserDetails);
-  const [userdata, setUserData] = useState<userDetails>();
+  const getUserDetails = useUserStore((state) => state.getUserDetails);
+  const [user, setUser] = useState<any>();
+  const [appointments, setAppointments] = useState<AppointmentDetails[]>([]);
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<any[]>([]);
+
+
 
   useEffect(() => {
-    const getUserDetails = async () => {
-      try {
-        const details = userDetails();
-        if (!details) {
-          console.warn('No user details available');
-          return;
-        }
-        try {
-          setUserData(details);
-        } catch (error) {
-          console.error('Error setting user data:', error);
-        }
-      } catch (error) {
-        console.error('Error fetching user details:', error);
-      }
+    setUser(getUserDetails());
+
+    const fetchAppointments = async () => {
+      const res = await AxiosInstance.post('/appointment/patient/appointments', {
+        page: 1,
+        limit: 3,
+        search: ''
+      });
+      setAppointments(res.data.data);
+    };
+
+    fetchAppointments();
+  }, []);
+
+  const handleSearch = async (text: string) => {
+    setQuery(text);
+    if (text.length < 2) {
+      setResults([]);
+      return;
     }
-    getUserDetails();
-  }, [userDetails]);
+
+    const res = await AxiosInstance.get(`/doctor/search?q=${text}`);
+    setResults(res.data);
+  };
+
+  const handelGoToDoctorProfile = (doctorId: number) => {
+    const encryptedDoctorId = encryptId(String(doctorId));
+    const encodedEncryptedDoctorId = encodeURIComponent(encryptedDoctorId);
+    const link = `${window.location.origin}/profile/${encodedEncryptedDoctorId}`;
+    window.open(link, '_blank');
+  }
+  
+  const upcoming = appointments.filter(a => a.appointmentStatus === 'BOOKED');
+  const nextAppointment = upcoming[0];
 
   return (
-    <>
-      <div className="flex-1 overflow-y-auto p-2 lg:p-4">
+    <div className="flex-1 overflow-y-auto p-2 lg:p-4">
 
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-semibold mb-4">Welcome back, {userdata?.username || 'User'}</h2>
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-2xl font-semibold mb-2">
+          Welcome back, {user?.username || 'Patient'}
+        </h2>
+        <p className="text-gray-500">Here is your health activity summary</p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+        <div onClick={() => router.push("/patient/appointments")} className="bg-white p-6 rounded-xl shadow cursor-pointer">
+          <Calendar className="w-8 h-8 text-indigo-600 mb-2" />
+          <h3 className="font-semibold">Next Appointment</h3>
+          <p className="text-gray-600 mt-1">
+            {nextAppointment ? `${nextAppointment.date} ${nextAppointment.time}` : 'No upcoming'}
+          </p>
         </div>
 
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mt-3">
-          <div className="bg-white p-4 lg:p-6 rounded-xl shadow-sm">
-            <Calendar className="w-8 h-8 text-indigo-600 mb-2" />
-            <h3 className="text-lg lg:text-xl font-semibold">Next Appointment</h3>
-            <p className="text-gray-600 mt-2">March 15, 2024</p>
-          </div>
-          <div className="bg-white p-4 lg:p-6 rounded-xl shadow-sm">
-            <Clock className="w-8 h-8 text-indigo-600 mb-2" />
-            <h3 className="text-lg lg:text-xl font-semibold">Upcoming</h3>
-            <p className="text-gray-600 mt-2">2 appointments</p>
-          </div>
-          <div className="bg-white p-4 lg:p-6 rounded-xl shadow-sm">
-            <FileText className="w-8 h-8 text-indigo-600 mb-2" />
-            <h3 className="text-lg lg:text-xl font-semibold">Medical Records</h3>
-            <button className="text-indigo-600 mt-2">View</button>
-          </div>
-          <div className="bg-white p-4 lg:p-6 rounded-xl shadow-sm">
-            <User className="w-8 h-8 text-indigo-600 mb-2" />
-            <h3 className="text-lg lg:text-xl font-semibold">Profile</h3>
-            <button className="text-indigo-600 mt-2">Edit</button>
-          </div>
+        <div onClick={() => router.push("/patient/appointments")} className="bg-white p-6 rounded-xl shadow cursor-pointer">
+          <Clock className="w-8 h-8 text-indigo-600 mb-2" />
+          <h3 className="font-semibold">Upcoming</h3>
+          <p className="text-gray-600 mt-1">{upcoming.length} appointments</p>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
-          <div className="bg-white rounded-xl shadow-sm">
-            <div className="p-4 lg:p-6">
-              <h2 className="text-xl lg:text-2xl font-bold mb-4">Find a Doctor</h2>
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Search by name or specialty"
-                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-                <button className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors">
-                  Search
-                </button>
-              </div>
-            </div>
-          </div>
+        <div onClick={() => router.push("/patient/favorite")} className="bg-white p-6 rounded-xl shadow cursor-pointer">
+          <FileText className="w-8 h-8 text-indigo-600 mb-2" />
+          <h3 className="font-semibold">Prescriptions</h3>
+          <p className="text-indigo-600 mt-1">View Reports</p>
+        </div>
 
-          <div className="bg-white rounded-xl shadow-sm">
-            <div className="p-4 lg:p-6">
-              <h2 className="text-xl lg:text-2xl font-bold mb-4">Recent Appointments</h2>
-              <div className="space-y-4">
-                {[1, 2].map((_, i) => (
-                  <div key={i} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg">
-                    <div className="mb-2 sm:mb-0">
-                      <p className="font-semibold">Dr. John Smith</p>
-                      <p className="text-gray-600">General Checkup</p>
+        <div onClick={() => router.push("/patient/profile")} className="bg-white p-6 rounded-xl shadow cursor-pointer">
+          <User className="w-8 h-8 text-indigo-600 mb-2" />
+          <h3 className="font-semibold">Profile</h3>
+          <p className="text-indigo-600 mt-1">Edit Profile</p>
+        </div>
+      </div>
+
+      {/* Recent Appointments */}
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <div className="bg-white rounded-xl shadow">
+          <div className="p-6 relative">
+            <h2 className="text-xl font-bold mb-4">Find a Doctor</h2>
+            <input
+              type="text"
+              placeholder="Search by doctor name or ID"
+              className="w-full p-3 border rounded-lg"
+              value={query}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+
+            {results.length > 0 && (
+              <div className="absolute z-50 w-[90%] bg-white border rounded-lg mt-1 shadow-lg max-h-64 overflow-y-auto">
+                {results.map((doc) => (
+                  <div
+                    key={doc.id}
+                    onClick={() => handelGoToDoctorProfile(doc.id)}
+                    className="flex items-center gap-3 p-3 hover:bg-gray-100 cursor-pointer"
+                  >
+                    <img
+                      src={doc.image}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="font-semibold">Dr. {doc.name}</p>
+                      <p className="text-sm text-gray-500">{doc.expertise}</p>
                     </div>
-                    <p className="text-gray-600">March 1, 2024</p>
                   </div>
                 ))}
               </div>
-            </div>
+            )}
           </div>
         </div>
+
+        <div className="bg-white rounded-xl shadow">
+          <div className="p-6">
+            <h2 className="text-xl font-bold mb-4">Recent Appointments</h2>
+
+            {appointments.slice(0, 3).map((item) => (
+              <div key={item.id} className="flex justify-between p-3 border rounded mb-2">
+                <div>
+                  <p className="font-semibold">Dr. {item.doctor?.name}</p>
+                  <p className="text-sm text-gray-500">{item.doctor?.expertise}</p>
+                </div>
+                <div className="text-sm text-gray-600">
+                  {item.date} <br /> {item.time}
+                </div>
+              </div>
+            ))}
+
+            {appointments.length === 0 && (
+              <p className="text-gray-500">No appointments yet</p>
+            )}
+          </div>
+        </div>
+
       </div>
-    </>
+    </div>
   )
 }
 
-export default PatientDashboard
+export default PatientDashboard;

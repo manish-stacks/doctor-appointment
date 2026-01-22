@@ -39,6 +39,12 @@ export class AuthController {
     return this.authService.verifyOtp(VerifyOtpDto);
   }
 
+  @Post('login-email')
+  loginWithEmail(@Body() body: { email: string, password: string, role: string }) {
+    return this.authService.loginWithEmail(body);
+  }
+
+
   @UseGuards(JwtAuthGuard)
   @Get('me')
   getProfile(@Request() req: { user: { id: number; username: string; image: string; phone: string } }) {

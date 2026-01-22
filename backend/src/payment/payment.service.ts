@@ -19,7 +19,7 @@ export class PaymentService {
         private appointmentRepository: Repository<Appointment>,
 
         @InjectQueue('appointment')
-        private readonly appointmentQueue: Queue,
+        private readonly mailQueue: Queue,
         // private readonly mailService: MailService,
 
     ) {
@@ -79,8 +79,7 @@ export class PaymentService {
 
         await this.appointmentRepository.save(appointment);
         if (appointment.email) {
-            // 45 min reminder
-            await this.appointmentQueue.add(
+            await this.mailQueue.add(
                 'sendBookingConfirmation',
                 {
                     appointment,
@@ -107,7 +106,7 @@ export class PaymentService {
 
         const event = JSON.parse(body.toString());
 
-        // ✅ PAYMENT SUCCESS
+      
         if (event.event === 'payment.captured') {
             const orderId = event.payload.payment.entity.order_id;
 
@@ -123,7 +122,7 @@ export class PaymentService {
             }
         }
 
-        // ❌ PAYMENT FAILED
+        
         if (event.event === 'payment.failed') {
             const orderId = event.payload.payment.entity.order_id;
 
@@ -139,8 +138,8 @@ export class PaymentService {
             }
 
             if (appointment?.email) {
-                // 45 min reminder
-                await this.appointmentQueue.add(
+               
+                await this.mailQueue.add(
                     'sendPaymentFailed',
                     {
                         appointment,
@@ -150,7 +149,7 @@ export class PaymentService {
             }
         }
 
-        // 💸 REFUND PROCESSED
+  
         if (event.event === 'refund.processed') {
             const refund = event.payload.refund.entity;
 
@@ -166,8 +165,8 @@ export class PaymentService {
                 await this.appointmentRepository.save(appointment);
             }
             if (appointment?.email) {
-                // 45 min reminder
-                await this.appointmentQueue.add(
+               
+                await this.mailQueue.add(
                     'sendRefundProcessed',
                     {
                         appointment,

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/custom/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +32,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const [otp, setOtp] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const router = useRouter();
     const [timer, setTimer] = useState(30);
 
     useEffect(() => {
@@ -76,16 +74,29 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         setIsLoading(true);
         setError('');
 
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return; // Simulate network delay
-        if (email === 'demo@example.com' && password === 'password') {
-            setIsLoading(false);
+        try {
+            const response = await AxiosInstance.post(`/auth/login-email`, {
+                email,
+                password,
+                role: 'user',
+            });
+
+            if (!response.data || !response.data.success) {
+                setError('Invalid email or password. Please try again.');
+                setIsLoading(false);
+                return;
+            }
+
+            fetchUserDetails(response.data);
+            toast.success('Login successful');
             handleClose();
-            router.push('/dashboard');
-        } else {
+            // router.push('/patient/dashboard');
+        } catch (error: unknown) {
+            setError(error instanceof Error ? error.message : 'Login failed. Please try again later.');
             setIsLoading(false);
-            setError('Invalid email or password. Use demo@example.com / password');
+            return null;
         }
+
     };
 
     const handleSendOTP = async () => {
@@ -144,9 +155,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             fetchUserDetails(response.data);
             handleClose();
             toast.success('Login successful!');
-            // window.location.href = '/patient/dashboard';
-            // router.push('/patient/dashboard');
-            // return;
+
         } catch (error: unknown) {
             setError(error instanceof Error ? error.message : 'Failed to send OTP. Please try again later.');
         } finally {
@@ -185,12 +194,15 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle className="text-center text-2xl font-bold text-gray-900">
-                        Welcome to HealthCare
+                    <DialogTitle className="text-center text-2xl font-bold text-blue-700 pt-5">
+                        Patient Login
                     </DialogTitle>
+                    <p className="text-center text-sm text-gray-500 mt-1">
+                        Secure access to your appointments & reports
+                    </p>
                 </DialogHeader>
 
-                <div className="relative overflow-hidden min-h-[500px]">
+                <div className="relative overflow-hidden  p-8">
                     <AnimatePresence mode="wait">
                         {step === 'login' && (
                             <motion.div
@@ -202,23 +214,18 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                 transition={{ duration: 0.3 }}
                                 className="space-y-6"
                             >
-                                <div className="flex items-center space-x-4 mb-6">
 
-                                    <div className="text-center flex-1">
-                                        <h3 className="text-lg font-semibold">
-                                            Patient Login
-                                        </h3>
-                                        <p className="text-sm text-gray-600">
-                                            Choose your preferred login method
-                                        </p>
-                                    </div>
-                                </div>
 
                                 <Tabs value={loginMethod} onValueChange={(value) => setLoginMethod(value as LoginMethod)}>
-                                    <TabsList className="grid w-full grid-cols-2">
-                                        <TabsTrigger value="mobile">Mobile OTP</TabsTrigger>
-                                        <TabsTrigger value="email">Email & Password</TabsTrigger>
+                                    <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-xl p-1">
+                                        <TabsTrigger className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow" value="mobile">
+                                            Mobile OTP
+                                        </TabsTrigger>
+                                        <TabsTrigger className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow" value="email">
+                                            Email Login
+                                        </TabsTrigger>
                                     </TabsList>
+
 
                                     <TabsContent value="email" className="space-y-4 mt-6">
                                         <div className="space-y-2">
@@ -231,7 +238,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                                     placeholder="Enter your email"
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
-                                                    className="pl-10"
+                                                    className="pl-10 h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500"
                                                 />
                                             </div>
                                         </div>
@@ -246,7 +253,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                                     placeholder="Enter your password"
                                                     value={password}
                                                     onChange={(e) => setPassword(e.target.value)}
-                                                    className="pl-10 pr-10"
+                                                    className="pl-10 h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500"
                                                 />
                                                 <button
                                                     type="button"
@@ -272,7 +279,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                         <Button
                                             onClick={handleEmailLogin}
                                             disabled={isLoading}
-                                            className="w-full bg-blue-600 hover:bg-blue-700"
+                                            className="w-full h-11 rounded-xl text-base font-semibold bg-blue-600 hover:bg-blue-700"
                                         >
                                             {isLoading ? 'Signing In...' : 'Sign In'}
                                             {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
@@ -290,7 +297,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                                     placeholder="Enter your mobile number"
                                                     value={mobileNumber}
                                                     onChange={(e) => setMobileNumber(e.target.value)}
-                                                    className="pl-10"
+                                                    className="pl-10 h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500"
                                                     maxLength={10}
                                                 />
                                             </div>
@@ -309,7 +316,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                         <Button
                                             onClick={handleSendOTP}
                                             disabled={isLoading}
-                                            className="w-full bg-blue-600 hover:bg-blue-700"
+                                            className="w-full h-11 rounded-xl text-base font-semibold bg-blue-600 hover:bg-blue-700"
                                         >
                                             {isLoading ? 'Sending...' : 'Send OTP'}
                                             {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
@@ -347,7 +354,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                 animate="animate"
                                 exit="exit"
                                 transition={{ duration: 0.3 }}
-                                className="space-y-6"
+                                className="space-y-6 "
                             >
                                 <div className="flex items-center space-x-4 mb-6">
                                     <Button
@@ -377,7 +384,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                                 placeholder="Enter 6-digit OTP"
                                                 value={otp}
                                                 onChange={(e) => setOtp(e.target.value)}
-                                                className="pl-10 text-center text-lg tracking-widest"
+                                                className="pl-10 h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 tracking-widest"
                                                 maxLength={6}
                                             />
                                         </div>
@@ -397,7 +404,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                     <Button
                                         onClick={handleVerifyOTP}
                                         disabled={isLoading}
-                                        className="w-full bg-green-600 hover:bg-green-700"
+                                        className="w-full h-11 rounded-xl text-base font-semibold bg-green-600 hover:bg-green-700"
                                     >
                                         {isLoading ? 'Verifying...' : 'Verify OTP'}
                                         {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
@@ -405,7 +412,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
                                     <Button
                                         variant="ghost"
-                                        className="w-full bg-gray-100 text-blue-600 hover:text-blue-700"
+                                        className="w-full h-11 rounded-xl text-base font-semibold bg-gray-100 hover:bg-blue-700 hover:text-white"
                                         onClick={handleResendOTP}
                                         disabled={resendDisabled}
                                     >

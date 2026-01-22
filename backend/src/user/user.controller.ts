@@ -15,11 +15,7 @@ export class UserController {
         return await this.userService.findAll();
     }
 
-    @Post('/change-password/:id')
-    async changePassword(@Body() userPassDto: { oldPassword: string; password: string; }, @Param('id') id: number) {
-        if (!userPassDto.oldPassword || !userPassDto.password) throw new Error('Missing password');
-        return await this.userService.changePassword(userPassDto, id);
-    }
+   
 
     @Get('profile')
     @UseGuards(JwtAuthGuard)
@@ -38,6 +34,14 @@ export class UserController {
         return this.userService.updateProfile(req.user.id, body, file);
     }
 
-
+    @Post('change-password')
+    @UseGuards(JwtAuthGuard)
+    async changeOwnPassword(
+        @Body() userPassDto: { newPassword: string; },
+        @Request() req: { user: { id: number; } },
+    ) {
+        if (!userPassDto.newPassword) throw new Error('Missing password');
+        return await this.userService.changePassword(userPassDto, req.user.id);
+    }
 }
 

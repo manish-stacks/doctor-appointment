@@ -94,11 +94,11 @@ const Appointments = () => {
                                     <tr key={appointment.id} className="border-b">
                                         <td className="p-3">{index + 1}</td>
                                         <td className="p-3">#{appointment?.appointmentId}</td>
-                                        <td className="p-3">
+                                        <td className="p-3 flex items-center gap-2">
                                             {appointment?.images && appointment.images.length > 0 ? (
                                                 appointment.images.map((img, index) => (
                                                     <a key={index} href={img} target="_blank" download>
-                                                        <img src={img} className="h-20 border" />
+                                                        <img src={img} className="h-10 border" />
                                                     </a>
                                                 ))
                                             ) : (

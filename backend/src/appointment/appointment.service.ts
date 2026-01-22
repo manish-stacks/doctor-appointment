@@ -19,6 +19,9 @@ export class AppointmentService {
 
         @InjectQueue('appointment')
         private readonly appointmentQueue: Queue,
+
+        @InjectQueue('mail')
+        private readonly mailQueue: Queue,
         // private readonly mailService: MailService,
 
     ) { }
@@ -33,7 +36,7 @@ export class AppointmentService {
 
         const appointment = this.appointmentRepository.create({
             appointmentId: 'APP' + Date.now().toString(),
-            status: 'Pending',
+            status: 'No Fill',
             hospitalId: Number(body.hospitalId),
             doctorId: Number(body.doctorId),
             userId: Number(body.userId || userId),
@@ -44,22 +47,22 @@ export class AppointmentService {
         const bookingLink = `${process.env.FRONTEND_URL}/booking/${saved.appointmentId}`;
         // await this.mailService.sendReminder(userEmail, bookingLink);
 
-        if (saved.status === 'Pending' && saved.email) {
+        if (saved.status === 'No Fill' && saved.email) {
             // 45 min reminder
-            await this.appointmentQueue.add(
+            await this.mailQueue.add(
                 'sendReminder',
                 {
                     appointmentId: saved.appointmentId,
                     email: saved.email,
                     link: bookingLink,
                 },
-                { delay: 1 * 60 * 1000 },
+                { delay: 5 * 60 * 1000 },
             );
         }
 
         // 45 * 60 * 1000, 24 * 60 * 60 * 1000
         // 1 day auto delete if still HOLD
-        if (saved.status === 'Pending' && saved.appointmentStatus === 'HOLD') {
+        if (saved.status === 'No Fill' && saved.appointmentStatus === 'HOLD') {
             await this.appointmentQueue.add(
                 'deleteIfNotConfirmed',
                 { appointmentId: saved.appointmentId },
@@ -137,6 +140,7 @@ export class AppointmentService {
         appointment.appointmentStatus = data.paymentType === 'Online' ? 'HOLD' : 'BOOKED';
 
         // appointment.images = images;
+
         appointment.images = await handleMultipleImages(
             images,            // new local file paths
             appointment.images // old cloudinary urls
@@ -146,7 +150,7 @@ export class AppointmentService {
 
         if (data.paymentType === 'Offline' && appointment.email) {
             // 45 min reminder
-            await this.appointmentQueue.add(
+            await this.mailQueue.add(
                 'sendBookingConfirmation',
                 {
                     appointment,
@@ -158,15 +162,14 @@ export class AppointmentService {
         return this.appointmentRepository.save(appointment);
 
     }
-    // async patientAppointments(userId: number) {
-    //     return this.appointmentRepository.find({ where: { userId }, relations: ['user', 'hospital', 'doctor'] });
-    // }
+   
     async patientAppointments(userId: number, page = 1, limit = 10, search = '') {
         const qb = this.appointmentRepository
             .createQueryBuilder('a')
             .leftJoinAndSelect('a.doctor', 'doctor')
             .leftJoinAndSelect('a.hospital', 'hospital')
-            .where('a.userId = :userId', { userId });
+            .where('a.userId = :userId', { userId })
+            .andWhere('a.status != :status', { status: 'No Fill' });
 
         if (search) {
             qb.andWhere(

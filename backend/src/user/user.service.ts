@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { uploadToCloudinary } from 'src/helper/cloudinary.helper';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -16,12 +17,17 @@ export class UserService {
     return await this.userRepository.find();
   }
 
-  async changePassword(userPassDto: { oldPassword: string; password: string; }, id: number) {
+  async changePassword(userPassDto: { newPassword: string; }, userId: number) {
 
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new Error('User not found');
-    if (user.password !== userPassDto.oldPassword) throw new Error('Invalid password');
-    return await this.userRepository.update(id, { ...userPassDto })
+    // const isMatch: boolean = await bcrypt.compare(oldPassword, user.password);
+
+    user.password = await bcrypt.hash(userPassDto.newPassword, 10);
+    await this.userRepository.save(user);
+
+    return { message: 'Password updated successfully' };
+
   }
   async getProfile(id: number) {
     const user = await this.userRepository.findOne({ where: { id } });
@@ -39,11 +45,13 @@ export class UserService {
     user.gender = data.gender;
 
     if (file) {
-      const result: { secure_url: string } = await uploadToCloudinary(file);
+      const result: { secure_url: string } = await uploadToCloudinary(file.path, 'user_profiles');
       user.image = result.secure_url;
     }
 
     return this.userRepository.save(user);
   }
+
+
 
 }

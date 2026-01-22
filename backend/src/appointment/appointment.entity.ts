@@ -106,7 +106,7 @@ export class Appointment {
     @Column({ type: 'enum', enum: ['AVAILABLE', 'BOOKED', 'HOLD', 'RESCHEDULED', 'COMPLETED', 'CANCELLED_BY_USER', 'CANCELLED_BY_DOCTOR'], default: 'HOLD' })
     appointmentStatus: string;
 
-    @Column({ type: 'enum', enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled'], default: 'Pending' })
+    @Column({ type: 'enum', enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'Rejected', 'Rescheduled','No Fill'], default: 'Pending' })
     status: string;
 
     @CreateDateColumn()

@@ -17,6 +17,9 @@ import { User } from 'src/user/user.entity';
 export class Doctor {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
+  
+  @Column({ type: 'varchar', unique: true, nullable: true })
+  doctorId: string;
 
   @Column({ type: 'varchar' })
   name: string;

@@ -12,6 +12,7 @@ import { User } from 'src/user/user.entity';
 import { CreateUserDto, resendOtpDto, VerifyOtpDto } from 'src/user/user.dto';
 import { otp_generator } from 'utils/OtpGenerate';
 import { MailerUtil } from 'utils/SendEmail';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -110,6 +111,77 @@ export class AuthService {
     }
   }
 
+  async loginWithEmail(body: { email: string, password: string, role: string }): Promise<{
+    success: boolean;
+    message: string;
+    token?: string;
+    role: string;
+    user: object;
+  }> {
+    try {
+      const { email, password, role } = body;
+      if (!email || !password) {
+        return {
+          success: false,
+          message: 'Email and password are required.',
+          role: '',
+          user: {},
+        }
+      }
+      const user = await this.userRepo.findOne({ where: { email, role } });
+      if (!user || !user.password) {
+        return {
+          success: false,
+          message: 'Password not set for this account. Please reset password.',
+          role: '',
+          user: {},
+        };
+      }
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return {
+          success: false,
+          message: 'Invalid password.',
+          role: '',
+          user: {},
+        };
+      }
+      const payload = {
+        id: user.id,
+        username: user.username,
+        phone: user.phone,
+        image: user.image,
+        role: user.role,
+        doctor_id: user?.doctor_id,
+      };
+      const token = this.jwtService.sign(payload);
+      const send_user = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        phone: user.phone,
+        image: user.image,
+        role: user.role,
+        doctor_id: user?.doctor_id,
+        contact_number_verified: user?.contact_number_verified,
+      };
+      return {
+        success: true,
+        message: 'Login successful.',
+        token,
+        role: user.role,
+        user: send_user,
+      };
+    } catch (error) {
+      console.error('Error during login:', error);
+      return {
+        success: false,
+        message: 'Something went wrong during login.',
+        role: '',
+        user: {},
+      };
+    }
+  }
   async resendOtp(
     resendOtpDto: resendOtpDto,
   ): Promise<{ success: boolean; message: string }> {
@@ -260,6 +332,8 @@ export class AuthService {
     //createUserDto.gender = gender === 'MR' ? 'Male' : 'Female';
     createUserDto.image = avatar;
     createUserDto.role = role;
+    createUserDto.isActive = true;
+    createUserDto.password = await bcrypt.hash(phone, 10);
     createUserDto.contact_number_verified = false;
 
     const user = this.userRepo.create(createUserDto);

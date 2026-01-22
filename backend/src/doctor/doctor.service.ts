@@ -78,8 +78,7 @@ export class DoctorService {
             isActive: false,
             isPopular: true,
             patientVideoCall: false,
-            // subscriptionStatus: true,
-            // subscriptionId: 1
+            doctorId: 'DOC' + Date.now().toString(),
         };
 
         const existingDoctor = await this.doctorRepository.findOne({ where: { userId } });
@@ -170,4 +169,16 @@ export class DoctorService {
         if (!doctor) throw new NotFoundException('Doctor not found');
         return this.appointmentRepository.find({ where: { doctorId: doctor.id, status: 'Confirmed' } });
     }
+
+    async searchDoctor(q: string) {
+        if (!q) return this.doctorRepository.find({ take: 10 });
+        
+        return this.doctorRepository
+            .createQueryBuilder('d')
+            .where('d.name LIKE :q', { q: `%${q}%` })
+            .orWhere('CAST(d.doctorId AS CHAR) LIKE :q', { q: `%${q}%` })
+            .take(10)
+            .getMany();
+    }
+
 }

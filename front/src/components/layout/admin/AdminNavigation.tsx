@@ -47,13 +47,12 @@ const AdminNavigation = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdo
                                     </div>
                                     <div className="max-h-[300px] overflow-y-auto">
                                         {/* Sample notifications */}
-                                        <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
+                                        {/* <div className="px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
                                             <p className="text-sm text-gray-800">New appointment request from John Doe</p>
                                             <p className="text-xs text-gray-500 mt-1">2 hours ago</p>
-                                        </div>
+                                        </div> */}
                                         <div className="px-4 py-3 hover:bg-gray-50">
-                                            <p className="text-sm text-gray-800">Your appointment is confirmed</p>
-                                            <p className="text-xs text-gray-500 mt-1">1 day ago</p>
+                                            <p className="text-sm text-gray-800">No new notifications</p>
                                         </div>
                                     </div>
                                     <div className="px-4 py-2 border-t border-gray-200">
@@ -90,14 +89,14 @@ const AdminNavigation = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdo
                                     <p className="text-xs text-gray-500">{userData?.email || 'example@gmail.com'}</p>
                                 </div>
                                 <Link
-                                    href={userData?.role === 'patient' ? "/patient/profile" : "/doctor/profile"}
+                                    href={userData?.role === 'user' ? "/patient/profile" : "/doctor/profile"}
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                     <UserCircle className="h-4 w-4 mr-2" />
                                     View Profile
                                 </Link>
                                 <Link
-                                    href={userData?.role === 'patient' ? "/patient/settings" : "/doctor/settings"}
+                                    href={userData?.role === 'user' ? "/patient/settings" : "/doctor/settings"}
                                     className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                 >
                                     <Settings className="h-4 w-4 mr-2" />

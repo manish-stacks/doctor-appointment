@@ -6,10 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {  DialogHeader, DialogTitle } from '@/components/ui/custom/dialog';
+
 import { Phone, Shield, ArrowLeft, ArrowRight, Mail, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AxiosInstance } from '@/helpers/Axios.instance';
 import { useUserStore } from '@/store/useUserStore';
+import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 type Step = 'login' | 'mobile' | 'otp';
 type LoginMethod = 'email' | 'mobile';
@@ -26,7 +30,7 @@ export default function DoctorLoginPage() {
     const [otp, setOtp] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    // const router = useRouter();
+    const router = useRouter();
     const [timer, setTimer] = useState(30);
 
     useEffect(() => {
@@ -63,11 +67,15 @@ export default function DoctorLoginPage() {
 
         setIsLoading(true);
         setError('');
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        return;
+
+        // if (password.length < 8) {
+        //     setError('Password must be at least 8 characters long.');
+        //     setIsLoading(false);
+        //     return;
+        // }
 
         try {
-            const response = await AxiosInstance.post(`/auth/login`, {
+            const response = await AxiosInstance.post(`/auth/login-email`, {
                 email,
                 password,
                 role: 'doctor',
@@ -79,8 +87,10 @@ export default function DoctorLoginPage() {
                 return;
             }
 
+
             fetchUserDetails(response.data);
-            window.location.href = '/doctor/dashboard';
+            toast.success('Login successful');
+            router.push('/doctor/dashboard');
         } catch (error: unknown) {
             setError(error instanceof Error ? error.message : 'Invalid credentials. Please try again.');
         } finally {
@@ -187,8 +197,17 @@ export default function DoctorLoginPage() {
 
                 {/* Main Card */}
                 <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-                    <div className="relative overflow-hidden min-h-[500px]">
+                    <div className="relative overflow-hidden">
                         <AnimatePresence mode="wait">
+                            <DialogHeader key="header" className="space-y-1 mb-8">
+                                <p className="text-center text-2xl font-bold text-blue-700 pt-5">
+                                    Patient Login
+                                </p>
+                                <p className="text-center text-sm text-gray-500 mt-1">
+                                    Secure access to your appointments & reports
+                                </p>
+                            </DialogHeader>
+
                             {step === 'login' && (
                                 <motion.div
                                     key="login"
@@ -199,23 +218,20 @@ export default function DoctorLoginPage() {
                                     transition={{ duration: 0.3 }}
                                     className="space-y-6"
                                 >
-                                    <div className="text-center mb-6">
-                                        <h2 className="text-xl font-semibold text-blue-800 mb-2">
-                                            Welcome Back, Doctor
-                                        </h2>
-                                        <p className="text-sm text-gray-600">
-                                            Choose your preferred login method
-                                        </p>
-                                    </div>
 
                                     <Tabs value={loginMethod} onValueChange={(value) => setLoginMethod(value as LoginMethod)}>
-                                        <TabsList className="grid w-full grid-cols-2 mb-6">
-                                            <TabsTrigger value="mobile">Mobile OTP</TabsTrigger>
-                                            <TabsTrigger value="email">Email & Password</TabsTrigger>
+                                        <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-xl p-1">
+                                            <TabsTrigger className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow" value="mobile">
+                                                Mobile OTP
+                                            </TabsTrigger>
+                                            <TabsTrigger className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow" value="email">
+                                                Email Login
+                                            </TabsTrigger>
                                         </TabsList>
 
+
                                         <TabsContent value="email" className="space-y-4">
-                                            <div className="space-y-2">
+                                            <div className="space-y-2 mt-6">
                                                 <Label htmlFor="email">Doctor Email Address</Label>
                                                 <div className="relative">
                                                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -225,7 +241,7 @@ export default function DoctorLoginPage() {
                                                         placeholder="Enter your registered email"
                                                         value={email}
                                                         onChange={(e) => setEmail(e.target.value)}
-                                                        className="pl-10 h-12"
+                                                        className="pl-10 h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500"
                                                     />
                                                 </div>
                                             </div>
@@ -240,7 +256,7 @@ export default function DoctorLoginPage() {
                                                         placeholder="Enter your password"
                                                         value={password}
                                                         onChange={(e) => setPassword(e.target.value)}
-                                                        className="pl-10 pr-10 h-12"
+                                                        className="pl-10 h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500"
                                                     />
                                                     <button
                                                         type="button"
@@ -271,7 +287,7 @@ export default function DoctorLoginPage() {
                                             <Button
                                                 onClick={handleEmailLogin}
                                                 disabled={isLoading}
-                                                className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-base"
+                                                className="w-full h-11 rounded-xl text-base font-semibold bg-blue-600 hover:bg-blue-700"
                                             >
                                                 {isLoading ? 'Signing In...' : 'Sign In to Dashboard'}
                                                 {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
@@ -279,8 +295,8 @@ export default function DoctorLoginPage() {
                                         </TabsContent>
 
                                         <TabsContent value="mobile" className="space-y-6">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="mobile">Registered Mobile Number</Label>
+                                            <div className="space-y-2 mt-6 ">
+                                                <Label htmlFor="mobile">Mobile Number</Label>
                                                 <div className="relative">
                                                     <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                                                     <Input
@@ -289,7 +305,7 @@ export default function DoctorLoginPage() {
                                                         placeholder="Enter your registered mobile number"
                                                         value={mobileNumber}
                                                         onChange={(e) => setMobileNumber(e.target.value)}
-                                                        className="pl-10 h-12"
+                                                        className="pl-10 h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500"
                                                         maxLength={10}
                                                     />
                                                 </div>
@@ -342,9 +358,9 @@ export default function DoctorLoginPage() {
                                     animate="animate"
                                     exit="exit"
                                     transition={{ duration: 0.3 }}
-                                    className="space-y-6"
+                                    className="space-y-6 pb-10"
                                 >
-                                    <div className="flex items-center space-x-4 mb-6">
+                                    <div className="flex items-center space-x-4 mb-10">
                                         <Button
                                             variant="ghost"
                                             size="sm"
@@ -362,7 +378,7 @@ export default function DoctorLoginPage() {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <div className="space-y-2">
+                                        <div className="space-y-2 mt-6">
                                             <Label htmlFor="otp">Verification Code</Label>
                                             <div className="relative">
                                                 <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -372,7 +388,7 @@ export default function DoctorLoginPage() {
                                                     placeholder="Enter 6-digit OTP"
                                                     value={otp}
                                                     onChange={(e) => setOtp(e.target.value)}
-                                                    className="pl-10 text-center text-lg tracking-widest h-12"
+                                                    className="pl-10 h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 tracking-widest"
                                                     maxLength={6}
                                                 />
                                             </div>
@@ -391,7 +407,7 @@ export default function DoctorLoginPage() {
                                         <Button
                                             onClick={handleVerifyOTP}
                                             disabled={isLoading}
-                                            className="w-full bg-green-600 hover:bg-green-700 h-12 text-base"
+                                            className="w-full h-11 rounded-xl text-base font-semibold bg-green-600 hover:bg-green-700"
                                         >
                                             {isLoading ? 'Verifying...' : 'Verify & Access Dashboard'}
                                             {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
@@ -399,7 +415,7 @@ export default function DoctorLoginPage() {
 
                                         <Button
                                             variant="ghost"
-                                            className="w-full bg-gray-100 text-blue-600 hover:text-blue-700 hover:bg-gray-200 h-12"
+                                            className="w-full bg-gray-100 text-blue-600 hover:text-blue-700 hover:bg-gray-200 h-11 text-base font-semibold rounded-xl"
                                             onClick={handleResendOTP}
                                             disabled={resendDisabled}
                                         >

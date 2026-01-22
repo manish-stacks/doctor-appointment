@@ -53,10 +53,10 @@ export class AppointmentController {
         @Body() body: BookingPayload,
         @UploadedFiles() files: Multer.File[]
     ) {
-
+       
         const paths = files?.length ? files.map(f => f.path) : [];
         return this.appointmentService.updateBooking(id, body, paths);
-    }
+    }   
 
 
     @Put(':id')
@@ -70,16 +70,7 @@ export class AppointmentController {
         return this.appointmentService.remove(id);
     }
 
-    // @UseGuards(JwtAuthGuard)
-    // @Post('patient/appointments')
-    // async patientAppointments(@Request() req: { user: { id: number; } },) {
-    //     const userId = req.user.id;
-    //     if (!userId) {
-    //         throw new BadRequestException('User ID is missing from token');
-    //     }
-    //     return this.appointmentService.patientAppointments(userId);
-    // }
-
+   
     @UseGuards(JwtAuthGuard)
     @Post('patient/appointments')
     async patientAppointments(

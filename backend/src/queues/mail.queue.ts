@@ -1,29 +1,19 @@
 /* eslint-disable prettier/prettier */
 import { Process, Processor } from '@nestjs/bull';
 import { Job } from 'bull';
-import { AppointmentService } from './appointment.service';
+import { BookingMailPayload } from 'src/appointment/appointment.dto';
 import { MailService } from 'src/mail/mail.service';
-import { BookingMailPayload } from './appointment.dto';
 
-@Processor('appointment')
-export class AppointmentProcessor {
+@Processor('mail')
+export class MailProcessor {
   constructor(
     private readonly mailService: MailService,
-    private readonly appointmentService: AppointmentService,
   ) { }
 
   @Process('sendReminder')
   async handleReminder(job: Job) {
     const { email, link } = job.data as { email: string; link: string };
     await this.mailService.sendReminder(email, link);
-  }
-
-
-
-  @Process('deleteIfNotConfirmed')
-  async handleDelete(job: Job) {
-    const { appointmentId } = job.data as { appointmentId: string };
-    await this.appointmentService.deleteIfStillPending(appointmentId);
   }
 
   @Process('sendBookingConfirmation')
