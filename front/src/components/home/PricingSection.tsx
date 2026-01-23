@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, CircleX, } from 'lucide-react';
 
 interface PricingSectionProps {
   isDarkMode: boolean;
@@ -15,7 +15,18 @@ const plans = [
     price: 'Free',
     period: 'Forever',
     description: 'Perfect for occasional consultations',
-    features: ['Book up to 2 appointments/month', 'Basic health records', 'Email support', 'Mobile app access', 'Prescription reminders'],
+    features: [
+      'Book up to 2 appointments/month', 
+      'Basic health records', 
+      'Email support', 
+      'Mobile app access', 
+      'Prescription reminders'
+    ],
+    noAddFeatures: [
+      'Specialist referrals',
+      'Telemedicine consultations',
+      'Priority booking',
+    ],
     buttonText: 'Get Started Free',
     popular: false,
     gradient: 'from-gray-50 to-gray-100',
@@ -23,7 +34,7 @@ const plans = [
   },
   {
     name: 'Premium',
-    price: '$29',
+    price: '₹5000',
     period: 'per month',
     description: 'Ideal for regular healthcare needs',
     features: [
@@ -43,7 +54,7 @@ const plans = [
   },
   {
     name: 'Family',
-    price: '$49',
+    price: '₹10000',
     period: 'per month',
     description: 'Complete healthcare for your family',
     features: [
@@ -58,8 +69,8 @@ const plans = [
     ],
     buttonText: 'Contact Sales',
     popular: false,
-    gradient: 'from-purple-50 to-pink-100',
-    buttonStyle: 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white',
+    gradient: 'from-gray-50 to-gray-100',
+    buttonStyle: 'bg-gray-900 hover:bg-gray-800 text-white',
   },
 ];
 
@@ -84,7 +95,7 @@ export function PricingSection({ isDarkMode, handlePatientLogin }: PricingSectio
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div className="text-center mb-16" variants={itemVariants}>
-          <Badge className="bg-orange-100 text-orange-700 px-4 py-2 mb-4">Pricing</Badge>
+          {/* <Badge className="bg-orange-100 text-orange-700 px-4 py-2 mb-4">Doctor Pricing</Badge> */}
           <h3 className={`text-4xl md:text-5xl font-bold mb-6 transition-colors duration-500 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Transparent, Affordable Healthcare
           </h3>
@@ -99,7 +110,7 @@ export function PricingSection({ isDarkMode, handlePatientLogin }: PricingSectio
                 {plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-2 text-sm font-bold shadow-lg">
-                      🔥 Most Popular
+                     Most Popular
                     </Badge>
                   </div>
                 )}
@@ -121,6 +132,13 @@ export function PricingSection({ isDarkMode, handlePatientLogin }: PricingSectio
                         <span className={`transition-colors duration-500 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{feature}</span>
                       </li>
                     ))}
+                    {plan.noAddFeatures && plan.noAddFeatures.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-center text-sm">
+                        <CircleX className="w-5 h-5 text-rose-500 mr-3 flex-shrink-0" />
+                        <span className={`transition-colors duration-500 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{feature}</span>
+                      </li>
+                    ))}
+                    
                   </ul>
                   <Button
                     className={`w-full py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg ${plan.buttonStyle}`}

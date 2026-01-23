@@ -68,7 +68,7 @@ export function FeaturesSection({ isDarkMode }: FeaturesSectionProps) {
             <motion.div key={index} variants={itemVariants}>
               <Card className={`h-full border-0 shadow-lg hover:shadow-xl transition-all duration-300 group hover:-translate-y-2 ${isDarkMode ? 'bg-gradient-to-br from-gray-800 to-gray-700' : 'bg-gradient-to-br from-white to-gray-50'}`}>
                 <CardHeader className="text-center pb-4">
-                  <div className={`w-16 h-16 bg-gradient-to-br from-${feature.color}-100 to-${feature.color}-200 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-16 h-16 bg-gradient-to-br from-${feature.color}-500 to-${feature.color}-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300`}>
                     <feature.icon className={`w-8 h-8 text-${feature.color}-600`} />
                   </div>
                   <CardTitle className={`text-xl font-bold mb-3 transition-colors duration-500 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>

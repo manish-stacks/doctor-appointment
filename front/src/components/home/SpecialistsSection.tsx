@@ -15,10 +15,10 @@ const specialties = [
   { name: 'Gynecology', Icon: UserCheck, doctors: '35+', accent: 'emerald' },
   { name: 'Psychiatry', Icon: Brain, doctors: '26+', accent: 'indigo' },
   { name: 'Ophthalmology', Icon: Eye, doctors: '24+', accent: 'teal' },
-  { name: 'ENT', Icon: Ear, doctors: '20+', accent: 'amber' },
-  { name: 'Pharmacy', Icon: Pill, doctors: '42+', accent: 'cyan' },
-  { name: 'General Medicine', Icon: Stethoscope, doctors: '55+', accent: 'violet' },
-  { name: 'Emergency', Icon: Activity, doctors: '24/7', accent: 'red' },
+  // { name: 'ENT', Icon: Ear, doctors: '20+', accent: 'amber' },
+  // { name: 'Pharmacy', Icon: Pill, doctors: '42+', accent: 'cyan' },
+  // { name: 'General Medicine', Icon: Stethoscope, doctors: '55+', accent: 'violet' },
+  // { name: 'Emergency', Icon: Activity, doctors: '24/7', accent: 'red' },
 ];
 
 export default function SpecialistsSection({ isDarkMode = false }: SpecialistsSectionProps) {
@@ -50,7 +50,7 @@ export default function SpecialistsSection({ isDarkMode = false }: SpecialistsSe
         </div>
 
         {/* Specialties Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10">
           {specialties.map((specialty, index) => {
             const { Icon } = specialty;
             const isActive = activeSpecialty === index;
@@ -108,46 +108,6 @@ export default function SpecialistsSection({ isDarkMode = false }: SpecialistsSe
           })}
         </div>
 
-        {/* Bottom Stats */}
-        <div className={`relative rounded-3xl p-8 md:p-12 ${isDarkMode ? 'bg-gradient-to-r from-slate-900 to-slate-800 border border-slate-700' : 'bg-gradient-to-r from-blue-600 to-indigo-600'}`}>
-          <div className="absolute inset-0 bg-grid-pattern opacity-10 rounded-3xl"></div>
-          <div className="relative z-10">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-              <div>
-                <div className={`text-3xl md:text-4xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-white'}`}>
-                  500+
-                </div>
-                <p className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-blue-100'}`}>
-                  Medical Experts
-                </p>
-              </div>
-              <div>
-                <div className={`text-3xl md:text-4xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-white'}`}>
-                  50+
-                </div>
-                <p className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-blue-100'}`}>
-                  Specializations
-                </p>
-              </div>
-              <div>
-                <div className={`text-3xl md:text-4xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-white'}`}>
-                  24/7
-                </div>
-                <p className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-blue-100'}`}>
-                  Emergency Care
-                </p>
-              </div>
-              <div>
-                <div className={`text-3xl md:text-4xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-white'}`}>
-                  98%
-                </div>
-                <p className={`text-sm ${isDarkMode ? 'text-slate-300' : 'text-blue-100'}`}>
-                  Patient Satisfaction
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       <style jsx>{`

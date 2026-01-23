@@ -1,10 +1,10 @@
 import React from 'react'
 import { motion } from 'framer-motion';
-import { Phone, Heart, Globe, Clock } from 'lucide-react';
+import { Phone, Globe, Clock } from 'lucide-react';
 
 
 
-export const Footer = ({ isDarkMode }: { isDarkMode: boolean }) => {
+export const Footer = () => {
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -30,7 +30,7 @@ export const Footer = ({ isDarkMode }: { isDarkMode: boolean }) => {
 
     return (
         <motion.footer
-            className={`py-16 transition-colors duration-500 ${isDarkMode ? 'bg-black text-white' : 'bg-gray-900 text-white'}`}
+            className={`py-16 transition-colors duration-500 bg-[#0b1030] text-white`}
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -39,11 +39,24 @@ export const Footer = ({ isDarkMode }: { isDarkMode: boolean }) => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
                     <motion.div variants={itemVariants} className="lg:col-span-2">
-                        <div className="flex items-center space-x-3 mb-6">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                                <Heart className="w-6 h-6 text-white" />
+                        <div className="flex items-center gap-3">
+                            <div className="relative">
+                                <svg width="50" height="50" viewBox="0 0 50 50" className="text-[#0ea5e9]">
+                                    <path
+                                        d="M25 5 C15 5, 8 12, 8 22 C8 28, 10 32, 15 38 L25 48 L35 38 C40 32, 42 28, 42 22 C42 12, 35 5, 25 5 Z"
+                                        fill="currentColor"
+                                        opacity="0.15"
+                                    />
+                                    <circle cx="25" cy="22" r="10" fill="none" stroke="currentColor" strokeWidth="2.5" />
+                                    <path d="M25 17 L25 27 M20 22 L30 22" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                                </svg>
+                                <div className="absolute top-1 right-1 w-2 h-2 bg-[#0ea5e9] rounded-full"></div>
                             </div>
-                            <h4 className="text-2xl font-bold">MediCare+</h4>
+                            <div>
+                                <h1 className="text-xl md:text-2xl font-bold text-white">
+                                    MediCare<span className="text-[#0ea5e9]">+</span>
+                                </h1>
+                            </div>
                         </div>
                         <p className="text-gray-400 mb-6 leading-relaxed">
                             Making quality healthcare accessible and convenient for everyone. Trusted by thousands of patients and healthcare providers nationwide.

@@ -34,34 +34,7 @@ const testimonials = [
     rating: 5,
     testimonial: 'The affordable pricing and easy access to specialists helped me get the mental health support I needed without breaking the bank. The platform is intuitive and the doctors genuinely care.',
     highlight: 'Affordable student pricing',
-  },
-  {
-    name: 'David Thompson',
-    role: 'Retiree',
-    location: 'Miami, FL',
-    image: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
-    rating: 5,
-    testimonial: 'The platform is surprisingly user-friendly for someone my age. The customer support team was patient and walked me through everything. Now I can easily manage all my appointments and prescriptions.',
-    highlight: 'Senior-friendly interface',
-  },
-  {
-    name: 'Lisa Park',
-    role: 'Small Business Owner',
-    location: 'Seattle, WA',
-    image: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
-    rating: 5,
-    testimonial: 'Having all my family\'s health records in one secure place and being able to book for everyone is incredibly convenient. The family plan offers excellent value and peace of mind.',
-    highlight: 'Manages 5 family members',
-  },
-  {
-    name: 'James Wilson',
-    role: 'Teacher',
-    location: 'Chicago, IL',
-    image: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
-    rating: 5,
-    testimonial: 'The emergency consultation feature literally saved my life during a health scare. Being able to connect with a doctor immediately at 2 AM gave me the guidance I needed before heading to the ER.',
-    highlight: '24/7 emergency access',
-  },
+  }
 ];
 
 export function TestimonialsSection({ isDarkMode }: TestimonialsSectionProps) {
@@ -77,7 +50,7 @@ export function TestimonialsSection({ isDarkMode }: TestimonialsSectionProps) {
 
   return (
     <motion.section
-      className={`py-20 transition-colors duration-500 ${isDarkMode ? 'bg-gradient-to-r from-gray-800 to-gray-900' : 'bg-gradientbeespace-to-br from-gray-50 to-blue-50'}`}
+      className={`py-20 transition-colors duration-500 ${isDarkMode ? 'bg-gradient-to-r from-gray-800 to-gray-900' : 'bg-gray-100'}`}
       variants={containerVariants}
       initial="hidden"
       whileInView="visible"
@@ -85,7 +58,7 @@ export function TestimonialsSection({ isDarkMode }: TestimonialsSectionProps) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div className="text-center mb-16" variants={itemVariants}>
-          <Badge className="bg-yellow-100 text-yellow-700 px-4 py-2 mb-4">Testimonials</Badge>
+          {/* <Badge className="bg-yellow-100 text-yellow-700 px-4 py-2 mb-4">Testimonials</Badge> */}
           <h3 className={`text-4xl md:text-5xl font-bold mb-6 transition-colors duration-500 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Trusted by Thousands of Patients
           </h3>

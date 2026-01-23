@@ -1,6 +1,5 @@
-import { Card, CardContent } from '@/components/ui/card';
-import { Users, Award, Heart, Star } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Award, Heart, Star, Users } from 'lucide-react';
+import React from 'react';
 
 interface StatsSectionProps {
   isDarkMode: boolean;
@@ -14,39 +13,49 @@ const stats = [
 ];
 
 export function StatsSection({ isDarkMode }: StatsSectionProps) {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1, duration: 0.8 } },
-  };
 
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.6 } },
-  };
+
 
   return (
-    <motion.section
-      className={`py-16 backdrop-blur-sm transition-colors duration-500 ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'}`}
-      variants={containerVariants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-    >
+    <section className="relative -mt-20 z-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((stat, index) => (
-            <motion.div key={index} className="text-center group" variants={itemVariants}>
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
-                <stat.icon className="w-8 h-8 text-blue-600" />
+        {/* Stats Card */}
+        <div className={`${isDarkMode ? 'bg-gray-800/90 border-gray-700' : 'bg-white border-gray-200'}  rounded-2xl shadow-2xl overflow-hidden`}>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 px-6 py-12  relative">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="text-4xl md:text-5xl font-bold text-[#0ea5e9] mb-2">
+                  {stat.number}
+                </div>
+                <div className="text-sm md:text-base text-gray-700 font-medium leading-tight">
+                  {stat.label}
+                </div>
+                {/* Divider (except last item) */}
+                {index < stats.length - 1 && (
+                  <div className="hidden lg:block absolute top-1/2 -translate-y-1/2 right-0 w-px h-16 bg-gray-200"></div>
+                )}
               </div>
-              <div className={`text-3xl md:text-4xl font-bold mb-2 transition-colors duration-500 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                {stat.number}
-              </div>
-              <div className={`font-medium transition-colors duration-500 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{stat.label}</div>
-            </motion.div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </motion.section>
+
+      {/* Special Offers Section */}
+      {/* <div className="mt-20 bg-gradient-to-b from-[#2d3e5f] to-[#1e2940] py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-gray-400 text-sm uppercase tracking-wider mb-3">
+            Diagnostic plans
+          </p>
+          <h2 className="text-4xl md:text-5xl font-bold text-[#0ea5e9] mb-4">
+            Our special offers
+          </h2>
+          <p className="text-gray-300 text-lg max-w-3xl mx-auto">
+            Etiam condimentum aliquam odio, ut consectetur enim. Nullam metus purus, pharetra quis tempus id,
+          </p>
+        </div>
+      </div> */}
+    </section>
   );
 }
