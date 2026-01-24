@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export function HeroSection() {
   return (
-    <div className="min-h-screen">
+    <div className="">
       {/* <TopInfoBar />
       <Header /> */}
       <section className="relative min-h-[500px] md:min-h-[600px] overflow-hidden">
@@ -40,11 +40,7 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Decorative Elements */}
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#0ea5e9]/10 rounded-full blur-3xl"></div>
-        <div className="absolute top-20 right-20 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
-
-
+       
       </section>
     </div>
   );

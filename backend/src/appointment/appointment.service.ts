@@ -43,11 +43,11 @@ export class AppointmentService {
         });
 
         const saved = await this.appointmentRepository.save(appointment);
-
+        if (!saved) throw new Error('Failed to create appointment');
         const bookingLink = `${process.env.FRONTEND_URL}/booking/${saved.appointmentId}`;
         // await this.mailService.sendReminder(userEmail, bookingLink);
 
-        if (saved.status === 'No Fill' && saved.email) {
+        if (saved.appointmentStatus === 'Hold' && !saved.appointmentFor && saved.email) {
             // 45 min reminder
             await this.mailQueue.add(
                 'sendReminder',
@@ -62,7 +62,7 @@ export class AppointmentService {
 
         // 45 * 60 * 1000, 24 * 60 * 60 * 1000
         // 1 day auto delete if still HOLD
-        if (saved.status === 'No Fill' && saved.appointmentStatus === 'HOLD') {
+        if (saved.appointmentStatus === 'Hold' && !saved.appointmentFor) {
             await this.appointmentQueue.add(
                 'deleteIfNotConfirmed',
                 { appointmentId: saved.appointmentId },
@@ -98,7 +98,7 @@ export class AppointmentService {
     async deleteIfStillPending(appointmentId: string) {
         console.log('deleteIfStillPending', appointmentId);
         const appointment = await this.appointmentRepository.findOne({ where: { appointmentId } });
-        if (appointment?.status === 'Pending' && appointment?.appointmentStatus === 'HOLD') {
+        if (appointment?.appointmentStatus === 'Hold') {
             await this.appointmentRepository.remove(appointment);
         }
     }
@@ -136,7 +136,6 @@ export class AppointmentService {
         appointment.finalAmount = Number(data.finalAmount);
         appointment.appointmentFees = Number(data.appointmentFees);
         appointment.paymentStatus = data.paymentType === 'Online' ? 'Pending' : 'Remaining';
-        appointment.status = data.paymentType === 'Online' ? 'Pending' : 'Confirmed';
         appointment.appointmentStatus = data.paymentType === 'Online' ? 'HOLD' : 'BOOKED';
 
         // appointment.images = images;
@@ -169,11 +168,11 @@ export class AppointmentService {
             .leftJoinAndSelect('a.doctor', 'doctor')
             .leftJoinAndSelect('a.hospital', 'hospital')
             .where('a.userId = :userId', { userId })
-            .andWhere('a.status != :status', { status: 'No Fill' });
+            .andWhere('a.appointmentStatus != :status', { status: 'Hold' });
 
         if (search) {
             qb.andWhere(
-                '(a.appointmentId LIKE :search OR doctor.name LIKE :search OR a.status LIKE :search)',
+                '(a.appointmentId LIKE :search OR doctor.name LIKE :search OR a.appointmentStatus LIKE :search)',
                 { search: `%${search}%` },
             );
         }
@@ -192,7 +191,40 @@ export class AppointmentService {
         };
     }
 
+    async doctorAppointments(userId: number, page = 1, limit = 10, search = '') {
+        const qb = this.appointmentRepository
+            .createQueryBuilder('a')
+            .leftJoinAndSelect('a.user', 'user')
+            .leftJoinAndSelect('a.hospital', 'hospital')
+            .where('a.doctorId = :userId', { userId })
+            .andWhere('a.appointmentStatus != :status', { status: 'Hold' });
 
+        if (search) {
+            qb.andWhere(
+                '(a.appointmentId LIKE :search OR user.username LIKE :search OR a.appointmentStatus LIKE :search)',
+                { search: `%${search}%` },
+            );
+        }
 
+        const [data, total] = await qb
+            .skip((page - 1) * limit)
+            .take(limit)
+            .orderBy('a.createdAt', 'DESC')
+            .getManyAndCount();
+
+        return {
+            data,
+            total,
+            page,
+            lastPage: Math.ceil(total / limit),
+        };
+    }
+
+    async updateStatus(id: number, status: string) {
+        const appointment = await this.appointmentRepository.findOne({ where: { id } });
+        if (!appointment) return 'Appointment not found';
+        appointment.appointmentStatus = status;
+        return this.appointmentRepository.save(appointment);
+    }
 
 }

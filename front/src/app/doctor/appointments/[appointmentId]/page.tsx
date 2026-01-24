@@ -34,10 +34,17 @@ export default function AppointmentDetail() {
 
     const getStatusBadge = (status: string) => {
         const styles = {
-            Confirmed: "bg-green-50 text-green-700 border-green-200",
-            Pending: "bg-yellow-50 text-yellow-700 border-yellow-200",
-            Cancelled: "bg-red-50 text-red-700 border-red-200",
-            Completed: "bg-blue-50 text-blue-700 border-blue-200"
+            Available: 'bg-green-100 text-green-600',
+            Booked: 'bg-blue-100 text-blue-600',
+            Hold: 'bg-yellow-100 text-yellow-600',
+            Approved: 'bg-purple-100 text-purple-600',
+            Rescheduled: 'bg-orange-100 text-orange-600',
+            Completed: 'bg-gray-100 text-gray-800',
+            CancelledByUser: 'bg-red-100 text-red-600',
+            Cancelled: 'bg-red-100 text-red-600',
+            CancelledByDoctor: 'bg-red-100 text-red-600',
+            Remaining: 'bg-red-100 text-red-600',
+            Paid: 'bg-green-100 text-green-600',
         };
         return styles[status] || styles.Pending;
     };

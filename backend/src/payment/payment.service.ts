@@ -74,7 +74,6 @@ export class PaymentService {
 
         appointment.transactionId = body.razorpay_payment_id;
         appointment.paymentStatus = 'Paid';
-        appointment.status = 'Confirmed';
         appointment.appointmentStatus = 'BOOKED';
 
         await this.appointmentRepository.save(appointment);
@@ -116,7 +115,6 @@ export class PaymentService {
 
             if (appointment) {
                 appointment.paymentStatus = 'Paid';
-                appointment.status = 'Confirmed';
                 appointment.appointmentStatus = 'BOOKED';
                 await this.appointmentRepository.save(appointment);
             }
@@ -132,7 +130,6 @@ export class PaymentService {
 
             if (appointment) {
                 appointment.paymentStatus = 'Failed';
-                appointment.status = 'Cancelled';
                 appointment.appointmentStatus = 'HOLD';
                 await this.appointmentRepository.save(appointment);
             }
@@ -160,7 +157,6 @@ export class PaymentService {
             if (appointment) {
                 appointment.transactionId = refund?.payment_id;
                 appointment.paymentStatus = 'Refunded';
-                appointment.status = 'Cancelled';
                 appointment.appointmentStatus = 'HOLD';
                 await this.appointmentRepository.save(appointment);
             }

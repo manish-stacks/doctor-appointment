@@ -53,10 +53,10 @@ export class AppointmentController {
         @Body() body: BookingPayload,
         @UploadedFiles() files: Multer.File[]
     ) {
-       
+
         const paths = files?.length ? files.map(f => f.path) : [];
         return this.appointmentService.updateBooking(id, body, paths);
-    }   
+    }
 
 
     @Put(':id')
@@ -65,12 +65,17 @@ export class AppointmentController {
             .status);
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Put(':id/status')
+    async updateStatus(@Param('id') id: number, @Body() body: { status: string }) {
+        return this.appointmentService.updateStatus(id, body.status);
+    }
     @Delete(':id')
     async remove(@Param('id') id: number) {
         return this.appointmentService.remove(id);
     }
 
-   
+
     @UseGuards(JwtAuthGuard)
     @Post('patient/appointments')
     async patientAppointments(
@@ -78,6 +83,21 @@ export class AppointmentController {
         @Body() body: { page: number; limit: number; search: string }
     ) {
         return this.appointmentService.patientAppointments(
+            req.user.id,
+            body.page || 1,
+            body.limit || 10,
+            body.search || ''
+        );
+    }
+
+
+    @UseGuards(JwtAuthGuard)
+    @Post('doctor/appointments')
+    async doctorAppointments(
+        @Request() req: { user: { id: number; } },
+        @Body() body: { page: number; limit: number; search: string }
+    ) {
+        return this.appointmentService.doctorAppointments(
             req.user.id,
             body.page || 1,
             body.limit || 10,

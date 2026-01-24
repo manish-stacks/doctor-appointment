@@ -117,4 +117,5 @@ export class AppointmentCreateDto {
 
     @IsNumber()
     hospitalId: number
+    
 }

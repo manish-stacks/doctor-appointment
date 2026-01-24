@@ -1,5 +1,6 @@
 "use client";
 import Receipt from '@/components/Receipt';
+import { Button } from '@/components/ui/button';
 import Breadcrumb from '@/components/ui/custom/breadcrumb';
 import Pagination from '@/components/ui/custom/pagination';
 import { AxiosInstance } from '@/helpers/Axios.instance';
@@ -7,6 +8,29 @@ import { AppointmentDetails } from '@/types/appointment';
 import { Download, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
+import toast from 'react-hot-toast';
+
+
+
+type PaymentStatus = 'Remaining' | 'Paid';
+type AppointmentStatus = 'Available' | 'Booked' | 'Hold' | 'Approved' | 'Rescheduled' | 'Completed' | 'CancelledByUser' | 'Cancelled' | 'CancelledByDoctor';
+
+
+
+const statusBadge: Record<PaymentStatus | AppointmentStatus, string> = {
+    Available: 'bg-green-100 text-green-600',
+    Booked: 'bg-blue-100 text-blue-600',
+    Hold: 'bg-yellow-100 text-yellow-600',
+    Approved: 'bg-purple-100 text-purple-600',
+    Rescheduled: 'bg-orange-100 text-orange-600',
+    Completed: 'bg-gray-100 text-gray-800',
+    CancelledByUser: 'bg-red-100 text-red-600',
+    Cancelled: 'bg-red-100 text-red-600',
+    CancelledByDoctor: 'bg-red-100 text-red-600',
+    Remaining: 'bg-red-100 text-red-600',
+    Paid: 'bg-green-100 text-green-600',
+};
+
 
 const Appointments = () => {
     const router = useRouter();
@@ -45,7 +69,20 @@ const Appointments = () => {
             window.location.reload();
         }, 300);
     };
+    const handleToChange = async (status: string, id: number) => {
+        try {
+            await AxiosInstance.put(`/appointment/${id}/status`, {
+                status,
+            });
+            toast.success("Appointment status updated successfully.");
+            fetchAppointments();
+        } catch (error) {
+            toast.error("Failed to update appointment status.");
+            console.error("Error updating appointment status:", error);
+            return;
+        }
 
+    }
 
 
     return (
@@ -105,22 +142,20 @@ const Appointments = () => {
                                                 "No Image Uploaded"
                                             )}
                                         </td>
-                                        <td className="p-3">{appointment.finalAmount}</td>
+                                        <td className="p-3">₹{appointment.finalAmount}</td>
                                         <td className="p-3">Dr. {appointment.doctor?.name}</td>
                                         <td className="p-3">
                                             <div>{appointment.date}</div>
                                             <div className="text-blue-400">{appointment.time}</div>
                                         </td>
                                         <td className="p-3">
-                                            <span className={`px-2 py-1 rounded ${appointment.paymentStatus === "Remaining" ? "bg-red-100 text-red-500" : "bg-green-100 text-green-500"
-                                                }`}>
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusBadge[appointment?.paymentStatus]}`}>
                                                 {appointment.paymentStatus}
                                             </span>
                                         </td>
                                         <td className="p-3">
-                                            <span className={`px-2 py-1 rounded ${appointment.status === "Cancelled" ? "bg-red-100 text-red-500" : "bg-gray-100"
-                                                }`}>
-                                                {appointment.status}
+                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusBadge[appointment?.appointmentStatus]}`}>
+                                                {appointment.appointmentStatus}
                                             </span>
                                         </td>
                                         <td className="p-3">
@@ -138,6 +173,18 @@ const Appointments = () => {
                                                 >
                                                     <Download className="w-5 h-5" />
                                                 </button>
+                                                {
+                                                    appointment.appointmentStatus !== 'CancelledByUser' && appointment.appointmentStatus !== 'Cancelled' && appointment.appointmentStatus !== 'Completed' && appointment.appointmentStatus !== 'CancelledByDoctor' && appointment.appointmentStatus !== 'Approved' && (
+                                                        <>
+                                                            <Button
+                                                                onClick={() => handleToChange("CancelledByUser", appointment.id)}
+                                                                variant="outline" size="sm" className="text-red-600 hover:text-red-700">
+                                                                ✖ Cancel
+                                                            </Button>
+                                                        </>
+                                                    )
+                                                }
+
                                             </div>
                                         </td>
 

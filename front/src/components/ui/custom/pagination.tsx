@@ -59,7 +59,7 @@ const Pagination = ({ totalPages, page, setPage }: PaginationProps) => {
                         onClick={() => setPage(item)}
                         className={`
                             min-w-[36px] h-9 px-3 rounded-md text-sm font-medium cursor-pointer
-                            ${page === item ? 'bg-blue-600 text-white' : 'bg-white border'}
+                            ${page === item ? 'bg-gray-700 text-white' : 'bg-white border'}
                         `}
                     >
                         {item}

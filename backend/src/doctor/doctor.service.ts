@@ -167,7 +167,7 @@ export class DoctorService {
     async findBookedSlots(id: number) {
         const doctor = await this.doctorRepository.findOne({ where: { id } });
         if (!doctor) throw new NotFoundException('Doctor not found');
-        return this.appointmentRepository.find({ where: { doctorId: doctor.id, status: 'Confirmed' } });
+        return this.appointmentRepository.find({ where: { doctorId: doctor.id, appointmentStatus: 'Booked' } });
     }
 
     async searchDoctor(q: string) {

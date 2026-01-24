@@ -130,7 +130,7 @@ export default function Header() {
                   <div className="py-2">
                     {isLoggedIn ? (
                       <>
-                        <p>Welcome, {userdata?.role === 'patient' || userdata?.role === 'user' ? '' : 'Dr.'}{userdata?.username}</p>
+                        <p className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">Welcome, {userdata?.role === 'patient' || userdata?.role === 'user' ? '' : 'Dr.'}{userdata?.username}</p>
                         <button onClick={redirectToDashboard} className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">Dashboard</button>
                       </>
                     ) : (

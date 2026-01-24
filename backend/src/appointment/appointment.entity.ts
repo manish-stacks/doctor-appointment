@@ -103,11 +103,26 @@ export class Appointment {
     @Column({ type: 'varchar', length: 255, nullable: true })
     zoomUrl: string;
 
-    @Column({ type: 'enum', enum: ['AVAILABLE', 'BOOKED', 'HOLD', 'RESCHEDULED', 'COMPLETED', 'CANCELLED_BY_USER', 'CANCELLED_BY_DOCTOR'], default: 'HOLD' })
+    @Column({
+        type: 'enum',
+        enum: [
+            'Available',
+            'Booked',
+            'Hold',
+            'Approved',
+            'Rescheduled',
+            'Completed',
+            'CancelledByUser',
+            'Cancelled',
+            'CancelledByDoctor',
+        ],
+        default: 'Hold',
+    })
     appointmentStatus: string;
 
-    @Column({ type: 'enum', enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'Rejected', 'Rescheduled','No Fill'], default: 'Pending' })
-    status: string;
+
+    // @Column({ type: 'enum', enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'Rejected', 'Rescheduled','No Fill'], default: 'Pending' })
+    // status: string;
 
     @CreateDateColumn()
     createdAt: Date;

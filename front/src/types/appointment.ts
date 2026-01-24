@@ -1,6 +1,6 @@
 export interface AppointmentDetails {
   appointmentFor: string;
-  id: string;
+  id: number;
   appointmentId: string;
   patientName: string;
   patientAge: number;
@@ -46,6 +46,7 @@ export interface AppointmentDetails {
   status?: string;
   images?: string[];
   zoomUrl?: string;
+  appointmentStatus?: string;
 }
 
 
