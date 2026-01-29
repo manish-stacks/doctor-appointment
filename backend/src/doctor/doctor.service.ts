@@ -95,7 +95,7 @@ export class DoctorService {
             await this.createDoctorSubscription(doctor.id, 1); // 1 = Free Trial
         }
 
-        user.doctor_id = doctor.id;
+        user.doctorId = doctor.id;
         await this.userRepository.save(user);
 
         return doctor;

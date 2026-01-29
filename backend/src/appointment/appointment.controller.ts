@@ -23,6 +23,13 @@ export class AppointmentController {
         return this.appointmentService.create(body, req.user.id);
     }
 
+    @Post('follow-up')
+    @UseGuards(JwtAuthGuard)
+    createFollowUp(@Body() body: { caseId: number; patientId: number; doctorId: number }) {
+        return this.appointmentService.createFollowUp(body);
+    }
+
+
     @Get(':id')
     async findOne(@Param('id') id: number) {
         return this.appointmentService.findOne(id);
@@ -40,8 +47,9 @@ export class AppointmentController {
     updateStep1(
         @Param('id') id: number,
         @Body() body: stepOneDto,
+        @Request() req: { user: { id: number; }; }
     ) {
-        return this.appointmentService.updateStep1(id, body);
+        return this.appointmentService.updateStep1(id, body, req.user.id);
     }
 
 

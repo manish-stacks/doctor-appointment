@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
+import { CaseFile } from 'src/case/case.entity';
 import { Doctor } from 'src/doctor/doctor.entity';
 import { Hospital } from 'src/hospital/hospital.entity';
+import { Patient } from 'src/patient/patient.entity';
 import { User } from 'src/user/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
 
@@ -9,7 +11,7 @@ export class Appointment {
     @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
     id: number;
 
-    @Column({ type: 'varchar', length: 100 })
+    @Column({ type: 'varchar', length: 100, unique: true })
     appointmentId: string;
 
     @Index()
@@ -20,9 +22,11 @@ export class Appointment {
     @Column({ type: 'bigint', unsigned: true })
     doctorId: number;
 
-    @Index()
     @Column({ type: 'bigint', unsigned: true, nullable: true })
-    hospitalId: number;
+    patientId: number | null;
+
+    @Column({ type: 'bigint', unsigned: true, nullable: true })
+    caseId: number;
 
     @Column({ type: 'varchar', length: 255 })
     paymentType: string;
@@ -30,23 +34,14 @@ export class Appointment {
     @Column({ type: 'varchar', length: 255 })
     appointmentFor: string;
 
-    @Column({ type: 'varchar', length: 255 })
-    patientName: string;
-
     @Column({ type: 'text' })
-    phoneNumber: string;
+    number: string;
 
     @Column({ type: 'text' })
     email: string;
 
-    @Column({ type: 'int' })
-    patientAge: number;
-
     @Column({ type: 'text' })
     sideEffects: string;
-
-    @Column({ type: 'text' })
-    patientAddress: string;
 
     @Column({ type: 'varchar', length: 100, nullable: true })
     razorpayOrderId: string;
@@ -75,11 +70,10 @@ export class Appointment {
     @Column({ type: 'varchar', nullable: true })
     transactionId: string;
 
+    // removed
     @Column({ type: 'varchar', nullable: true })
     illnessInfo: string;
 
-    @Column({ type: 'varchar', length: 10, nullable: true })
-    isInsured: string;
 
     @Column({ type: 'text' })
     doctorNotes: string;
@@ -87,11 +81,8 @@ export class Appointment {
     @Column({ type: 'text', nullable: true })
     cancelReason: string;
 
-    @Column({ type: 'varchar', length: 100, nullable: true })
-    cancelBy: string;
-
-    @Column({ type: 'int', nullable: true })
-    discountId: number;
+    @Column({ type: 'varchar', nullable: true })
+    discountCode: number;
 
     @Column({ type: 'int', nullable: true })
     discountPrice: number;
@@ -115,14 +106,11 @@ export class Appointment {
             'CancelledByUser',
             'Cancelled',
             'CancelledByDoctor',
+            'NoFill',
         ],
         default: 'Hold',
     })
     appointmentStatus: string;
-
-
-    // @Column({ type: 'enum', enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled', 'Rejected', 'Rescheduled','No Fill'], default: 'Pending' })
-    // status: string;
 
     @CreateDateColumn()
     createdAt: Date;
@@ -141,4 +129,12 @@ export class Appointment {
     @ManyToOne(() => Doctor, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'doctorId' })
     doctor: Doctor;
+
+    @ManyToOne(() => Patient, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'patientId' })
+    patient: Patient | null;
+
+    @ManyToOne(() => CaseFile, { nullable: true, onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'caseId' })
+    case: CaseFile;
 }

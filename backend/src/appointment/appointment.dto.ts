@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { IsEmail, IsInt, IsPhoneNumber, IsString } from 'class-validator';
+import { IsEmail, IsPhoneNumber, IsString } from 'class-validator';
 
 export class stepOneDto {
     @IsString()
@@ -23,7 +23,7 @@ export class stepOneDto {
     @IsEmail()
     email: string;
 
-    isInsured: string;
+    selectedPatientId: string;
 }
 
 export class BookingPayload {
@@ -60,4 +60,13 @@ export interface BookingMailPayload {
   cancelBy?: string;
   refundAmount?: number;
   zoomUrl?: string;
+  zoomPassword?: string;
 }
+
+
+// export class stepOneDto {
+//   patientId: number;
+//   caseId?: number; // null = new case
+//   illnessInfo: string;
+//   doctorNotes: string;
+// }

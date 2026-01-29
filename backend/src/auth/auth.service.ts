@@ -79,7 +79,7 @@ export class AuthService {
         phone: user.phone,
         image: user.image,
         role: user.role,
-        doctor_id: user?.doctor_id,
+        doctor_id: user?.doctorId,
       };
       const token = this.jwtService.sign(payload);
       const send_user = {
@@ -89,7 +89,7 @@ export class AuthService {
         phone: user.phone,
         image: user.image,
         role: user.role,
-        doctor_id: user?.doctor_id,
+        doctor_id: user?.doctorId,
         contact_number_verified: user?.contact_number_verified,
       };
 
@@ -152,7 +152,7 @@ export class AuthService {
         phone: user.phone,
         image: user.image,
         role: user.role,
-        doctor_id: user?.doctor_id,
+        doctor_id: user?.doctorId,
       };
       const token = this.jwtService.sign(payload);
       const send_user = {
@@ -162,7 +162,7 @@ export class AuthService {
         phone: user.phone,
         image: user.image,
         role: user.role,
-        doctor_id: user?.doctor_id,
+        doctor_id: user?.doctorId,
         contact_number_verified: user?.contact_number_verified,
       };
       return {

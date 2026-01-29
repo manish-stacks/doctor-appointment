@@ -1,30 +1,47 @@
 /* eslint-disable prettier/prettier */
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Appointment } from 'src/appointment/appointment.entity';
+import { CaseFile } from 'src/case/case.entity';
+import { Doctor } from 'src/doctor/doctor.entity';
 
 @Entity('prescriptions')
 export class Prescription {
-    @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Index()
-    @Column({ type: 'bigint', unsigned: true })
-    appointmentId: number;
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  appointmentId: number;
 
-    @Column({ type: 'bigint', unsigned: true })
-    doctorId: number;
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  caseId: number;
 
-    @Column({ type: 'bigint', unsigned: true })
-    userId: number;
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  doctorId: number;
 
-    @Column("text")
-    medicines: string;
+  @Column({ type: 'json' })
+  medicines: any; // [{name, dose, time, days}]
 
-    @Column("text", { nullable: true })
-    pdf: string;
+  @Column({ type: 'text', nullable: true })
+  advice: string;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @Column({ type: 'date', nullable: true })
+  nextFollowUpDate: string;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @ManyToOne(() => Appointment, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'appointmentId' })
+  appointment: Appointment;
+
+  @ManyToOne(() => CaseFile, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'caseId' })
+  case: CaseFile;
+
+  @ManyToOne(() => Doctor, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'doctorId' })
+  doctor: Doctor;
 }

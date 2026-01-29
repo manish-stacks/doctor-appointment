@@ -1,60 +1,29 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Prescription } from './prescription.entity';
+import { CreatePrescriptionDto } from './prescription.dto';
 
 @Injectable()
 export class PrescriptionService {
   constructor(
     @InjectRepository(Prescription)
-    private readonly prescriptionRepository: Repository<Prescription>,
+    private prescriptionRepo: Repository<Prescription>,
   ) {}
 
-  findAll() {
-    return this.prescriptionRepository.find();
-  }
-
-  create(
-    appointmentId: number,
-    doctorId: number,
-    userId: number,
-    medicines: string,
-    pdf: string,
-  ) {
-    const prescription = this.prescriptionRepository.create({
-      appointmentId,
+  create(doctorId: number, dto: CreatePrescriptionDto) {
+    const prescription = this.prescriptionRepo.create({
+      ...dto,
       doctorId,
-      userId,
-      medicines,
-      pdf,
     });
-    return this.prescriptionRepository.save(prescription);
+    return this.prescriptionRepo.save(prescription);
   }
 
-  findOne(id: number) {
-    return this.prescriptionRepository.findOne({ where: { id } });
-  }
-
-  update(
-    id: number,
-    appointmentId: number,
-    doctorId: number,
-    userId: number,
-    medicines: string,
-    pdf: string,
-  ) {
-    const prescription = this.prescriptionRepository.create({
-      id,
-      appointmentId,
-      doctorId,
-      userId,
-      medicines,
-      pdf,
+  getCaseHistory(caseId: number) {
+    return this.prescriptionRepo.find({
+      where: { caseId },
+      order: { createdAt: 'ASC' },
     });
-    return this.prescriptionRepository.save(prescription);
-  }
-
-  delete(id: number) {
-    return this.prescriptionRepository.delete({ id });
   }
 }

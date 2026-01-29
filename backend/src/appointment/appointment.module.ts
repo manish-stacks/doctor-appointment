@@ -16,6 +16,7 @@ import { BullModule } from '@nestjs/bull';
 import { MailModule } from 'src/mail/mail.module';
 import { AppointmentProcessor } from 'src/queues/appointment.queue';
 import { MailProcessor } from 'src/queues/mail.queue';
+import { Patient } from 'src/patient/patient.entity';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MailProcessor } from 'src/queues/mail.queue';
       Hospital,
       DoctorSubscription,
       TimeSlotEntity,
+      Patient
     ]),
 
     BullModule.registerQueue({

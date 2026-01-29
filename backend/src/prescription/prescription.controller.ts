@@ -1,71 +1,21 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-} from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import { Body, Controller, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { PrescriptionService } from './prescription.service';
+import { CreatePrescriptionDto } from './prescription.dto';
 
 @Controller('prescription')
+@UseGuards(JwtAuthGuard)
 export class PrescriptionController {
   constructor(private readonly prescriptionService: PrescriptionService) {}
 
-  @Get()
-  async findAll() {
-    return this.prescriptionService.findAll();
-  }
   @Post()
-  async create(
-    @Body()
-    body: {
-      appointmentId: number;
-      doctorId: number;
-      userId: number;
-      medicines: string;
-      pdf: string;
-    },
-  ) {
-    return this.prescriptionService.create(
-      body.appointmentId,
-      body.doctorId,
-      body.userId,
-      body.medicines,
-      body.pdf,
-    );
+  add(@Body() dto: CreatePrescriptionDto, @Request() req) {
+    return this.prescriptionService.create(req.user.id, dto);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: number) {
-    return this.prescriptionService.findOne(id);
-  }
-
-  @Put(':id')
-  async update(
-    @Param('id') id: number,
-    @Body()
-    body: {
-      appointmentId: number;
-      doctorId: number;
-      userId: number;
-      medicines: string;
-      pdf: string;
-    },
-  ) {
-    return this.prescriptionService.update(
-      id,
-      body.appointmentId,
-      body.doctorId,
-      body.userId,
-      body.medicines,
-      body.pdf,
-    );
-  }
-
-  @Delete(':id')
-  async delete(@Param('id') id: number) {
-    return this.prescriptionService.delete(id);
+  @Get('case/:caseId')
+  getHistory(@Param('caseId') caseId: number) {
+    return this.prescriptionService.getCaseHistory(caseId);
   }
 }

@@ -23,16 +23,6 @@ export default function Booking() {
 
   // Step 1 Form states
   const [appointmentFor, setAppointmentFor] = useState("For me");
-  const [patients, setPatients] = useState<any[]>([]);
-  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
-  const [selfData, setSelfData] = useState({
-    name: "",
-    age: "",
-    phone: "",
-    email: "",
-    address: "",
-  });
-
   const [patientName, setPatientName] = useState("");
   const [patientAge, setPatientAge] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -41,6 +31,7 @@ export default function Booking() {
   const [patientAddress, setPatientAddress] = useState("");
   const [sideEffects, setSideEffects] = useState("");
   const [doctorNotes, setDoctorNotes] = useState("");
+  const [isInsured, setIsInsured] = useState("No");
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
@@ -80,25 +71,24 @@ export default function Booking() {
         if (details.data.patientAddress) setPatientAddress(details.data.patientAddress);
         if (details.data.sideEffects) setSideEffects(details.data.sideEffects);
         if (details.data.doctorNotes) setDoctorNotes(details.data.doctorNotes);
+        if (details.data.isInsured) setIsInsured(details.data.isInsured);
 
+        // Pre-fill user data if available and form fields are empty
         if (details.data.user) {
-          const user = details.data.user;
-
-          setSelfData({
-            name: user.username || "",
-            age: details.data.patientAge || "",
-            phone: user.phone || "",
-            email: user.email || "",
-            address: user.address || "",
-          });
-
-          if (!details.data.patientName && user.username) setPatientName(user.username);
-          if (!details.data.phoneNumber && user.phone) setPhoneNumber(user.phone);
-          if (!details.data.email && user.email) setEmail(user.email);
-          if (!details.data.address && user.address) setPatientAddress(user.address);
+          if (!details.data.patientName && details.data.user.username) {
+            setPatientName(details.data.user.username);
+          }
+          if (!details.data.phoneNumber && details.data.user.phone) {
+            setPhoneNumber(details.data.user.phone);
+          }
+          if (!details.data.email && details.data.user.email) {
+            setEmail(details.data.user.email);
+          }
         }
 
+        // Set defaults
         if (!details.data.appointmentFor) setAppointmentFor("For me");
+        if (!details.data.isInsured) setIsInsured("No");
 
         // Fetch doctor's schedule
         if (details.data.doctorId) {
@@ -169,31 +159,20 @@ export default function Booking() {
       const response = await AxiosInstance.post('/coupon/validate', { code: couponCode });
       if (response.data?.discount) {
         setDiscountAmount(response.data.discount);
-        toast.success('Coupon applied successfully!');
+        alert('Coupon applied successfully!');
       }
     } catch (error) {
       console.error('Error applying coupon:', error);
-      toast.error('Invalid coupon code');
+      alert('Invalid coupon code');
     }
   };
 
   const handleNext = async () => {
     if (currentStep === 1) {
-      const fields = [
-        { value: patientName, message: 'Please enter patient name' },
-        { value: patientAge, message: 'Please enter patient age' },
-        { value: phoneNumber, message: 'Please enter phone number' },
-        { value: selectedPatientId, message: 'Please select a patient' },
-      ];
-
-      for (const field of fields) {
-        if (!field.value) {
-          toast.error(field.message);
-          return;
-        }
+      if (!patientName || !patientAge || !phoneNumber) {
+        toast.error('Please fill all required fields (Name, Age, Phone)');
+        return;
       }
-
-
       const updated = await updateStep1();
       if (!updated) return;
       setCurrentStep(2);
@@ -218,7 +197,7 @@ export default function Booking() {
         patientAddress,
         sideEffects,
         doctorNotes,
-        selectedPatientId,
+        isInsured,
       });
 
       if (response.data) {
@@ -377,36 +356,12 @@ export default function Booking() {
 
     slotDate.setHours(hours, minutes, 0, 0);
 
+    // Current time se 2 ghante add karo
     const twoHoursLater = new Date(now.getTime() + (2 * 60 * 60 * 1000));
+
+    // Agar slot time 2 ghante ke andar hai to true return karo
     return slotDate <= twoHoursLater;
-
   };
-
-  const handleAppointmentForChange = async (value: string) => {
-    setAppointmentFor(value);
-    setSelectedPatientId(null);
-
-    if (value === "For me") {
-      autofillSelf();
-      return;
-    }
-
-    const res = await AxiosInstance.get("/patient", {
-      params: { relation: value },
-    });
-
-    setPatients(res.data || []);
-  };
-
-  const autofillSelf = () => {
-    setPatientName(selfData.name);
-    setPatientAge(selfData.age);
-    setPhoneNumber(selfData.phone);
-    setEmail(selfData.email);
-    setPatientAddress(selfData.address);
-  };
-
-
 
 
   if (loading) {
@@ -463,7 +418,7 @@ export default function Booking() {
                     </label>
                     <select
                       value={appointmentFor}
-                      onChange={(e) => handleAppointmentForChange(e.target.value)}
+                      onChange={(e) => setAppointmentFor(e.target.value)}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="For me">For me</option>
@@ -475,46 +430,6 @@ export default function Booking() {
                       <option value="Other">Other</option>
                     </select>
                   </div>
-                  {appointmentFor !== "For me" && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Patient Name <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-
-                        value={selectedPatientId || ""}
-                        onChange={(e) => {
-                          const id = e.target.value;
-                          setSelectedPatientId(id);
-
-                          if (id === "new") {
-                            setPatientName("");
-                            setPatientAge("");
-                            return;
-                          }
-
-                          const patient = patients.find(p => String(p.id) === id);
-
-                          if (patient) {
-                            setPatientName(patient.name || "");
-                            setPatientAge(patient.age || "");
-                          }
-                        }}
-
-                      >
-                        <option value="">Select Patient</option>
-
-                        {patients.map(p => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} ({p.age})
-                          </option>
-                        ))}
-
-                        <option value="new">+ Add New</option>
-                      </select>
-                    </div>
-                  )}
 
                   {/* Illness Information */}
                   <div>
@@ -635,6 +550,21 @@ export default function Booking() {
                     placeholder="Any special notes"
                   />
                 </div>
+              </div>
+
+              {/* Patient Insured */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Patient Insured?
+                </label>
+                <select
+                  value={isInsured}
+                  onChange={(e) => setIsInsured(e.target.value)}
+                  className="w-full md:w-1/3 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option>No</option>
+                  <option>Yes</option>
+                </select>
               </div>
 
               {/* Upload Patient Image & Report */}

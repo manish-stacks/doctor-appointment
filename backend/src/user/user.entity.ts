@@ -1,10 +1,13 @@
 /* eslint-disable prettier/prettier */
+import { Doctor } from 'src/doctor/doctor.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 
 @Entity('users')
@@ -21,7 +24,7 @@ export class User {
   @Column({ length: 100, nullable: true })
   username: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   password: string;
 
   @Column()
@@ -45,8 +48,17 @@ export class User {
   @Column({ length: 255, nullable: true })
   gender?: string;
 
-  @Column({ default: 'user' }) // Roles: 'user', 'doctor', 'admin'
+  @Column({ length: 255, nullable: true })
+  address: string;
+
+  @Column({ default: 'user' })
   role: string;
+
+  @Column({ nullable: true })
+  age: number;
+
+  @Column({ type: 'bigint', unsigned: true, nullable: true })
+  doctorId: number;
 
   @Column({ length: 255, nullable: true })
   image?: string;
@@ -57,16 +69,14 @@ export class User {
   @Column({ type: 'tinyint', default: 1 })
   contact_number_verified: boolean;
 
-  @Column({ type: 'bigint', unsigned: true, nullable: true })
-  doctor_id: number;
-
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
 
-  // @OneToOne(() => Doctor)
-  // @JoinColumn({ name: 'doctor_id' })
-  // doctor: Doctor;
+  @OneToOne(() => Doctor, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'doctorId' }) // FK auto-created
+  doctor: Doctor;
 }
+

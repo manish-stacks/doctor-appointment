@@ -1,17 +1,16 @@
 "use client";
+"use client";
 
 import { AxiosInstance } from "@/helpers/Axios.instance";
 import { decryptId, encryptId, loadRazorpay } from "@/helpers/Helper";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Upload, X, Loader2, ChevronLeft, ChevronRight, MapPin, Building2, Phone, Star, IndianRupee, Calendar, GalleryHorizontal } from "lucide-react";
+import { Upload, X, Loader2, ChevronLeft, ChevronRight, MapPin, Building2, Phone, Star, IndianRupee, Calendar } from "lucide-react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import { AppointmentDetails, Schedule } from "@/types/appointment";
 
-
-
-export default function Booking() {
+export default function BookingPage() {
   const params = useParams();
   const router = useRouter();
   const encryptedAppointmentId = params?.encryptedAppointmentId as string;
@@ -21,404 +20,223 @@ export default function Booking() {
   const [submitting, setSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
 
-  // Step 1 Form states
-  const [appointmentFor, setAppointmentFor] = useState("For me");
+  // ===== NEW: Patient & Case =====
   const [patients, setPatients] = useState<any[]>([]);
-  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
-  const [selfData, setSelfData] = useState({
-    name: "",
-    age: "",
-    phone: "",
-    email: "",
-    address: "",
-  });
+  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
+  const [cases, setCases] = useState<any[]>([]);
+  const [selectedCaseId, setSelectedCaseId] = useState<number | null>(null);
 
-  const [patientName, setPatientName] = useState("");
-  const [patientAge, setPatientAge] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [email, setEmail] = useState("");
+  // Step 1
   const [illnessInfo, setIllnessInfo] = useState("");
-  const [patientAddress, setPatientAddress] = useState("");
-  const [sideEffects, setSideEffects] = useState("");
   const [doctorNotes, setDoctorNotes] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-  // Step 2 Date/Time states
+  // Step 2
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedTime, setSelectedTime] = useState("");
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [bookedSlots, setBookedSlots] = useState<Array<{ date: string; time: string }>>([]);
 
-  // Step 3 Payment states
+  // Step 3
   const [couponCode, setCouponCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState("Offline");
 
+  // ================== INIT ==================
   useEffect(() => {
     const decodedEncryptedId = decodeURIComponent(encryptedAppointmentId);
     const appointmentId = decryptId(decodedEncryptedId) || decodedEncryptedId;
 
-    const getDetails = async () => {
+    const init = async () => {
       try {
         const details = await AxiosInstance.get(`/appointment/${appointmentId}/booking`);
-
-        if (!details || !details.data) {
-          console.error('Appointment details not found');
-          return;
-        }
-
         setAppointmentDetails(details.data);
 
-        // Pre-fill form data
-        if (details.data.appointmentFor) setAppointmentFor(details.data.appointmentFor);
-        if (details.data.patientName) setPatientName(details.data.patientName);
-        if (details.data.patientAge) setPatientAge(details.data.patientAge);
-        if (details.data.phoneNumber) setPhoneNumber(details.data.phoneNumber);
-        if (details.data.email) setEmail(details.data.email);
-        if (details.data.illnessInfo) setIllnessInfo(details.data.illnessInfo);
-        if (details.data.patientAddress) setPatientAddress(details.data.patientAddress);
-        if (details.data.sideEffects) setSideEffects(details.data.sideEffects);
-        if (details.data.doctorNotes) setDoctorNotes(details.data.doctorNotes);
+        // Load patients (family)
+        const pRes = await AxiosInstance.get("/patient/my-family");
+        setPatients(pRes.data || []);
+        if (pRes.data?.length) setSelectedPatientId(pRes.data[0].id);
 
-        if (details.data.user) {
-          const user = details.data.user;
-
-          setSelfData({
-            name: user.username || "",
-            age: details.data.patientAge || "",
-            phone: user.phone || "",
-            email: user.email || "",
-            address: user.address || "",
-          });
-
-          if (!details.data.patientName && user.username) setPatientName(user.username);
-          if (!details.data.phoneNumber && user.phone) setPhoneNumber(user.phone);
-          if (!details.data.email && user.email) setEmail(user.email);
-          if (!details.data.address && user.address) setPatientAddress(user.address);
-        }
-
-        if (!details.data.appointmentFor) setAppointmentFor("For me");
-
-        // Fetch doctor's schedule
-        if (details.data.doctorId) {
+        if (details.data?.doctorId) {
           await fetchDoctorSchedule(details.data.doctorId);
           await fetchBookedSlots(details.data.doctorId);
         }
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching appointment details:', error);
+      } catch (e) {
+        console.error(e);
+      } finally {
         setLoading(false);
       }
     };
 
-    getDetails();
+    init();
   }, [encryptedAppointmentId]);
 
-  const fetchDoctorSchedule = async (doctorId: string) => {
-    try {
-      const response = await AxiosInstance.get(`/doctor/${doctorId}/schedule`);
-      if (response.data) {
-        setSchedules(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching schedule:', error);
+  // Load cases when patient changes
+  useEffect(() => {
+    if (selectedPatientId) {
+      AxiosInstance.get(`/case/patient/${selectedPatientId}`).then(res => {
+        setCases(res.data || []);
+        setSelectedCaseId(null);
+      });
     }
-  };
+  }, [selectedPatientId]);
 
+  const fetchDoctorSchedule = async (doctorId: string) => {
+    const res = await AxiosInstance.get(`/doctor/${doctorId}/schedule`);
+    setSchedules(res.data || []);
+  };
 
   const fetchBookedSlots = async (doctorId: string) => {
-    try {
-      const response = await AxiosInstance.get(`/doctor/${doctorId}/booked-slots`);
-      if (response.data) {
-        setBookedSlots(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching booked slots:', error);
+    const res = await AxiosInstance.get(`/doctor/${doctorId}/booked-slots`);
+    setBookedSlots(res.data || []);
+  };
+
+  // ================== STEP 1 ==================
+  const updateStep1 = async () => {
+    if (!selectedPatientId) {
+      toast.error("Please select patient");
+      return false;
     }
-  };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-    const file = e.target.files?.[0];
-    if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
-      const newImages = [...images];
-      const newPreviews = [...imagePreviews];
+    const payload = {
+      patientId: selectedPatientId,
+      caseId: selectedCaseId || null, // null = new case, number = follow-up
+      illnessInfo,
+      doctorNotes,
+    };
 
-      newImages[index] = file;
-      newPreviews[index] = URL.createObjectURL(file);
-
-      setImages(newImages);
-      setImagePreviews(newPreviews);
-    }
-  };
-
-  const removeImage = (index: number) => {
-    const newImages = [...images];
-    const newPreviews = [...imagePreviews];
-
-    newImages.splice(index, 1);
-    newPreviews.splice(index, 1);
-
-    setImages(newImages);
-    setImagePreviews(newPreviews);
-  };
-
-  const applyCoupon = async () => {
     try {
-      const response = await AxiosInstance.post('/coupon/validate', { code: couponCode });
-      if (response.data?.discount) {
-        setDiscountAmount(response.data.discount);
-        toast.success('Coupon applied successfully!');
-      }
-    } catch (error) {
-      console.error('Error applying coupon:', error);
-      toast.error('Invalid coupon code');
+      const res = await AxiosInstance.post(`/appointment/${appointmentDetails?.id}/step1`, payload);
+      setAppointmentDetails(res.data);
+      return true;
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to save patient/case info");
+      return false;
     }
   };
 
   const handleNext = async () => {
     if (currentStep === 1) {
-      const fields = [
-        { value: patientName, message: 'Please enter patient name' },
-        { value: patientAge, message: 'Please enter patient age' },
-        { value: phoneNumber, message: 'Please enter phone number' },
-        { value: selectedPatientId, message: 'Please select a patient' },
-      ];
-
-      for (const field of fields) {
-        if (!field.value) {
-          toast.error(field.message);
-          return;
-        }
-      }
-
-
-      const updated = await updateStep1();
-      if (!updated) return;
+      const ok = await updateStep1();
+      if (!ok) return;
       setCurrentStep(2);
     } else if (currentStep === 2) {
-      if (!selectedTime) {
-        toast.error('Please select a time slot');
-        return;
-      }
+      if (!selectedTime) return toast.error("Select time");
       setCurrentStep(3);
     }
   };
 
-  const updateStep1 = async () => {
-    try {
-      const response = await AxiosInstance.post(`/appointment/${appointmentDetails?.id}/step1`, {
-        appointmentFor,
-        patientName,
-        patientAge,
-        phoneNumber,
-        email,
-        illnessInfo,
-        patientAddress,
-        sideEffects,
-        doctorNotes,
-        selectedPatientId,
-      });
-
-      if (response.data) {
-        setAppointmentDetails(response.data);
-      }
-      return true
-    } catch (error) {
-      console.error('Error updating step 1:', error);
-      return false;
-    }
-  }
-
   const handlePrevious = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    } else {
-      router.back();
-    }
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    else router.back();
   };
 
+  // ================== SLOT HELPERS ==================
   const getNext7Days = (): Date[] => {
     const dates: Date[] = [];
     for (let i = 0; i < 7; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
-      dates.push(date);
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      dates.push(d);
     }
     return dates;
   };
 
-  const getDayName = (date: Date): string => {
-    return date.toLocaleDateString('en-US', { weekday: 'long' });
-  };
-
-  const formatDate = (date: Date): string => {
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+  const getDayName = (date: Date) => date.toLocaleDateString("en-US", { weekday: "long" });
 
   const generateTimeSlots = (start: string, end: string, slotDuration: number): string[] => {
     const slots: string[] = [];
-    const [startHour, startMin] = start.split(':').map(Number);
-    const [endHour, endMin] = end.split(':').map(Number);
-
-    let currentTime = startHour * 60 + startMin;
-    const endTime = endHour * 60 + endMin;
-
-    while (currentTime < endTime) {
-      const hour = Math.floor(currentTime / 60);
-      const min = currentTime % 60;
-      slots.push(`${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`);
-      currentTime += slotDuration;
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
+    let cur = sh * 60 + sm;
+    const endMin = eh * 60 + em;
+    while (cur < endMin) {
+      const h = Math.floor(cur / 60);
+      const m = cur % 60;
+      slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+      cur += slotDuration;
     }
-
     return slots;
   };
 
-  const isSlotBooked = (date: Date, time: string): boolean => {
-    const dateStr = date.toISOString().split('T')[0];
-    return bookedSlots.some(slot => slot.date === dateStr && slot.time === time);
+  const isSlotBooked = (date: Date, time: string) => {
+    const dateStr = date.toISOString().split("T")[0];
+    return bookedSlots.some(s => s.date === dateStr && s.time === time);
   };
 
-  const handleTimeSlotClick = (time: string) => {
-    setSelectedTime(time);
-
+  const isSlotInPast = (date: Date, time: string) => {
+    const now = new Date();
+    const slot = new Date(date);
+    const [h, m] = time.split(":").map(Number);
+    slot.setHours(h, m, 0, 0);
+    return slot <= new Date(now.getTime() + 2 * 60 * 60 * 1000);
   };
 
-  const next7Days = getNext7Days();
-  const selectedDayName = getDayName(selectedDate);
-  const selectedSchedule = schedules.find(s => s.day === selectedDayName);
-  const slotDuration = parseInt(appointmentDetails?.doctor?.timeSlot || '30');
-
-  const appointmentFees = parseFloat(appointmentDetails?.doctor?.appointmentFees || '0');
+  // ================== PAYMENT ==================
+  const appointmentFees = parseFloat(appointmentDetails?.doctor?.appointmentFees || "0");
   const finalAmount = appointmentFees - discountAmount;
 
   const handleSubmit = async () => {
     setSubmitting(true);
     const formData = new FormData();
-    formData.append('paymentType', paymentMethod);
-    formData.append('couponCode', couponCode);
-    formData.append('date', selectedDate.toISOString().split('T')[0]);
-    formData.append('time', selectedTime);
-    formData.append('discountAmount', discountAmount.toString());
-    formData.append('appointmentFees', appointmentFees.toString());
-    formData.append('finalAmount', finalAmount.toString());
+    formData.append("paymentType", paymentMethod);
+    formData.append("couponCode", couponCode);
+    formData.append("date", selectedDate.toISOString().split("T")[0]);
+    formData.append("time", selectedTime);
+    formData.append("discountAmount", discountAmount.toString());
+    formData.append("appointmentFees", appointmentFees.toString());
+    formData.append("finalAmount", finalAmount.toString());
     images.forEach(img => formData.append("reportImage", img));
 
-    const response = await AxiosInstance.post(`/appointment/${appointmentDetails?.id}/complete-booking`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-    const appointmentId = response.data.appointmentId;
-    const encryptedDoctorId = encryptId(String(appointmentId));
-    const encodedEncryptedDoctorId = encodeURIComponent(encryptedDoctorId);
-    const link = `/booking-confirmation/${encodedEncryptedDoctorId}`;
+    const res = await AxiosInstance.post(`/appointment/${appointmentDetails?.id}/complete-booking`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    const appointmentId = res.data.appointmentId;
+    const encrypted = encodeURIComponent(encryptId(String(appointmentId)));
+    const link = `/booking-confirmation/${encrypted}`;
 
     if (paymentMethod === "Online") {
-      await completeBooking(appointmentId, link);
+      const { data } = await AxiosInstance.post("/payment/razorpay/create-order", {
+        appointmentId,
+        amount: finalAmount,
+      });
+      const ok = await loadRazorpay();
+      if (!ok) return toast.error("Razorpay load failed");
+
+      const options = {
+        key: data.key,
+        amount: data.amount,
+        currency: "INR",
+        name: "Doctor Appointment",
+        order_id: data.razorpayOrderId,
+        handler: async function (response: any) {
+          await AxiosInstance.post("/payment/razorpay/verify", response);
+          window.location.href = `${link}?success=true`;
+        },
+      };
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
     } else {
       window.location.href = `${link}?success=true`;
     }
   };
 
-  const completeBooking = async (appointmentId: string, link: string) => {
-
-    const { data } = await AxiosInstance.post("/payment/razorpay/create-order", {
-      appointmentId: appointmentId,
-      amount: finalAmount,
-    });
-
-    const res = await loadRazorpay();
-
-    if (!res) {
-      toast.error("Razorpay SDK failed to load");
-      return;
-    }
-
-    const options = {
-      key: data.key,
-      amount: data.amount,
-      currency: "INR",
-      name: process.env.APP_NAME || "Doctor Appointment",
-      order_id: data.razorpayOrderId,
-      prefill: {
-        name: patientName,
-        email: email,
-        contact: phoneNumber,
-      },
-      theme: {
-        color: "#2563eb",
-      },
-      handler: async function (response: any) {
-        await AxiosInstance.post("/payment/razorpay/verify", response);
-        window.location.href = `${link}?success=true`;
-      },
-
-    };
-
-    const rzp = new (window as any).Razorpay(options);
-    rzp.open();
-
-    rzp.on("payment.failed", function (response: any) {
-      window.location.href = `${link}&success=false`;
-    });
-  };
-
-  const isSlotInPast = (date: Date, time: string): boolean => {
-    const now = new Date();
-    const slotDate = new Date(date);
-    const [hours, minutes] = time.split(':').map(Number);
-
-    slotDate.setHours(hours, minutes, 0, 0);
-
-    const twoHoursLater = new Date(now.getTime() + (2 * 60 * 60 * 1000));
-    return slotDate <= twoHoursLater;
-
-  };
-
-  const handleAppointmentForChange = async (value: string) => {
-    setAppointmentFor(value);
-    setSelectedPatientId(null);
-
-    if (value === "For me") {
-      autofillSelf();
-      return;
-    }
-
-    const res = await AxiosInstance.get("/patient", {
-      params: { relation: value },
-    });
-
-    setPatients(res.data || []);
-  };
-
-  const autofillSelf = () => {
-    setPatientName(selfData.name);
-    setPatientAge(selfData.age);
-    setPhoneNumber(selfData.phone);
-    setEmail(selfData.email);
-    setPatientAddress(selfData.address);
-  };
-
-
-
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Loading appointment details...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="animate-spin" />
       </div>
     );
   }
+
+  const next7Days = getNext7Days();
+  const selectedDayName = getDayName(selectedDate);
+  const selectedSchedule = schedules.find(s => s.day === selectedDayName);
+  const slotDuration = parseInt(appointmentDetails?.doctor?.timeSlot || "30");
+  
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
@@ -463,7 +281,7 @@ export default function Booking() {
                     </label>
                     <select
                       value={appointmentFor}
-                      onChange={(e) => handleAppointmentForChange(e.target.value)}
+                      onChange={(e) => setAppointmentFor(e.target.value)}
                       className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="For me">For me</option>
@@ -475,46 +293,6 @@ export default function Booking() {
                       <option value="Other">Other</option>
                     </select>
                   </div>
-                  {appointmentFor !== "For me" && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Patient Name <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-
-                        value={selectedPatientId || ""}
-                        onChange={(e) => {
-                          const id = e.target.value;
-                          setSelectedPatientId(id);
-
-                          if (id === "new") {
-                            setPatientName("");
-                            setPatientAge("");
-                            return;
-                          }
-
-                          const patient = patients.find(p => String(p.id) === id);
-
-                          if (patient) {
-                            setPatientName(patient.name || "");
-                            setPatientAge(patient.age || "");
-                          }
-                        }}
-
-                      >
-                        <option value="">Select Patient</option>
-
-                        {patients.map(p => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} ({p.age})
-                          </option>
-                        ))}
-
-                        <option value="new">+ Add New</option>
-                      </select>
-                    </div>
-                  )}
 
                   {/* Illness Information */}
                   <div>
@@ -635,6 +413,21 @@ export default function Booking() {
                     placeholder="Any special notes"
                   />
                 </div>
+              </div>
+
+              {/* Patient Insured */}
+              <div className="mt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Patient Insured?
+                </label>
+                <select
+                  value={isInsured}
+                  onChange={(e) => setIsInsured(e.target.value)}
+                  className="w-full md:w-1/3 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option>No</option>
+                  <option>Yes</option>
+                </select>
               </div>
 
               {/* Upload Patient Image & Report */}

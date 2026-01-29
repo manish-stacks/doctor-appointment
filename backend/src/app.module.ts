@@ -29,6 +29,8 @@ import { BullModule } from '@nestjs/bull';
 import { PaymentModule } from './payment/payment.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { UserModule } from './user/user.module';
+import { PatientModule } from './patient/patient.module';
+import { CaseModule } from './case/case.module';
 
 
 @Module({
@@ -93,6 +95,8 @@ import { UserModule } from './user/user.module';
     ReviewModule,
     TimeSlotModule,
     PaymentModule,
+    PatientModule,
+    CaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

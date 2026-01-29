@@ -10,12 +10,20 @@ import { InjectQueue } from '@nestjs/bull';
 import { BookingPayload, stepOneDto } from './appointment.dto';
 // import { MailService } from 'src/mail/mail.service';
 import { handleMultipleImages } from 'src/helper/cloudinary.helper';
+import { Patient } from 'src/patient/patient.entity';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class AppointmentService {
     constructor(
         @InjectRepository(Appointment)
         private appointmentRepository: Repository<Appointment>,
+
+        @InjectRepository(Patient)
+        private patientRepository: Repository<Patient>,
+
+        @InjectRepository(User)
+        private userRepository: Repository<User>,
 
         @InjectQueue('appointment')
         private readonly appointmentQueue: Queue,
@@ -32,14 +40,14 @@ export class AppointmentService {
     }
 
 
-    async create(body: AppointmentCreateDto, userId: number) {
+    async create(body: AppointmentCreateDto, userId: number): Promise<Appointment> {
 
         const appointment = this.appointmentRepository.create({
             appointmentId: 'APP' + Date.now().toString(),
-            status: 'No Fill',
-            hospitalId: Number(body.hospitalId),
+            appointmentStatus: 'NoFill',
+            // hospitalId: Number(body.hospitalId),
             doctorId: Number(body.doctorId),
-            userId: Number(body.userId || userId),
+            userId: Number(body.userId ?? userId),
         });
 
         const saved = await this.appointmentRepository.save(appointment);
@@ -47,7 +55,7 @@ export class AppointmentService {
         const bookingLink = `${process.env.FRONTEND_URL}/booking/${saved.appointmentId}`;
         // await this.mailService.sendReminder(userEmail, bookingLink);
 
-        if (saved.appointmentStatus === 'Hold' && !saved.appointmentFor && saved.email) {
+        if (saved.appointmentStatus === 'NoFill' && !saved.appointmentFor && saved.email) {
             // 45 min reminder
             await this.mailQueue.add(
                 'sendReminder',
@@ -62,7 +70,7 @@ export class AppointmentService {
 
         // 45 * 60 * 1000, 24 * 60 * 60 * 1000
         // 1 day auto delete if still HOLD
-        if (saved.appointmentStatus === 'Hold' && !saved.appointmentFor) {
+        if (saved.appointmentStatus === 'NoFill' && !saved.appointmentFor) {
             await this.appointmentQueue.add(
                 'deleteIfNotConfirmed',
                 { appointmentId: saved.appointmentId },
@@ -98,31 +106,61 @@ export class AppointmentService {
     async deleteIfStillPending(appointmentId: string) {
         console.log('deleteIfStillPending', appointmentId);
         const appointment = await this.appointmentRepository.findOne({ where: { appointmentId } });
-        if (appointment?.appointmentStatus === 'Hold') {
+        if (appointment?.appointmentStatus === 'NoFill') {
             await this.appointmentRepository.remove(appointment);
         }
     }
 
-    async updateStep1(id: number, body: stepOneDto) {
+    async updateStep1(id: number, body: stepOneDto, userId: number) {
+        if (!body.selectedPatientId) throw new Error('Please select a patient');
         const appointment = await this.appointmentRepository.findOne({ where: { id } });
-        if (!appointment) return 'Appointment not found';
-        await this.appointmentRepository.update(appointment.id, {
+        if (!appointment) throw new Error('Appointment not found');
+        console.log(body)
+        let patientId: number | null = null;
+
+        // SELF CASE
+        if (body.appointmentFor === 'Self') {
+            await this.userRepository.update(userId, {
+                email: body.email,
+                username: body.patientName,
+                phone: body.phoneNumber,
+                address: body.patientAddress,
+                age: Number(body.patientAge),
+            });
+
+            patientId = null; // SELF → no patient table entry
+        }
+
+        // NEW PATIENT
+        if (body.selectedPatientId === 'new') {
+            const newPatient = await this.patientRepository.save({
+                userId,
+                name: body.patientName,
+                age: Number(body.patientAge),
+                relation: body.appointmentFor,
+            });
+
+            patientId = newPatient.id;
+        }
+
+        // EXISTING PATIENT
+        if (body.selectedPatientId && body.selectedPatientId !== 'new') {
+            patientId = Number(body.selectedPatientId);
+        }
+
+        await this.appointmentRepository.update(id, {
+            patientId: patientId, 
             appointmentFor: body.appointmentFor,
-            patientName: body.patientName,
-            patientAge: Number(body.patientAge),
-            phoneNumber: body.phoneNumber,
-            email: body.email,
             illnessInfo: body.illnessInfo,
-            patientAddress: body.patientAddress,
             sideEffects: body.sideEffects,
             doctorNotes: body.doctorNotes,
-            isInsured: body.isInsured,
         });
 
-        return this.appointmentRepository.findOne({ where: { id }, relations: ['user', 'hospital', 'doctor'] });
-
+        return this.appointmentRepository.findOne({
+            where: { id },
+            relations: ['user', 'hospital', 'doctor', 'patient'],
+        });
     }
-
 
     async updateBooking(id: number, data: BookingPayload, images: string[]) {
 
@@ -161,14 +199,14 @@ export class AppointmentService {
         return this.appointmentRepository.save(appointment);
 
     }
-   
+
     async patientAppointments(userId: number, page = 1, limit = 10, search = '') {
         const qb = this.appointmentRepository
             .createQueryBuilder('a')
             .leftJoinAndSelect('a.doctor', 'doctor')
             .leftJoinAndSelect('a.hospital', 'hospital')
             .where('a.userId = :userId', { userId })
-            .andWhere('a.appointmentStatus != :status', { status: 'Hold' });
+            .andWhere('a.appointmentStatus != :status', { status: 'NoFill' });
 
         if (search) {
             qb.andWhere(
@@ -197,7 +235,7 @@ export class AppointmentService {
             .leftJoinAndSelect('a.user', 'user')
             .leftJoinAndSelect('a.hospital', 'hospital')
             .where('a.doctorId = :userId', { userId })
-            .andWhere('a.appointmentStatus != :status', { status: 'Hold' });
+            .andWhere('a.appointmentStatus != :status', { status: 'NoFill' });
 
         if (search) {
             qb.andWhere(
@@ -226,5 +264,18 @@ export class AppointmentService {
         appointment.appointmentStatus = status;
         return this.appointmentRepository.save(appointment);
     }
+
+    async createFollowUp(data: { caseId: number; patientId: number; doctorId: number }) {
+        const appointment = this.appointmentRepository.create({
+            appointmentId: 'APP' + Date.now(),
+            caseId: data.caseId,
+            patientId: data.patientId,
+            doctorId: data.doctorId,
+            appointmentStatus: 'Hold',
+        });
+
+        return this.appointmentRepository.save(appointment);
+    }
+
 
 }
