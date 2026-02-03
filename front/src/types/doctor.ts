@@ -63,3 +63,31 @@ export interface BookedSlot {
   date: string;
   time: string;
 }
+
+export interface Doctor {
+  id: string;
+  name: string;
+  expertise: string;
+  image: string;
+  experience: string;
+  appointmentFees: string;
+  category: string;
+  hospital: string;
+  phone: string;
+  available: boolean;
+  isVerified: boolean;
+  isPopular: boolean;
+  patientVideoCall: boolean;
+  degree: string;
+  location: string;
+}
+
+export interface DoctorResponse {
+  data: Doctor[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    hasMore: boolean;
+  };
+}

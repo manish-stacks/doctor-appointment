@@ -5,7 +5,7 @@ import { useState } from "react";
 export function MobileMenuSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  const toggleDropdown = (menu:string) => {
+  const toggleDropdown = (menu: string) => {
     setOpenDropdown(openDropdown === menu ? null : menu);
   };
 
@@ -90,14 +90,22 @@ export function MobileMenuSidebar({ isOpen, onClose }: { isOpen: boolean; onClos
           {/* Doctors */}
           <div className="border-b border-gray-200">
             <Link
-              href="/doctors"
+              href="/our-experts"
               className="w-full flex items-center justify-between py-4 text-gray-900 font-medium hover:text-[#0ea5e9] transition-colors"
             >
               <span>Doctors</span>
             </Link>
 
           </div>
+          <div className="border-b border-gray-200">
+            <Link
+              href="/price"
+              className="w-full flex items-center justify-between py-4 text-gray-900 font-medium hover:text-[#0ea5e9] transition-colors"
+            >
+              <span>Price</span>
+            </Link>
 
+          </div>
 
           {/* Blog */}
           <div className="border-b border-gray-200">

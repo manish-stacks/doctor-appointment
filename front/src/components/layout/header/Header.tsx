@@ -14,6 +14,7 @@ import { useUIStore } from '@/store/uiStore';
 export default function Header() {
 
   const { openLoginModal } = useUIStore();
+  const { logout } = useUserStore();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -27,6 +28,10 @@ export default function Header() {
   useEffect(() => {
     if (isLoggedIn) {
       const details = getUserDetails();
+      if (!details) {
+        console.warn('No user details available');
+        return;
+      }
       setUserData(details);
     }
   }, [isLoggedIn, getUserDetails]);
@@ -103,14 +108,18 @@ export default function Header() {
               </div>
 
               <div className="relative group">
-                <Link href="/doctors" className="text-gray-700 font-medium hover:text-[#0ea5e9] transition-colors flex items-center gap-1">
+                <Link href="/our-experts" className="text-gray-700 font-medium hover:text-[#0ea5e9] transition-colors flex items-center gap-1">
                   Doctors
                 </Link>
               </div>
-
+              <div className="relative group">
+                <Link href="/price" className="text-gray-700 font-medium hover:text-[#0ea5e9] transition-colors flex items-center gap-1">
+                  Price
+                </Link>
+              </div>
 
               <div className="relative group">
-                <Link href="/blog" className="text-gray-700 font-medium hover:text-[#0ea5e9] transition-colors flex items-center gap-1">
+                <Link href="/blogs" className="text-gray-700 font-medium hover:text-[#0ea5e9] transition-colors flex items-center gap-1">
                   Blog
                 </Link>
               </div>
@@ -124,22 +133,60 @@ export default function Header() {
 
             {/* Right Section */}
             <div className="flex items-center gap-4">
-              <div className="relative group hidden md:flex items-center gap-3 bg-[#0ea5e9] text-white px-3 md:px-3 py-3 rounded-full">
-                <User className="w-5 h-5" />
-                <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                  <div className="py-2">
-                    {isLoggedIn ? (
-                      <>
-                        <p className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">Welcome, {userdata?.role === 'patient' || userdata?.role === 'user' ? '' : 'Dr.'}{userdata?.username}</p>
-                        <button onClick={redirectToDashboard} className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">Dashboard</button>
-                      </>
-                    ) : (
-                      <>
-                        <button onClick={() => openLoginModal()} className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">Login as Patient</button>
-                        <Link href="/for-doctors" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">Login as Doctor</Link>
-                      </>
-                    )}
-                  </div>
+              <div className="relative hidden md:block group">
+                {/* Trigger */}
+                <button className="flex items-center gap-2 bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-full transition-all">
+                  <User className="w-5 h-5" />
+                  <span className="text-sm font-medium">
+                    {isLoggedIn ? userdata?.username : "Account"}
+                  </span>
+                </button>
+
+                {/* Dropdown */}
+                <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border opacity-0 scale-95 invisible  group-hover:opacity-100 group-hover:scale-100 group-hover:visible transition-all duration-200 z-50">
+
+                  {isLoggedIn ? (
+                    <>
+                      <div className="px-4 py-3 border-b">
+                        <p className="text-sm text-gray-500">Signed in as</p>
+                        <p className="font-semibold text-gray-800">
+                          {userdata?.role === 'patient' || userdata?.role === 'user'
+                            ? userdata?.username
+                            : `Dr. ${userdata?.username}`}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={redirectToDashboard}
+                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-sky-50 hover:text-sky-600 transition"
+                      >
+                        Dashboard
+                      </button>
+
+                      <button
+                        onClick={() => logout()}
+                        className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 transition rounded-b-xl"
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={openLoginModal}
+                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-sky-50 hover:text-sky-600 transition rounded-t-xl"
+                      >
+                        Login as Patient
+                      </button>
+
+                      <Link
+                        href="/for-doctors"
+                        className="block px-4 py-2 text-gray-700 hover:bg-sky-50 hover:text-sky-600 transition rounded-b-xl"
+                      >
+                        Login as Doctor
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
 

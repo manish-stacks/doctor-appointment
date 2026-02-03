@@ -16,12 +16,7 @@ export class CategoryController {
 
     @Get()
     async findAll() {
-        const categories = await this.categoryService.findAll();
-        return {
-            success: true,
-            message: 'Categories fetched successfully',
-            data: categories,
-        };
+        return this.categoryService.findAll();
     }
 
     @Post()

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Search } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from './doctor.entity';
 import { DeepPartial, Repository } from 'typeorm';
@@ -11,6 +11,7 @@ import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.
 import { Subscription } from 'src/subscription/subscription.entity';
 import { TimeSlotEntity } from 'src/time-slot/time-slot.entity';
 import { Appointment } from 'src/appointment/appointment.entity';
+import { maskEmail, maskPhone } from 'src/helper/helper';
 
 
 @Injectable()
@@ -126,18 +127,188 @@ export class DoctorService {
         await this.doctorSubscriptionRepository.save(doctorSubscription);
     }
 
+    // async findOneByUserId(userId: number) { 
+    //     return this.doctorRepository.findOne({ where: { userId }, relations: ['user', 'hospital'], }); 
+    // }
 
     async findOneByUserId(userId: number) {
-        return this.doctorRepository.findOne({
+        const doctor = await this.doctorRepository.findOne({
             where: { userId },
-            relations: ['user', 'hospital'],
+
+            select: {
+                id: true,
+                name: true,
+                expertise: true,
+                experience: true,
+                appointmentFees: true,
+                image: true,
+                desc: true,
+                education: true,
+                certificate: true,
+                timeSlot: true,
+                dob: true,
+                gender: true,
+                isActive: true,
+                isPopular: true,
+                patientVideoCall: true,
+                user: {
+                    id: true,
+                    username: true,
+                    email: true,
+                    phone: true,
+                    image: true,
+                    role: true,
+                },
+
+                hospital: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    address: true,
+                },
+            },
+
+            relations: {
+                user: true,
+                hospital: true,
+            },
         });
+
+        if (!doctor) return null;
+
+        return {
+            ...doctor,
+            user: {
+                ...doctor.user,
+                email: maskEmail(doctor.user.email),
+                phone: maskPhone(doctor.user.phone),
+            },
+        };
     }
 
 
-    async findAll() {
-        return this.doctorRepository.find();
+    async findAll(query: {
+        search?: string;
+        category?: string;
+        location?: string;
+        page?: number;
+        limit?: number;
+    }) {
+        
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 8;
+        const skip = (page - 1) * limit;
+
+        const qb = this.doctorRepository
+            .createQueryBuilder('doctor')
+            .leftJoinAndSelect('doctor.user', 'user')
+            .leftJoinAndSelect('doctor.hospital', 'hospital')
+            .leftJoinAndSelect('doctor.category', 'category')
+            .where('doctor.isActive = :isActive', { isActive: true });
+
+        if (query.search) {
+            qb.andWhere(
+                '(LOWER(doctor.name) LIKE LOWER(:search) OR LOWER(category.name) LIKE LOWER(:search))',
+                { search: `%${query.search}%` },
+            );
+        }
+
+        if (query.category) {
+            qb.andWhere('category.name = :category', {
+                category: query.category,
+            });
+        }
+
+        if (query.location) {
+            qb.andWhere('user.state = :location', {
+                location: query.location,
+            });
+        }
+
+        const [doctors, total] = await qb
+            .skip(skip)
+            .take(limit)
+            .getManyAndCount();
+
+        return {
+            data: doctors.map(d => ({
+                id: d.id,
+                name: d.name,
+                image: d.image,
+                experience: d.experience,
+                appointmentFees: d.appointmentFees,
+                category: d.category?.name,
+                degree: d.certificate,
+                location: d.user?.state,
+                phone: d.hospital?.phone,
+                available: d.isActive,
+            })),
+            meta: {
+                total,
+                page,
+                limit,
+                hasMore: skip + limit < total,
+            },
+        };
     }
+
+
+    async getLocations() {
+        const states = await this.doctorRepository
+            .createQueryBuilder('doctor')
+            .leftJoin('doctor.user', 'user')
+            .select('DISTINCT user.state', 'state')
+            .where('user.state IS NOT NULL')
+            .getRawMany();
+
+        return states.map(s => s.state);
+    }
+
+
+    // async findAll() {
+    //     const doctors = await this.doctorRepository.find({
+    //         select: {
+    //             id: true,
+    //             name: true,
+    //             expertise: true,
+    //             experience: true,
+    //             appointmentFees: true,
+    //             image: true,
+    //             certificate: true,
+    //             isActive: true,
+    //             isPopular: true,
+    //             patientVideoCall: true,
+    //             user: {
+    //                 username: true,
+    //                 email: true,
+    //                 phone: true,
+    //             },
+    //             hospital: {
+    //                 name: true,
+    //                 phone: true,
+    //                 address: true,
+    //             },
+    //             category: {
+    //                 name: true,
+    //             },
+    //         },
+    //         relations: {
+    //             user: true,
+    //             hospital: true,
+    //             category: true,
+    //         },
+    //     });
+
+    //     return doctors.map((doctor) => {
+    //         const certificates = JSON.parse(doctor.certificate || '[]');
+
+    //         return {
+    //             ...doctor,
+    //             certificate: certificates.map((c) => c.name), 
+    //         };
+    //     });
+    // }
+
 
     async findOne(id: number) {
         const doctor = await this.doctorRepository.findOne({ where: { id } });
@@ -167,12 +338,24 @@ export class DoctorService {
     async findBookedSlots(id: number) {
         const doctor = await this.doctorRepository.findOne({ where: { id } });
         if (!doctor) throw new NotFoundException('Doctor not found');
-        return this.appointmentRepository.find({ where: { doctorId: doctor.id, appointmentStatus: 'Booked' } });
+        // return this.appointmentRepository.find({ where: { doctorId: doctor.id, appointmentStatus: 'Booked' } });
+        return this.appointmentRepository.find({
+            where: { doctorId: doctor.id, appointmentStatus: 'Booked' },
+            select: {
+                id: true,
+                date: true,
+                time: true,
+                userId: true,
+                patientId: true,
+                appointmentStatus: true,
+                doctorId: true
+            }
+        })
     }
 
     async searchDoctor(q: string) {
         if (!q) return this.doctorRepository.find({ take: 10 });
-        
+
         return this.doctorRepository
             .createQueryBuilder('d')
             .where('d.name LIKE :q', { q: `%${q}%` })

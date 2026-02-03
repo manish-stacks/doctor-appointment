@@ -181,7 +181,7 @@ const DoctorProfilePage = () => {
       // date: selectedDate.toISOString().split('T')[0],
       // time: selectedTime,
       doctorId: Number(doctorData?.id),
-      hospitalId: Number(doctorData?.hospitalId),
+      // hospitalId: Number(doctorData?.hospitalId),
       userId: Number(userdata?.id)
     };
     try {
@@ -514,7 +514,7 @@ const DoctorProfilePage = () => {
                     <Mail className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500">Email</p>
-                      <p className="font-medium text-gray-900 text-sm break-all">{doctorData.user.email.substring(0, 5)}...@***.com</p>
+                      <p className="font-medium text-gray-900 text-sm break-all">{doctorData.user.email}</p>
                     </div>
                   </div>
                 )}
@@ -523,7 +523,7 @@ const DoctorProfilePage = () => {
                     <Phone className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-500">Phone</p>
-                      <p className="font-medium text-gray-900">{doctorData.user.phone.substring(0, 4)}-***-***</p>
+                      <p className="font-medium text-gray-900">{doctorData.user.phone}</p>
                     </div>
                   </div>
                 )}
@@ -548,7 +548,7 @@ const DoctorProfilePage = () => {
                   {doctorData.hospital.phone && (
                     <div className="flex items-center gap-3">
                       <Phone className="w-5 h-5 text-gray-400" />
-                      <p className="text-sm text-gray-600">{doctorData.hospital.phone.substring(0, 4)}-***-***</p>
+                      <p className="text-sm text-gray-600">{doctorData.hospital.phone}</p>
                     </div>
                   )}
                 </div>

@@ -9,13 +9,40 @@ export class FavoriteService {
   constructor(
     @InjectRepository(Favorite)
     private readonly favoriteRepository: Repository<Favorite>,
-  ) {}
+  ) { }
 
   async getFavoriteDoctors(userId: number) {
+    // return this.favoriteRepository.find({
+    //   where: { userId },
+    //   relations: ['doctor','doctor.hospital'],
+    // });
     return this.favoriteRepository.find({
       where: { userId },
-      relations: ['doctor','doctor.hospital'],
+      select: {
+        id: true,
+        doctorId: true,
+        userId: true,
+        
+        doctor: {
+          id: true,
+          appointmentFees: true,
+          image: true,
+          name: true,
+          expertise: true,
+          hospital: {
+            id: true,
+            name: true,
+            address: true,
+          },
+        },
+      },
+      relations: {
+        doctor: {
+          hospital: true,
+        },
+      },
     });
+
   }
 
   async removeFavoriteDoctor(userId: number, doctorId: number) {

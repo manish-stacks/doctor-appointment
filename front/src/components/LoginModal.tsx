@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/custom/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,7 +29,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [mobileNumber, setMobileNumber] = useState('');
-    const [otp, setOtp] = useState('');
+    // const [otp, setOtp] = useState('');
+    const [otp, setOtp] = useState(Array(6).fill(""));
+    const otpRefs = useRef([]);
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [timer, setTimer] = useState(30);
@@ -143,7 +146,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         try {
             const response = await AxiosInstance.post(`/auth/verify-otp`, {
                 phone: Number(mobileNumber),
-                otp,
+                otp: otp.join(''),
                 type: 'login',
             });
 
@@ -189,6 +192,42 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         animate: { x: 0, opacity: 1 },
         exit: { x: -300, opacity: 0 },
     };
+
+    const handleOtpChange = (e, index) => {
+        const value = e.target.value;
+
+        // Allow only numbers
+        if (isNaN(value)) return;
+
+        const newOtp = [...otp];
+        newOtp[index] = value.slice(-1); // single digit only
+        setOtp(newOtp);
+
+        // Move to next input
+        if (value && index < otp.length - 1) {
+            otpRefs.current[index + 1]?.focus();
+        }
+    };
+
+    const handleKeyDown = (e, index) => {
+        if (e.key === "Backspace" && !otp[index] && index > 0) {
+            otpRefs.current[index - 1]?.focus();
+        }
+    };
+    const handlePaste = (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData("text").slice(0, 6);
+
+        if (isNaN(pastedData)) return;
+
+        const newOtp = pastedData.split("");
+        setOtp(newOtp);
+
+        newOtp.forEach((_, i) => {
+            otpRefs.current[i]?.focus();
+        });
+    };
+
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -353,73 +392,97 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                 initial="initial"
                                 animate="animate"
                                 exit="exit"
-                                transition={{ duration: 0.3 }}
-                                className="space-y-6 "
+                                transition={{ duration: 0.35, ease: "easeInOut" }}
+                                className="space-y-6"
                             >
-                                <div className="flex items-center space-x-4 mb-6">
+                                {/* Header */}
+                                <div className="flex items-center gap-3">
                                     <Button
                                         variant="ghost"
-                                        size="sm"
-                                        onClick={() => setStep('login')}
-                                        className="p-2"
+                                        size="icon"
+                                        onClick={() => setStep("login")}
+                                        className="rounded-full hover:bg-gray-100"
                                     >
-                                        <ArrowLeft className="w-4 h-4" />
+                                        <ArrowLeft className="w-5 h-5" />
                                     </Button>
-                                    <div className="text-center flex-1">
-                                        <h3 className="text-lg font-semibold">Verify OTP</h3>
-                                        <p className="text-sm text-gray-600">
-                                            Enter the 6-digit code sent to {mobileNumber}
+
+                                    <div>
+                                        <h3 className="text-xl font-semibold text-gray-900">
+                                            Verify OTP
+                                        </h3>
+                                        <p className="text-sm text-gray-500">
+                                            Code sent to <span className="font-medium">{mobileNumber}</span>
                                         </p>
                                     </div>
                                 </div>
 
+                                {/* OTP Input */}
                                 <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="otp">OTP</Label>
-                                        <div className="relative">
-                                            <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                            <Input
-                                                id="otp"
-                                                type="text"
-                                                placeholder="Enter 6-digit OTP"
-                                                value={otp}
-                                                onChange={(e) => setOtp(e.target.value)}
-                                                className="pl-10 h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-blue-500 tracking-widest"
-                                                maxLength={6}
-                                            />
-                                        </div>
+                                    <Label className="text-sm text-gray-700">Enter 6-digit OTP</Label>
 
+                                    <div className="flex justify-between gap-2">
+                                        {[...Array(6)].map((_, index) => (
+                                            <Input
+                                                key={index}
+                                                type="text"
+                                                inputMode="numeric"
+                                                maxLength={1}
+                                                value={otp[index] || ""}
+                                                onChange={(e) => handleOtpChange(e, index)}
+                                                onKeyDown={(e) => handleKeyDown(e, index)}
+                                                onPaste={handlePaste}
+
+                                                className="
+            h-12 w-12 text-center text-lg font-semibold
+            rounded-xl border-gray-300
+            focus:ring-2 focus:ring-green-500
+          "
+                                                ref={(el) => (otpRefs.current[index] = el)}
+                                            />
+                                        ))}
                                     </div>
 
+                                    {/* Error */}
                                     {error && (
                                         <motion.p
                                             className="text-red-500 text-sm"
-                                            initial={{ opacity: 0, y: -10 }}
+                                            initial={{ opacity: 0, y: -8 }}
                                             animate={{ opacity: 1, y: 0 }}
                                         >
                                             {error}
                                         </motion.p>
                                     )}
 
+                                    {/* Verify Button */}
                                     <Button
                                         onClick={handleVerifyOTP}
                                         disabled={isLoading}
-                                        className="w-full h-11 rounded-xl text-base font-semibold bg-green-600 hover:bg-green-700"
+                                        className="
+        w-full h-12 rounded-xl text-base font-semibold
+        bg-green-600 hover:bg-green-700
+        shadow-md
+      "
                                     >
-                                        {isLoading ? 'Verifying...' : 'Verify OTP'}
+                                        {isLoading ? "Verifying..." : "Verify OTP"}
                                         {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
                                     </Button>
 
-                                    <Button
-                                        variant="ghost"
-                                        className="w-full h-11 rounded-xl text-base font-semibold bg-gray-100 hover:bg-blue-700 hover:text-white"
-                                        onClick={handleResendOTP}
-                                        disabled={resendDisabled}
-                                    >
-                                        {resendDisabled ? `Resend in ${timer}s` : 'Resend OTP'}
-                                    </Button>
+                                    {/* Resend */}
+                                    <div className="text-center">
+                                        <Button
+                                            variant="ghost"
+                                            onClick={handleResendOTP}
+                                            disabled={resendDisabled}
+                                            className="text-sm font-medium text-gray-600 hover:text-green-600"
+                                        >
+                                            {resendDisabled
+                                                ? `Resend OTP in ${timer}s`
+                                                : "Didn’t receive? Resend OTP"}
+                                        </Button>
+                                    </div>
                                 </div>
                             </motion.div>
+
                         )}
 
 

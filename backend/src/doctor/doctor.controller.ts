@@ -60,8 +60,18 @@ export class DoctorController {
 
 
   @Get()
-  async findAll() {
-    return this.doctorService.findAll();
+  findAll(@Query() query: {
+    search?: string;
+    category?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    return this.doctorService.findAll(query);
+  }
+  
+  @Get('locations')
+  getLocations() {
+    return this.doctorService.getLocations();
   }
 
 

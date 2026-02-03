@@ -48,6 +48,12 @@ export class User {
   @Column({ length: 255, nullable: true })
   gender?: string;
 
+  @Column({ length: 255, nullable: true})
+  state?: string;
+
+  @Column({ length: 255, nullable: true})
+  city?: string;
+
   @Column({ length: 255, nullable: true })
   address: string;
 

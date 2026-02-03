@@ -26,7 +26,7 @@ export class CategoryService {
 
 
     async findAll() {
-        return this.categoryRepository.find();
+        return this.categoryRepository.find({select: {id: true, name: true, image: true}});
     }
 
     async findOne(id: number) {

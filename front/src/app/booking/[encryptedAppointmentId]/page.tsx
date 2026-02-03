@@ -73,7 +73,7 @@ export default function Booking() {
         // Pre-fill form data
         if (details.data.appointmentFor) setAppointmentFor(details.data.appointmentFor);
         if (details.data.patientName) setPatientName(details.data.patientName);
-        if (details.data.patientAge) setPatientAge(details.data.patientAge);
+        if (details.data.user.age) setPatientAge(details.data.user.age);
         if (details.data.phoneNumber) setPhoneNumber(details.data.phoneNumber);
         if (details.data.email) setEmail(details.data.email);
         if (details.data.illnessInfo) setIllnessInfo(details.data.illnessInfo);
@@ -90,12 +90,14 @@ export default function Booking() {
             phone: user.phone || "",
             email: user.email || "",
             address: user.address || "",
+
           });
 
           if (!details.data.patientName && user.username) setPatientName(user.username);
           if (!details.data.phoneNumber && user.phone) setPhoneNumber(user.phone);
           if (!details.data.email && user.email) setEmail(user.email);
           if (!details.data.address && user.address) setPatientAddress(user.address);
+         
         }
 
         if (!details.data.appointmentFor) setAppointmentFor("For me");
@@ -126,7 +128,6 @@ export default function Booking() {
       console.error('Error fetching schedule:', error);
     }
   };
-
 
   const fetchBookedSlots = async (doctorId: string) => {
     try {
@@ -183,7 +184,7 @@ export default function Booking() {
         { value: patientName, message: 'Please enter patient name' },
         { value: patientAge, message: 'Please enter patient age' },
         { value: phoneNumber, message: 'Please enter phone number' },
-        { value: selectedPatientId, message: 'Please select a patient' },
+        // { value: selectedPatientId, message: 'Please select a patient' },
       ];
 
       for (const field of fields) {

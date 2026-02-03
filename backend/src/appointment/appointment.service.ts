@@ -88,8 +88,10 @@ export class AppointmentService {
 
 
     async findByAppointmentId(appointmentId: string) {
-        return this.appointmentRepository.findOne({ where: { appointmentId }, relations: ['user', 'hospital', 'doctor'] });
+        // return this.appointmentRepository.findOne({ where: { appointmentId }, relations: ['user', 'hospital', 'doctor'] });
+        return this.findOneAppointment(appointmentId);
     }
+
     async update(doctorId: number, patientId: number, date: string, time: string, status: string) {
         const appointment = await this.appointmentRepository.findOne({ where: { doctorId: doctorId, userId: patientId, date, time } });
         if (!appointment) return 'Appointment not found';
@@ -112,14 +114,15 @@ export class AppointmentService {
     }
 
     async updateStep1(id: number, body: stepOneDto, userId: number) {
-        if (!body.selectedPatientId) throw new Error('Please select a patient');
+        
+        if (!body.selectedPatientId && body.appointmentFor !== 'For me') throw new Error('Please select a patient');
         const appointment = await this.appointmentRepository.findOne({ where: { id } });
         if (!appointment) throw new Error('Appointment not found');
-        console.log(body)
+
         let patientId: number | null = null;
 
         // SELF CASE
-        if (body.appointmentFor === 'Self') {
+        if (body.appointmentFor === 'For me') {
             await this.userRepository.update(userId, {
                 email: body.email,
                 username: body.patientName,
@@ -149,17 +152,23 @@ export class AppointmentService {
         }
 
         await this.appointmentRepository.update(id, {
-            patientId: patientId, 
+            patientId: patientId,
             appointmentFor: body.appointmentFor,
             illnessInfo: body.illnessInfo,
             sideEffects: body.sideEffects,
             doctorNotes: body.doctorNotes,
+            email: body.email,
+            number: body.phoneNumber,
+
         });
 
-        return this.appointmentRepository.findOne({
-            where: { id },
-            relations: ['user', 'hospital', 'doctor', 'patient'],
-        });
+        // return this.appointmentRepository.findOne({
+        //     where: { id },
+        //     relations: ['user', 'hospital', 'doctor', 'patient'],
+        // });
+        return this.findOneAppointment(id);
+
+
     }
 
     async updateBooking(id: number, data: BookingPayload, images: string[]) {
@@ -277,5 +286,93 @@ export class AppointmentService {
         return this.appointmentRepository.save(appointment);
     }
 
+    async findFollowUps(caseId: number) {
+        return this.appointmentRepository.find({ where: { caseId } });
+    }
+    async findOneAppointment(id: number | string) {
+        return this.appointmentRepository.findOne({
+            // where: [{ id }, { appointmentId: id }],
+            where: [
+                typeof id === 'number' ? { id } : {},
+                { appointmentId: String(id) },
+            ],
+            select: {
+                id: true,
+                appointmentId: true,
+                userId: true,
+                doctorId: true,
+                patientId: true,
+                caseId: true,
+                paymentType: true,
+                appointmentFor: true,
+                number: true,
+                email: true,
+                sideEffects: true,
+                razorpayOrderId: true,
+                date: true,
+                time: true,
+                couponCode: true,
+                discountAmount: true,
+                finalAmount: true,
+                appointmentFees: true,
+                paymentStatus: true,
+                transactionId: true,
+                illnessInfo: true,
+                doctorNotes: true,
+                cancelReason: true,
+                discountCode: true,
+                discountPrice: true,
+                images: true,
 
+
+                user: {
+                    id: true,
+                    username: true,
+                    email: true,
+                    phone: true,
+                    image: true,
+                    age: true,
+                    role: true,
+                    address: true,
+                },
+
+                hospital: {
+                    id: true,
+                    name: true,
+                    phone: true,
+                    address: true,
+                },
+                doctor: {
+                    id: true,
+                    name: true,
+                    expertise: true,
+                    experience: true,
+                    appointmentFees: true,
+                    image: true,
+                    desc: true,
+                    education: true,
+                    certificate: true,
+                    timeSlot: true,
+                    dob: true,
+                    gender: true,
+                    isActive: true,
+                    isPopular: true,
+                    patientVideoCall: true,
+                },
+                patient: {
+                    id: true,
+                    name: true,
+                    age: true,
+                    relation: true,
+                },
+            },
+
+            relations: {
+                user: true,
+                hospital: true,
+                doctor: true,
+                patient: true,
+            },
+        });
+    }
 }

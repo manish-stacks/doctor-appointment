@@ -113,9 +113,8 @@ export class AppointmentCreateDto {
     @IsNumber()
     doctorId: number;
 
+    @IsNotEmpty()
+    @IsNumber()
     userId: number;
 
-    @IsNumber()
-    hospitalId: number
-    
 }
