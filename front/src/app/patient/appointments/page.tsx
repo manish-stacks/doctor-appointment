@@ -203,6 +203,7 @@ const Appointments = () => {
             <div className="hidden">
                 {selectedAppointment && <Receipt booking={selectedAppointment} />}
             </div>
+            
         </>
     )
 }

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './patient.dto';
@@ -23,8 +23,25 @@ export class PatientController {
     }
 
     @Get('my-family')
-    myFamily(@Request() req: { user: { id: number; }; }) {
-        return this.patientService.findMyPatients(req.user.id);
+    getFamily(
+        @Request() req: { user: { id: number; } },
+        @Query('page') page: number,
+        @Query('limit') limit: number,
+        @Query('search') search: string,
+    ) {
+        const patientId = req.user.id;
+        return this.patientService.findAll(patientId, page, limit, search);
+    }
+
+   
+    @Put('my-family/:id')
+    updateFamily(@Param('id') id: number, @Body() dto: CreatePatientDto) {
+        return this.patientService.update(id, dto);
+    }
+
+    @Delete('my-family/:id')
+    deleteFamily(@Param('id') id: number) {
+        return this.patientService.remove(id);
     }
 
 

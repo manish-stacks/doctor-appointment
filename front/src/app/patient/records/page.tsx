@@ -13,47 +13,7 @@ const orders = [
         paymentType: 'COD',
         amount: 50,
         report: 'Report Not Available',
-    },
-    {
-        id: 2,
-        laboratory: 'LabCorp (Demo)',
-        prescriptionImg: 'https://doctro.saasmonks.in/report_prescription/upload/6801e9d9b6964.png',
-        date: '2025-04-22',
-        time: '08:15 am',
-        paymentType: 'COD',
-        amount: 50,
-        report: 'Report Not Available',
-    },
-    {
-        id: 3,
-        laboratory: 'LabCorp (Demo)',
-        prescriptionImg: 'https://doctro.saasmonks.in/report_prescription/upload/6801e9d9b6964.png',
-        date: '2025-04-18',
-        time: '12:45 pm',
-        paymentType: 'COD',
-        amount: 50,
-        report: 'Report Not Available',
-    },
-    {
-        id: 4,
-        laboratory: 'LabCorp (Demo)',
-        prescriptionImg: 'https://doctro.saasmonks.in/report_prescription/upload/6801e9d9b6964.png',
-        date: '2025-04-18',
-        time: '12:45 pm',
-        paymentType: 'COD',
-        amount: 50,
-        report: 'Report Not Available',
-    },
-    {
-        id: 5,
-        laboratory: 'Quest Diagnostics',
-        prescriptionImg: '',
-        date: '2025-04-16',
-        time: '01:30 pm',
-        paymentType: 'COD',
-        amount: 1500,
-        report: 'Report Not Available',
-    },
+    }
 ];
 
 export default function Records() {

@@ -1,16 +1,25 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Delete, Get, Param, Request, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Put, Request, UseGuards } from '@nestjs/common';
 import { FavoriteService } from './favorite.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('favorite')
 export class FavoriteController {
-  constructor(private readonly favoriteService: FavoriteService) {}
+  constructor(private readonly favoriteService: FavoriteService) { }
 
   @UseGuards(JwtAuthGuard)
   @Get('doctors')
   async getFavoriteDoctors(@Request() req: { user: { id: number; } }) {
     return this.favoriteService.getFavoriteDoctors(req.user.id);
+  }
+
+  @Put('doctors/:doctorId')
+  @UseGuards(JwtAuthGuard)
+  async addFavoriteDoctor(
+    @Param('doctorId') doctorId: number,
+    @Request() req: { user: { id: number; } },
+  ) {
+    return this.favoriteService.addFavoriteDoctor(req.user.id, doctorId);
   }
 
   @Delete('doctors/:doctorId')
@@ -21,4 +30,6 @@ export class FavoriteController {
   ) {
     return this.favoriteService.removeFavoriteDoctor(req.user.id, doctorId);
   }
+
+
 }

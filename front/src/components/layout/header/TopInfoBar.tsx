@@ -8,7 +8,7 @@ export function TopInfoBar() {
 
 
   return (
-    <div className="bg-[#1e3a8a] text-white py-2.5 px-4">
+    <div className="bg-[#0f3460] text-white py-2.5 px-4">
       <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center text-sm px-4">
         <div className="flex items-center gap-3 md:gap-6">
           <div className="flex items-center gap-2">

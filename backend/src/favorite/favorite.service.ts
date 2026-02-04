@@ -22,7 +22,7 @@ export class FavoriteService {
         id: true,
         doctorId: true,
         userId: true,
-        
+
         doctor: {
           id: true,
           appointmentFees: true,
@@ -56,4 +56,23 @@ export class FavoriteService {
       return { message: 'Favorite not found' };
     }
   }
+
+  async addFavoriteDoctor(userId: number, doctorId: number) {
+    const exists = await this.favoriteRepository.findOne({
+      where: { userId, doctorId },
+    });
+
+    if (exists) {
+      return { message: 'Already in favorites' };
+    }
+
+    const favorite = this.favoriteRepository.create({
+      userId,
+      doctorId,
+    });
+
+    await this.favoriteRepository.save(favorite);
+    return { message: 'Doctor added to favorites' };
+  }
+
 }

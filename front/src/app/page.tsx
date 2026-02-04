@@ -9,7 +9,7 @@ import MobileAppSection from "@/components/home/MobileAppSection";
 import { PricingSection } from "@/components/home/PricingSection";
 import { SearchDoctorSection } from "@/components/home/SearchDoctorSection";
 import SpecialistsSection from "@/components/home/SpecialistsSection";
-import { StatsSection } from "@/components/home/StatsSection";
+// import { StatsSection } from "@/components/home/StatsSection";
 import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { useUIStore } from "@/store/uiStore";
 
@@ -18,12 +18,12 @@ export default function Home() {
  
   return (
     <>
-      <HeroSection />
-      <StatsSection isDarkMode={isDarkMode} />
+      <HeroSection isDarkMode={isDarkMode} />
+      {/* <StatsSection isDarkMode={isDarkMode} /> */}
       <FeaturesSection isDarkMode={isDarkMode} />
       <SpecialistsSection isDarkMode={isDarkMode} />
       <SearchDoctorSection isDarkMode={isDarkMode} handlePatientLogin={openLoginModal} />
-      <PricingSection isDarkMode={isDarkMode} handlePatientLogin={openLoginModal} />
+      <PricingSection isDarkMode={isDarkMode}  />
       <TestimonialsSection isDarkMode={isDarkMode} />
       <FAQSection isDarkMode={isDarkMode} />
       <MobileAppSection isDarkMode={isDarkMode} />

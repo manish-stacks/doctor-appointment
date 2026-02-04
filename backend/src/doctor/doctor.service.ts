@@ -239,8 +239,8 @@ export class DoctorService {
                 appointmentFees: d.appointmentFees,
                 category: d.category?.name,
                 degree: d.certificate,
-                location: d.user?.state,
-                phone: d.hospital?.phone,
+                location: d.user?.address,
+                phone: maskPhone(d.hospital?.phone),
                 available: d.isActive,
             })),
             meta: {

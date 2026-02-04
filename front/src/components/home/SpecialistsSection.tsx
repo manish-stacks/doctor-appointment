@@ -15,17 +15,17 @@ const specialties = [
   { name: 'Gynecology', Icon: UserCheck, doctors: '35+', accent: 'emerald' },
   { name: 'Psychiatry', Icon: Brain, doctors: '26+', accent: 'indigo' },
   { name: 'Ophthalmology', Icon: Eye, doctors: '24+', accent: 'teal' },
-  // { name: 'ENT', Icon: Ear, doctors: '20+', accent: 'amber' },
-  // { name: 'Pharmacy', Icon: Pill, doctors: '42+', accent: 'cyan' },
-  // { name: 'General Medicine', Icon: Stethoscope, doctors: '55+', accent: 'violet' },
-  // { name: 'Emergency', Icon: Activity, doctors: '24/7', accent: 'red' },
+  { name: 'ENT', Icon: Ear, doctors: '20+', accent: 'amber' },
+  { name: 'Pharmacy', Icon: Pill, doctors: '42+', accent: 'cyan' },
+  { name: 'General Medicine', Icon: Stethoscope, doctors: '55+', accent: 'violet' },
+  { name: 'Emergency', Icon: Activity, doctors: '24/7', accent: 'red' },
 ];
 
 export default function SpecialistsSection({ isDarkMode = false }: SpecialistsSectionProps) {
   const [activeSpecialty, setActiveSpecialty] = useState<number | null>(null);
 
   return (
-    <section className={`py-24 px-4 sm:px-6 lg:px-8 transition-colors duration-700 ${isDarkMode ? 'bg-slate-950' : 'bg-gray-50'}`}>
+    <section className={`py-24 px-4 sm:px-6 lg:px-8 transition-colors duration-700 ${isDarkMode ? 'bg-slate-950' : 'bg-white'}`}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">

@@ -21,6 +21,29 @@ export class Subscription {
     @Column({ type: 'text', nullable: true })
     description: string;
     
+    @Column({ type: 'varchar', nullable: true })
+    period: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    features: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    noAddonFeatures: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    buttonText: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    gradient: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    buttonStyle: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    buttonTextColor: string;
+
+    @Column({type: 'tinyint', default: false })
+    popular: boolean;
     @CreateDateColumn()
     createdAt: Date;
 

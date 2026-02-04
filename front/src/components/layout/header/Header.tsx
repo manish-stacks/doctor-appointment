@@ -101,8 +101,8 @@ export default function Header() {
                 <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                   <div className="py-2">
                     <Link href="/about-us" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">About Us</Link>
-                    <Link href="/terms" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">Terms & Conditions</Link>
-                    <Link href="/privacy" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">Privacy Policy</Link>
+                    <Link href="/terms-conditions" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">Terms & Conditions</Link>
+                    <Link href="/privacy-policy" className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-[#0ea5e9] transition-colors">Privacy Policy</Link>
                   </div>
                 </div>
               </div>
@@ -135,7 +135,7 @@ export default function Header() {
             <div className="flex items-center gap-4">
               <div className="relative hidden md:block group">
                 {/* Trigger */}
-                <button className="flex items-center gap-2 bg-sky-500 hover:bg-sky-600 text-white px-4 py-2 rounded-full transition-all">
+                <button className="flex items-center gap-2 bg-[#0f3460] hover:bg-[#1a2e4a] text-white px-4 py-2 rounded-full transition-all">
                   <User className="w-5 h-5" />
                   <span className="text-sm font-medium">
                     {isLoggedIn ? userdata?.username : "Account"}
