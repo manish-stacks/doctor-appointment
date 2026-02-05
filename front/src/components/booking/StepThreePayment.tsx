@@ -75,7 +75,7 @@ export default function StepThreePayment({ appointment, onBack, onSuccess }: Pro
         order_id: data.razorpayOrderId,
         prefill: {
           name: appointment.patientName,
-          email: appointment.email,
+          email: appointment.patientEmail,
           contact: appointment.phoneNumber,
         },
         handler: async function (response: any) {

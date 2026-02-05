@@ -73,7 +73,7 @@ export class MailService {
     const { appointment } = payload;
     try {
       await this.mailerService.sendMail({
-        to: appointment.email,
+        to: appointment.patientEmail,
         subject: 'Appointment Confirmed - Your Booking Details',
         html: `
         <!DOCTYPE html>
@@ -257,7 +257,7 @@ export class MailService {
 
     try {
       await this.mailerService.sendMail({
-        to: appointment.email,
+        to: appointment.patientEmail,
         subject: '❌ Appointment Cancelled - Cancellation Confirmation',
         html: `
         <!DOCTYPE html>
@@ -385,7 +385,7 @@ export class MailService {
 
     try {
       await this.mailerService.sendMail({
-        to: appointment.email,
+        to: appointment.patientEmail,
         subject: '⚠️ Payment Failed - Action Required',
         html: `
         <!DOCTYPE html>
@@ -517,7 +517,7 @@ export class MailService {
 
     try {
       await this.mailerService.sendMail({
-        to: appointment.email,
+        to: appointment.patientEmail,
         subject: '💰 Refund Processed - Payment Returned',
         html: `
         <!DOCTYPE html>
@@ -667,7 +667,7 @@ export class MailService {
 
     try {
       await this.mailerService.sendMail({
-        to: appointment.email,
+        to: appointment.patientEmail,
         subject: '🔔 Reminder: Your Appointment Tomorrow',
         html: `
         <!DOCTYPE html>
@@ -740,7 +740,7 @@ export class MailService {
                               ` : ''}
                               <tr>
                                 <td style="color: #6b7280; font-size: 14px;">Contact</td>
-                                <td style="color: #1f2937; font-size: 14px; font-weight: 600;">${appointment.phoneNumber}</td>
+                                <td style="color: #1f2937; font-size: 14px; font-weight: 600;">${appointment.patientNumber}</td>
                               </tr>
                             </table>
                           </td>
@@ -813,7 +813,7 @@ export class MailService {
     const { appointment, oldDate, oldTime } = payload;
     try {
       await this.mailerService.sendMail({
-        to: appointment.email,
+        to: appointment?.patientEmail,
         subject: '📅 Appointment Rescheduled - New Date & Time',
         html: `
         <!DOCTYPE html>

@@ -34,11 +34,20 @@ export class Appointment {
     @Column({ type: 'varchar', length: 255 })
     appointmentFor: string;
 
-    @Column({ type: 'text' })
-    number: string;
+    @Column({ type: 'varchar', length: 255 })
+    patientName: string;
+
+    @Column({ type: 'varchar', length: 10 })
+    patientAge: number;
 
     @Column({ type: 'text' })
-    email: string;
+    patientNumber: string;
+
+    @Column({ type: 'text' })
+    patientEmail: string;
+
+    @Column({ type: 'varchar', length: 255 })
+    patientAddress: string;
 
     @Column({ type: 'text' })
     sideEffects: string;
@@ -70,10 +79,8 @@ export class Appointment {
     @Column({ type: 'varchar', nullable: true })
     transactionId: string;
 
-    // removed
     @Column({ type: 'varchar', nullable: true })
     illnessInfo: string;
-
 
     @Column({ type: 'text' })
     doctorNotes: string;
@@ -89,7 +96,6 @@ export class Appointment {
 
     @Column({ type: 'json', nullable: true })
     images: string[];
-
 
     @Column({ type: 'varchar', length: 255, nullable: true })
     zoomUrl: string;

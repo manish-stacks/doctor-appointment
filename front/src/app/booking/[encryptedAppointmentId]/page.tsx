@@ -39,8 +39,8 @@ export default function Booking() {
   const [email, setEmail] = useState("");
   const [illnessInfo, setIllnessInfo] = useState("");
   const [patientAddress, setPatientAddress] = useState("");
-  const [sideEffects, setSideEffects] = useState("");
-  const [doctorNotes, setDoctorNotes] = useState("");
+  const [sideEffects, setSideEffects] = useState("No");
+  const [doctorNotes, setDoctorNotes] = useState("No");
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 

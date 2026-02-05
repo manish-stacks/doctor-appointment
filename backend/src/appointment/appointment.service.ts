@@ -55,13 +55,13 @@ export class AppointmentService {
         const bookingLink = `${process.env.FRONTEND_URL}/booking/${saved.appointmentId}`;
         // await this.mailService.sendReminder(userEmail, bookingLink);
 
-        if (saved.appointmentStatus === 'NoFill' && !saved.appointmentFor && saved.email) {
+        if (saved.appointmentStatus === 'NoFill' && !saved.appointmentFor && saved.patientEmail) {
             // 45 min reminder
             await this.mailQueue.add(
                 'sendReminder',
                 {
                     appointmentId: saved.appointmentId,
-                    email: saved.email,
+                    email: saved.patientEmail,
                     link: bookingLink,
                 },
                 { delay: 5 * 60 * 1000 },
@@ -114,7 +114,7 @@ export class AppointmentService {
     }
 
     async updateStep1(id: number, body: stepOneDto, userId: number) {
-        
+
         if (!body.selectedPatientId && body.appointmentFor !== 'For me') throw new Error('Please select a patient');
         const appointment = await this.appointmentRepository.findOne({ where: { id } });
         if (!appointment) throw new Error('Appointment not found');
@@ -157,9 +157,11 @@ export class AppointmentService {
             illnessInfo: body.illnessInfo,
             sideEffects: body.sideEffects,
             doctorNotes: body.doctorNotes,
-            email: body.email,
-            number: body.phoneNumber,
-
+            patientEmail: body.email,
+            patientNumber: body.phoneNumber,
+            patientAddress: body.patientAddress,
+            patientAge: Number(body.patientAge),
+            patientName: body.patientName,
         });
 
         // return this.appointmentRepository.findOne({
@@ -194,7 +196,7 @@ export class AppointmentService {
 
         // await this.mailService.sendReminder(userEmail, bookingLink);
 
-        if (data.paymentType === 'Offline' && appointment.email) {
+        if (data.paymentType === 'Offline' && appointment.patientEmail) {
             // 45 min reminder
             await this.mailQueue.add(
                 'sendBookingConfirmation',
@@ -213,7 +215,7 @@ export class AppointmentService {
         const qb = this.appointmentRepository
             .createQueryBuilder('a')
             .leftJoinAndSelect('a.doctor', 'doctor')
-            .leftJoinAndSelect('a.hospital', 'hospital')
+            .leftJoinAndSelect('doctor.hospital', 'hospital')
             .where('a.userId = :userId', { userId })
             .andWhere('a.appointmentStatus != :status', { status: 'NoFill' });
 
@@ -305,8 +307,8 @@ export class AppointmentService {
                 caseId: true,
                 paymentType: true,
                 appointmentFor: true,
-                number: true,
-                email: true,
+                patientNumber: true,
+                patientEmail: true,
                 sideEffects: true,
                 razorpayOrderId: true,
                 date: true,
@@ -323,8 +325,9 @@ export class AppointmentService {
                 discountCode: true,
                 discountPrice: true,
                 images: true,
-
-
+                appointmentStatus: true,
+                patientName: true,
+                patientAge: true,
                 user: {
                     id: true,
                     username: true,
@@ -369,8 +372,7 @@ export class AppointmentService {
 
             relations: {
                 user: true,
-                hospital: true,
-                doctor: true,
+                doctor: { hospital: true },
                 patient: true,
             },
         });

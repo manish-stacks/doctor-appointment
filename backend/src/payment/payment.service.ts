@@ -77,7 +77,7 @@ export class PaymentService {
         appointment.appointmentStatus = 'BOOKED';
 
         await this.appointmentRepository.save(appointment);
-        if (appointment.email) {
+        if (appointment.patientEmail) {
             await this.mailQueue.add(
                 'sendBookingConfirmation',
                 {
@@ -134,7 +134,7 @@ export class PaymentService {
                 await this.appointmentRepository.save(appointment);
             }
 
-            if (appointment?.email) {
+            if (appointment?.patientEmail) {
                
                 await this.mailQueue.add(
                     'sendPaymentFailed',
@@ -160,7 +160,7 @@ export class PaymentService {
                 appointment.appointmentStatus = 'HOLD';
                 await this.appointmentRepository.save(appointment);
             }
-            if (appointment?.email) {
+            if (appointment?.patientEmail) {
                
                 await this.mailQueue.add(
                     'sendRefundProcessed',

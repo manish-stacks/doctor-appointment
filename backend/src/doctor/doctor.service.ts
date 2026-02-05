@@ -76,8 +76,8 @@ export class DoctorService {
             timeSlot: doctorDto.timeSlot.toString(),
             dob: doctorDto.dob,
             gender: doctorDto.gender,
-            isActive: false,
-            isPopular: true,
+            // isActive: false,
+            // isPopular: true,
             patientVideoCall: false,
             doctorId: 'DOC' + Date.now().toString(),
         };
@@ -127,9 +127,9 @@ export class DoctorService {
         await this.doctorSubscriptionRepository.save(doctorSubscription);
     }
 
-    // async findOneByUserId(userId: number) { 
-    //     return this.doctorRepository.findOne({ where: { userId }, relations: ['user', 'hospital'], }); 
-    // }
+    async findMe(userId: number) { 
+        return this.doctorRepository.findOne({ where: { userId }, relations: ['user', 'hospital'], }); 
+    }
 
     async findOneByUserId(userId: number) {
         const doctor = await this.doctorRepository.findOne({

@@ -37,7 +37,8 @@ export default function AppointmentDetail() {
             Confirmed: "bg-green-50 text-green-700 border-green-200",
             Pending: "bg-yellow-50 text-yellow-700 border-yellow-200",
             Cancelled: "bg-red-50 text-red-700 border-red-200",
-            Completed: "bg-blue-50 text-blue-700 border-blue-200"
+            Completed: "bg-blue-50 text-blue-700 border-blue-200",
+            Booked: "bg-blue-50 text-blue-700 border-blue-200",
         };
         return styles[status] || styles.Pending;
     };
@@ -66,7 +67,7 @@ export default function AppointmentDetail() {
                             <p className="text-sm text-gray-500">Appointment ID: {appointment.appointmentId}</p>
                         </div>
                         <span className={`px-4 py-2 rounded-md border font-medium text-sm ${getStatusBadge(appointment.appointmentStatus)}`}>
-                            {appointment.appointmentStatus}
+                            {appointment.appointmentStatus || "Pending"}
                         </span>
                     </div>
                 </div>
@@ -144,15 +145,32 @@ export default function AppointmentDetail() {
                                 <h2 className="text-lg font-semibold text-gray-900">Hospital Information</h2>
                             </div>
                             <div className="p-6 space-y-3">
-                                <h3 className="text-lg font-semibold text-gray-900">{appointment.hospital?.name}</h3>
-                                <div className="flex items-start gap-3 text-gray-600">
+                                <h3 className="text-lg font-semibold text-gray-900">{appointment?.doctor?.hospital?.name}</h3>
+                                {/* <div className="flex items-start gap-3 text-gray-600">
                                     <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                                    <p className="text-sm">{appointment.hospital?.address}</p>
+                                    <p className="text-sm">{appointment?.doctor?.hospital?.address}</p>
                                 </div>
-                                {appointment.hospital?.phone && (
+                                 */}
+                                <div className="flex items-start gap-3 text-gray-600">
+                                    <a
+                                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                                            appointment?.doctor?.hospital?.address || ""
+                                        )}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-start gap-3 hover:text-blue-600 transition hover:underline"
+                                    >
+                                        <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                                        <p className="text-sm">
+                                            {appointment?.doctor?.hospital?.address}
+                                        </p>
+                                    </a>
+                                </div>
+
+                                {appointment?.doctor?.hospital?.phone && (
                                     <div className="flex items-center gap-3 text-gray-600">
                                         <Phone className="w-5 h-5 text-gray-400" />
-                                        <p className="text-sm">{appointment.hospital.phone}</p>
+                                        <p className="text-sm">{appointment?.doctor?.hospital.phone}</p>
                                     </div>
                                 )}
                             </div>
@@ -202,12 +220,12 @@ export default function AppointmentDetail() {
                                 </div>
                                 <div>
                                     <p className="text-xs text-gray-500 font-medium mb-1">Phone Number</p>
-                                    <p className="text-gray-900 font-medium">{appointment.phoneNumber}</p>
+                                    <p className="text-gray-900 font-medium">{appointment.patientNumber}</p>
                                 </div>
-                                {appointment.email && (
+                                {appointment.patientEmail && (
                                     <div>
                                         <p className="text-xs text-gray-500 font-medium mb-1">Email</p>
-                                        <p className="text-gray-900 font-medium text-sm break-all">{appointment.email}</p>
+                                        <p className="text-gray-900 font-medium text-sm break-all">{appointment.patientEmail}</p>
                                     </div>
                                 )}
                                 <div>
@@ -285,10 +303,10 @@ export default function AppointmentDetail() {
                                             <p className="text-gray-700 text-sm">{appointment.sideEffects}</p>
                                         </div>
                                     )}
-                                    <div>
+                                    {/* <div>
                                         <p className="text-xs text-gray-500 font-medium mb-1">Insurance Status</p>
                                         <p className="text-gray-900 font-medium">{appointment.isInsured}</p>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         )}

@@ -11,7 +11,7 @@ export class PaymentController {
   createOrder(
     @Body() body: { appointmentId: string; amount: number },
   ) {
-    console.log(body);
+    // console.log(body);
     return this.paymentService.createOrder(body);
   }
 

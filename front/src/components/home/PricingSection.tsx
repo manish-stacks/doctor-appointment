@@ -28,30 +28,31 @@ interface Plan {
   buttonStyle: string;
   popular: number; // 0 | 1
 }
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 30, opacity: 1 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { ease: "easeOut", duration: 0.6 },
+  },
+};
 
 
 export function PricingSection({ isDarkMode }: PricingSectionProps) {
   const [plans, setPlans] = useState<Plan[]>([]);
   const router = useRouter();
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.1,
-      },
-    },
-  };
 
-  const itemVariants = {
-    hidden: { y: 30, opacity: 1 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { ease: "easeOut", duration: 0.6 },
-    },
-  };
 
 
   const getSubscription = async () => {
@@ -149,7 +150,7 @@ interface PlanFeaturesProps {
   isDarkMode: boolean;
 }
 
-function PlanFeatures({ plan, isDarkMode }: PlanFeaturesProps) {
+export function PlanFeatures({ plan, isDarkMode }: PlanFeaturesProps) {
   return (
     <ul className="space-y-4 mb-8">
       {plan.features.map((feature, i) => (

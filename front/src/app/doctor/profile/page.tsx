@@ -43,8 +43,6 @@ const Profile = () => {
 
     })
 
-    // const { data, isLoading } = useSWR('/doctor/profile/me', fetcher);
-    // console.log(data)
 
     const getUserProfile = async () => {
         try {

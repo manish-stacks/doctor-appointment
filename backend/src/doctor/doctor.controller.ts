@@ -55,7 +55,7 @@ export class DoctorController {
     if (!userId) {
       throw new BadRequestException('User ID is missing from token');
     }
-    return this.doctorService.findOneByUserId(userId);
+    return this.doctorService.findMe(userId);
   }
 
 

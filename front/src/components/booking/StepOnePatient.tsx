@@ -35,7 +35,7 @@ export default function StepOnePatient({ appointment, onSuccess }: Props) {
       patientName: appointment.patientName || "",
       patientAge: appointment.patientAge?.toString() || "",
       phoneNumber: appointment.phoneNumber || "",
-      email: appointment.email || "",
+      email: appointment.patientEmail || "",
       illnessInfo: appointment.illnessInfo || "",
       patientAddress: appointment.patientAddress || "",
       sideEffects: appointment.sideEffects || "",

@@ -43,8 +43,8 @@ export class BookingPayload {
 export interface BookingMailPayload {
   appointmentId: string;
   patientName: string;
-  email: string;
-  phoneNumber: string;
+  patientEmail: string;
+  patientNumber: string;
   date: string;
   time: string;
   appointmentFees: number;
@@ -63,10 +63,3 @@ export interface BookingMailPayload {
   zoomPassword?: string;
 }
 
-
-// export class stepOneDto {
-//   patientId: number;
-//   caseId?: number; // null = new case
-//   illnessInfo: string;
-//   doctorNotes: string;
-// }

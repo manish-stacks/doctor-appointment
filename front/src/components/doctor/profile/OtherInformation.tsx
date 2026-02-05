@@ -53,7 +53,7 @@ export default function OtherInformation({ formData, setFormData, handleUpdate }
     try {
       setIsLoadingCategories(true);
       const response = await AxiosInstance.get('/categories');
-      const categoriesData = response.data.data;
+      const categoriesData = response.data;
       setCategories(Array.isArray(categoriesData) ? categoriesData : []);
     } catch (error) {
       console.error('Error fetching categories:', error);

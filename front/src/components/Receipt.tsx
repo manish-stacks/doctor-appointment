@@ -2,7 +2,7 @@
 import { AppointmentDetails } from "@/types/appointment";
 
 export default function Receipt({ booking }: { booking: AppointmentDetails }) {
- 
+
   return (
     <div id="print-area" className="max-w-3xl mx-auto bg-white p-8 text-sm text-gray-800">
       {/* Header */}
@@ -23,14 +23,14 @@ export default function Receipt({ booking }: { booking: AppointmentDetails }) {
         <div>
           <h4 className="font-semibold mb-1">Patient Details</h4>
           <p>Name: {booking?.patientName}</p>
-          <p>Phone: {booking?.phoneNumber}</p>
-          <p>Email: {booking?.email}</p>
+          <p>Phone: {booking?.patientNumber}</p>
+          <p>Email: {booking?.patientEmail}</p>
         </div>
         <div>
           <h4 className="font-semibold mb-1">Doctor Details</h4>
           <p>Dr. {booking?.doctor?.name}</p>
           <p>{booking?.doctor?.expertise}</p>
-          <p>{booking?.hospital?.name}</p>
+          <p>{booking?.doctor?.hospital?.name || "N/A"}</p>
         </div>
       </div>
 

@@ -11,8 +11,8 @@ export class SubscriptionController {
     async findAll() {
         return this.subscriptionService.findAll();
     }
+    
 
-   
     @UseGuards(JwtAuthGuard)
     @Get('userBuy')
     findUserBuy(@Request() req: { user: { id: number; } }) {

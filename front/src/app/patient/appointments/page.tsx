@@ -2,6 +2,7 @@
 import Receipt from '@/components/Receipt';
 import { Button } from '@/components/ui/button';
 import Breadcrumb from '@/components/ui/custom/breadcrumb';
+import { ConfirmModal } from '@/components/ui/custom/ConfirmModal';
 import Pagination from '@/components/ui/custom/pagination';
 import { AxiosInstance } from '@/helpers/Axios.instance';
 import { AppointmentDetails } from '@/types/appointment';
@@ -39,6 +40,7 @@ const Appointments = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState("");
     const [selectedAppointment, setSelectedAppointment] = useState<AppointmentDetails>();
+    const [deleteId, setDeleteId] = useState<number | null>(null);
 
     const fetchAppointments = async () => {
         const res = await AxiosInstance.post('/appointment/patient/appointments', {
@@ -69,20 +71,24 @@ const Appointments = () => {
             window.location.reload();
         }, 300);
     };
-    const handleToChange = async (status: string, id: number) => {
+    const confirmCancelAppointment = async () => {
+        if (!deleteId) return;
+
         try {
-            await AxiosInstance.put(`/appointment/${id}/status`, {
-                status,
+            await AxiosInstance.put(`/appointment/${deleteId}/status`, {
+                status: "CancelledByUser",
             });
-            toast.success("Appointment status updated successfully.");
+
+            toast.success("Appointment cancelled successfully.");
             fetchAppointments();
         } catch (error) {
-            toast.error("Failed to update appointment status.");
-            console.error("Error updating appointment status:", error);
-            return;
+            toast.error("Failed to cancel appointment.");
+            console.error(error);
+        } finally {
+            setDeleteId(null);
         }
+    };
 
-    }
 
 
     return (
@@ -118,6 +124,7 @@ const Appointments = () => {
                                     <th className="p-3 text-left">#</th>
                                     <th className="p-3 text-left">Appointment Id</th>
                                     <th className="p-3 text-left">Report Or Patient Image</th>
+                                    <th className="p-3 text-left">Patient Name</th>
                                     <th className="p-3 text-left">Amount</th>
                                     <th className="p-3 text-left">Doctor Name</th>
                                     <th className="p-3 text-left">Date</th>
@@ -142,6 +149,7 @@ const Appointments = () => {
                                                 "No Image Uploaded"
                                             )}
                                         </td>
+                                        <td className="p-3">{appointment?.patientName}</td>
                                         <td className="p-3">₹{appointment.finalAmount}</td>
                                         <td className="p-3">Dr. {appointment.doctor?.name}</td>
                                         <td className="p-3">
@@ -177,7 +185,8 @@ const Appointments = () => {
                                                     appointment.appointmentStatus !== 'CancelledByUser' && appointment.appointmentStatus !== 'Cancelled' && appointment.appointmentStatus !== 'Completed' && appointment.appointmentStatus !== 'CancelledByDoctor' && appointment.appointmentStatus !== 'Approved' && (
                                                         <>
                                                             <Button
-                                                                onClick={() => handleToChange("CancelledByUser", appointment.id)}
+                                                                // onClick={() => handleToChange("CancelledByUser", appointment.id)}
+                                                                onClick={() => setDeleteId(appointment.id)}
                                                                 variant="outline" size="sm" className="text-red-600 hover:text-red-700">
                                                                 ✖ Cancel
                                                             </Button>
@@ -203,7 +212,18 @@ const Appointments = () => {
             <div className="hidden">
                 {selectedAppointment && <Receipt booking={selectedAppointment} />}
             </div>
-            
+
+            {deleteId && (
+                <ConfirmModal
+                    title="Cancel Appointment?"
+                    description="Are you sure you want to cancel this appointment? This action cannot be undone."
+                    onCancel={() => setDeleteId(null)}
+                    onConfirm={confirmCancelAppointment}
+                    confirmLabel="Yes, Cancel"
+                    cancelLabel="No, Keep"
+                />
+            )}
+
         </>
     )
 }

@@ -211,10 +211,10 @@ export default function AppointmentDetail() {
                                     <p className="text-xs text-gray-500 font-medium mb-1">Phone Number</p>
                                     <p className="text-gray-900 font-medium">{appointment.phoneNumber}</p>
                                 </div>
-                                {appointment.email && (
+                                {appointment.patientEmail && (
                                     <div>
                                         <p className="text-xs text-gray-500 font-medium mb-1">Email</p>
-                                        <p className="text-gray-900 font-medium text-sm break-all">{appointment.email}</p>
+                                        <p className="text-gray-900 font-medium text-sm break-all">{appointment.patientEmail}</p>
                                     </div>
                                 )}
                                 <div>

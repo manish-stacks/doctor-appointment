@@ -4,8 +4,8 @@ export interface AppointmentDetails {
   appointmentId: string;
   patientName: string;
   patientAge: number;
-  phoneNumber: string;
-  email: string;
+  patientNumber: string;
+  patientEmail: string;
   illnessInfo: string;
   patientAddress: string;
   sideEffects: string;
@@ -22,12 +22,6 @@ export interface AppointmentDetails {
     phone: string;
     image: string;
   };
-  hospital?: {
-    id: string;
-    name: string;
-    address: string;
-    phone: string;
-  };
   doctor?: {
     id: string;
     name: string;
@@ -36,6 +30,12 @@ export interface AppointmentDetails {
     appointmentFees: string;
     timeSlot: string;
     experience?: string;
+    hospital?: {
+      id: string;
+      name: string;
+      address: string;
+      phone: string;
+    };
   };
   discountAmount?: string;
   totalAmount?: string;
