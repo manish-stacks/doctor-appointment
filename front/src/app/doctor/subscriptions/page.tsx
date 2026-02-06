@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, number } from 'framer-motion';
 import Breadcrumb from '@/components/ui/custom/breadcrumb';
 import { AxiosInstance } from '@/helpers/Axios.instance';
 import { PlanFeatures } from '@/components/home/PricingSection';
@@ -70,9 +70,9 @@ export default function SubscriptionPanel() {
     fetchPlans();
   }, [fetchPlans]);
 
-  const handleSubscribe = async (planId: number): Promise<void> => {
+  const handleSubscribe = async (planId: number, amount: number): Promise<void> => {
     try {
-      await completeSubscribe(String(planId), 10);
+      await completeSubscribe(planId, amount);
       // await AxiosInstance.post('/subscription/buy', {
       //   subscriptionId: planId,
       // });
@@ -82,10 +82,10 @@ export default function SubscriptionPanel() {
     }
   };
 
-  const completeSubscribe = async (subscribeId: string, amount: number) => {
+  const completeSubscribe = async (subscriptionId: number, amount: number) => {
 
-    const { data } = await AxiosInstance.post("/payment/razorpay/create-order", {
-      subscribeId,
+    const { data } = await AxiosInstance.post("/payment/razorpay/subscription/create", {
+      subscriptionId: Number(subscriptionId),
       amount,
     });
 
@@ -106,7 +106,7 @@ export default function SubscriptionPanel() {
         color: "#2563eb",
       },
       handler: async function (response: any) {
-        await AxiosInstance.post("/payment/razorpay/verify", response);
+        await AxiosInstance.post("/payment/razorpay/subscription/verify", response);
         toast.success("Payment successful");
       },
 
@@ -171,7 +171,7 @@ export default function SubscriptionPanel() {
 
             {!plan.isCurrent && (
               <button
-                onClick={() => handleSubscribe(plan.id)}
+                onClick={() => handleSubscribe(plan.id, plan.price)}
                 className="mt-6 w-full rounded-lg border border-indigo-600
         bg-indigo-600 text-white py-2.5 text-sm font-medium
         hover:bg-indigo-700 focus:outline-none focus:ring-2

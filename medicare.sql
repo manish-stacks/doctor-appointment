@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 04, 2026 at 01:49 PM
+-- Generation Time: Feb 06, 2026 at 12:51 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -37,7 +37,6 @@ CREATE TABLE `appointments` (
   `hospitalId` bigint(20) UNSIGNED DEFAULT NULL,
   `paymentType` varchar(255) NOT NULL,
   `appointmentFor` varchar(255) NOT NULL,
-  `email` text NOT NULL,
   `sideEffects` text NOT NULL,
   `razorpayOrderId` varchar(100) DEFAULT NULL,
   `date` varchar(255) NOT NULL,
@@ -57,7 +56,11 @@ CREATE TABLE `appointments` (
   `appointmentStatus` enum('Available','Booked','Hold','Approved','Rescheduled','Completed','CancelledByUser','Cancelled','CancelledByDoctor','NoFill') NOT NULL DEFAULT 'Hold',
   `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6),
   `updatedAt` datetime(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
-  `number` text NOT NULL,
+  `patientName` varchar(255) NOT NULL,
+  `patientAge` varchar(10) NOT NULL,
+  `patientNumber` text NOT NULL,
+  `patientEmail` text NOT NULL,
+  `patientAddress` varchar(255) NOT NULL,
   `images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`images`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -65,9 +68,8 @@ CREATE TABLE `appointments` (
 -- Dumping data for table `appointments`
 --
 
-INSERT INTO `appointments` (`id`, `appointmentId`, `userId`, `doctorId`, `patientId`, `caseId`, `hospitalId`, `paymentType`, `appointmentFor`, `email`, `sideEffects`, `razorpayOrderId`, `date`, `time`, `couponCode`, `discountAmount`, `finalAmount`, `appointmentFees`, `paymentStatus`, `transactionId`, `illnessInfo`, `doctorNotes`, `cancelReason`, `discountCode`, `discountPrice`, `zoomUrl`, `appointmentStatus`, `createdAt`, `updatedAt`, `number`, `images`) VALUES
-(4, 'APP1769674961784', 3, 1, NULL, NULL, 1, 'Online', 'Sister', 'hbsdevelopersteam@gmail.com', 'n', 'order_S9filS1odg01Mp', '2026-01-30', '10:00', '', 0, 500, 500, 'Paid', 'pay_S9fitoJOGxPhxC', 'Illness Information', 'n', NULL, NULL, NULL, NULL, 'Booked', '2026-01-29 13:52:41.787192', '2026-01-29 16:37:15.000000', '', NULL),
-(7, 'APP1770114571475', 3, 1, NULL, NULL, NULL, 'Online', 'For me', 'hbsdevelopersteam@gmail.com', 'n', 'order_SBeGieVRYDZjqg', '2026-02-04', '10:00', '', 0, 500, 500, 'Paid', 'pay_SBeGsSBFPTDxk7', '', 'n', NULL, NULL, NULL, NULL, 'CancelledByUser', '2026-02-03 15:59:31.479155', '2026-02-04 17:21:48.000000', '7050494706', NULL);
+INSERT INTO `appointments` (`id`, `appointmentId`, `userId`, `doctorId`, `patientId`, `caseId`, `hospitalId`, `paymentType`, `appointmentFor`, `sideEffects`, `razorpayOrderId`, `date`, `time`, `couponCode`, `discountAmount`, `finalAmount`, `appointmentFees`, `paymentStatus`, `transactionId`, `illnessInfo`, `doctorNotes`, `cancelReason`, `discountCode`, `discountPrice`, `zoomUrl`, `appointmentStatus`, `createdAt`, `updatedAt`, `patientName`, `patientAge`, `patientNumber`, `patientEmail`, `patientAddress`, `images`) VALUES
+(11, 'APP1770277134633', 3, 1, NULL, NULL, NULL, 'Offline', 'For me', 'No', NULL, '2026-02-08', '17:29', '', 0, 500, 500, 'Remaining', NULL, 'Information', 'No', NULL, NULL, NULL, NULL, 'Booked', '2026-02-05 13:08:54.637691', '2026-02-05 13:17:43.798258', 'Manish', '25', '7050494706', 'hbsdevelopersteam@gmail.com', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL);
 
 -- --------------------------------------------------------
 
@@ -172,7 +174,7 @@ CREATE TABLE `doctors` (
 --
 
 INSERT INTO `doctors` (`id`, `name`, `userId`, `expertise`, `hospitalId`, `categoryId`, `treatmentId`, `image`, `desc`, `education`, `certificate`, `appointmentFees`, `experience`, `timeSlot`, `dob`, `gender`, `isActive`, `isVerified`, `isPopular`, `patientVideoCall`, `createdAt`, `updatedAt`, `doctorId`) VALUES
-(1, 'Suman', 1, 'Surgical Procedures', 1, 2, 3, 'https://res.cloudinary.com/do34gd7bu/image/upload/v1770119190/uploads/at2qzvc7udbg9gssv1yi.jpg', 'Experience the future of healthcare with our comprehensive platform designed for modern patients and healthcare providers.\r\n\r\nSmart Scheduling\r\nAI-powered appointment booking that finds the perfect time slot for you\r\n\r\n24/7 Telemedicine\r\nConnect with doctors instantly through video consultations anytime\r\n\r\n', '[{\"id\":\"1\",\"degree\":\"10\",\"institution\":\"Delhi\",\"year\":\"2012\"},{\"id\":\"2\",\"degree\":\"12\",\"institution\":\"Delhi\",\"year\":\"2015\"}]', '[{\"id\":\"1\",\"name\":\"BPSC\",\"year\":\"2013\"}]', '500', '10', '30', '1998-07-19', 'male', 1, 1, 1, 0, '2025-07-19 17:38:22.499802', '2026-02-03 18:21:51.456503', 'DOC1770119191063');
+(1, 'Suman', 1, 'Surgical Procedures', 1, 2, 3, 'https://res.cloudinary.com/do34gd7bu/image/upload/v1770119190/uploads/at2qzvc7udbg9gssv1yi.jpg', 'Experience the future of healthcare with our comprehensive platform designed for modern patients and healthcare providers.\r\n\r\nSmart Scheduling\r\nAI-powered appointment booking that finds the perfect time slot for you\r\n\r\n24/7 Telemedicine\r\nConnect with doctors instantly through video consultations anytime\r\n\r\n', '[{\"id\":\"1\",\"degree\":\"10\",\"institution\":\"Delhi\",\"year\":\"2012\"},{\"id\":\"2\",\"degree\":\"12\",\"institution\":\"Delhi\",\"year\":\"2015\"}]', '[{\"id\":\"1\",\"name\":\"MBBS\",\"year\":\"2013\"},{\"id\":\"2\",\"name\":\"MA\",\"year\":\"2020\"},{\"id\":\"3\",\"name\":\"MBA\",\"year\":\"2020\"}]', '500', '10', '30', '1998-07-19', 'male', 1, 1, 1, 0, '2025-07-19 17:38:22.499802', '2026-02-05 15:41:12.210240', 'DOC1770286222082');
 
 -- --------------------------------------------------------
 
@@ -204,7 +206,8 @@ CREATE TABLE `doctor_subscriptions` (
 --
 
 INSERT INTO `doctor_subscriptions` (`id`, `doctorId`, `subscriptionId`, `duration`, `startDate`, `endDate`, `paymentType`, `amount`, `paymentId`, `paymentStatus`, `appointmentLimit`, `usedAppointments`, `status`, `isActive`, `createdAt`, `updatedAt`) VALUES
-(1, 1, NULL, 1, '2026-01-14', '2026-02-14', 'Welcome Plan', 0, 'ddddd', 1, '500', '0', 'active', 1, '2026-01-14 15:20:46.000000', '2026-01-14 15:27:42.916110');
+(1, 1, 1, 1, '2026-01-14', '2026-08-14', 'Welcome Plan', 0, 'ddddd', 1, '500', '0', 'expired', 0, '2026-01-14 15:20:46.000000', '2026-02-06 16:59:39.000000'),
+(2, 1, 2, 3, '2026-02-06T11:29:40.442Z', '2026-05-06T11:29:40.442Z', 'razorpay', 500, 'pay_SCqNR0RUu4mKNy', 1, '3000', '0', 'active', 1, '2026-02-06 16:59:40.448363', '2026-02-06 16:59:40.448363');
 
 -- --------------------------------------------------------
 
@@ -391,7 +394,7 @@ CREATE TABLE `subscriptions` (
 INSERT INTO `subscriptions` (`id`, `name`, `totalAppointment`, `price`, `validity`, `description`, `createdAt`, `updatedAt`, `period`, `features`, `noAddonFeatures`, `buttonText`, `gradient`, `buttonStyle`, `buttonTextColor`, `popular`) VALUES
 (1, 'Basic', 500, 0, 1, 'Perfect for occasional consultations', '2026-02-04 11:18:56.017652', '2026-02-04 11:46:51.783464', 'Forever', '[\"Book up to 2 appointments/month\",\"Basic health records\",\"Email support\",\"Mobile app access\",\"Prescription reminders\"]', '[\r\n    \"Specialist referrals\",\r\n    \"Telemedicine consultations\",\r\n    \"Priority booking\"\r\n  ]', 'Get Started Free', 'from-gray-50 to-gray-100', 'bg-gray-900 hover:bg-gray-800 text-white', NULL, 0),
 (2, 'Standard\n', 3000, 500, 3, 'Ideal for regular healthcare needs', '2026-02-04 11:19:33.149059', '2026-02-04 11:47:23.634839', 'per month', '[\"Unlimited appointments\",\"Priority booking\",\"Advanced health analytics\",\"24/7 chat support\",\"Prescription management\",\"Family member profiles\",\"Telemedicine consultations\",\"Health goal tracking\"]', NULL, 'Start Free Trial', 'from-blue-50 to-indigo-100', 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white', NULL, 1),
-(3, 'Family', 10000, 10000, 12, 'Complete healthcare for your family', '2026-02-04 11:19:50.886918', '2026-02-04 11:47:45.925323', 'per month', '[\"Everything in Premium\",\"Up to 6 family members\",\"Dedicated family coordinator\",\"Home visit consultations\",\"Emergency hotline\",\"Annual health checkups\",\"Specialist referrals\",\"Health insurance integration\"]', NULL, 'Contact Sales', 'from-gray-50 to-gray-100', 'bg-gray-900 hover:bg-gray-800 text-white', NULL, 0);
+(3, 'Professional ', 10000, 10000, 12, 'Complete healthcare for your family', '2026-02-04 11:19:50.886918', '2026-02-05 15:48:34.029267', 'per month', '[\"Everything in Premium\",\"Up to 6 family members\",\"Dedicated family coordinator\",\"Home visit consultations\",\"Emergency hotline\",\"Annual health checkups\",\"Specialist referrals\",\"Health insurance integration\"]', NULL, 'Contact Sales', 'from-gray-50 to-gray-100', 'bg-gray-900 hover:bg-gray-800 text-white', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -484,8 +487,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `email`, `email_verified_at`, `username`, `password`, `HowManyOtpSend`, `phone`, `otp`, `login_otp`, `otp_expires_at`, `dob`, `gender`, `role`, `image`, `isActive`, `contact_number_verified`, `createdAt`, `updatedAt`, `address`, `doctorId`, `age`, `state`, `city`) VALUES
-(1, 'mks957678@gmail.com', NULL, 'Suman', NULL, 0, '6200027897', 810737, 0, '2026-02-03 11:47:48', '1998-07-19', 'male', 'doctor', 'https://res.cloudinary.com/do34gd7bu/image/upload/v1770119190/uploads/at2qzvc7udbg9gssv1yi.jpg', 1, 0, '2025-07-19 17:10:10.754959', '2026-02-04 11:05:57.034768', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitam.', 1, NULL, 'Delhi', 'Delhi'),
-(3, 'hbsdevelopersteam@gmail.com', '2026-01-22 10:06:29', 'Manish', '$2b$10$WqYFgxilZIygnem0Wxt2sewewok3nbSSbms2k6slO/xHU0h5zHhjq', 0, '7050494706', 990459, 0, '2026-02-04 12:38:13', '2026-01-21', 'male', 'user', 'https://res.cloudinary.com/do34gd7bu/image/upload/v1769066854/user_profiles/cgzk2cclhpx4qmrsbuyq.png', 1, 0, '2025-07-21 18:29:41.615401', '2026-02-04 18:06:24.000000', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL, 25, NULL, NULL);
+(1, 'mks957678@gmail.com', NULL, 'Suman', NULL, 0, '6200027897', 810737, 0, '2026-02-06 11:21:57', '1998-07-19', 'male', 'doctor', '', 1, 0, '2025-07-19 17:10:10.754959', '2026-02-06 16:50:07.000000', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitam.', 1, NULL, 'Delhi', 'Delhi'),
+(3, 'hbsdevelopersteam@gmail.com', '2026-01-22 10:06:29', 'Manish', '$2b$10$WqYFgxilZIygnem0Wxt2sewewok3nbSSbms2k6slO/xHU0h5zHhjq', 0, '7050494706', 990459, 0, '2026-02-05 11:25:27', '2026-01-21', 'male', 'user', 'https://res.cloudinary.com/do34gd7bu/image/upload/v1769066854/user_profiles/cgzk2cclhpx4qmrsbuyq.png', 1, 0, '2025-07-21 18:29:41.615401', '2026-02-05 16:53:33.000000', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL, 25, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -721,7 +724,7 @@ ALTER TABLE `zoom_meeting`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `blogs`
@@ -751,7 +754,7 @@ ALTER TABLE `doctors`
 -- AUTO_INCREMENT for table `doctor_subscriptions`
 --
 ALTER TABLE `doctor_subscriptions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `favorites`

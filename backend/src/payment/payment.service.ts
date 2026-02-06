@@ -7,6 +7,8 @@ import * as crypto from 'crypto';
 import { Request } from 'express';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
+import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.entity';
+import { Subscription } from 'src/subscription/subscription.entity';
 // import { MailService } from 'src/mail/mail.service';
 const Razorpay = require('razorpay');
 
@@ -17,6 +19,12 @@ export class PaymentService {
     constructor(
         @InjectRepository(Appointment)
         private appointmentRepository: Repository<Appointment>,
+
+        @InjectRepository(DoctorSubscription)
+        private doctorSubscriptionRepo: Repository<DoctorSubscription>,
+
+        @InjectRepository(Subscription)
+        private subscriptionRepo: Repository<Subscription>,
 
         @InjectQueue('appointment')
         private readonly mailQueue: Queue,
@@ -29,7 +37,9 @@ export class PaymentService {
         });
     }
 
-    async createOrder(body: { appointmentId: string; amount: number }) {
+
+
+    async createAppointment(body: { appointmentId: string; amount: number }) {
         const order = await this.razorpay.orders.create({
             amount: Math.round(body.amount * 100),
             currency: 'INR',
@@ -52,7 +62,7 @@ export class PaymentService {
         };
     }
 
-    async verify(body: {
+    async verifyAppointment(body: {
         razorpay_payment_id: string;
         razorpay_order_id: string;
         razorpay_signature: string;
@@ -90,7 +100,7 @@ export class PaymentService {
         return { success: true, message: 'Payment verified successfully' };
     }
 
-    async webhook(req: Request) {
+    async webhookAppointment(req: Request) {
         const signature = req.headers['x-razorpay-signature'] as string;
         const body = req.body;
 
@@ -105,7 +115,7 @@ export class PaymentService {
 
         const event = JSON.parse(body.toString());
 
-      
+
         if (event.event === 'payment.captured') {
             const orderId = event.payload.payment.entity.order_id;
 
@@ -120,7 +130,7 @@ export class PaymentService {
             }
         }
 
-        
+
         if (event.event === 'payment.failed') {
             const orderId = event.payload.payment.entity.order_id;
 
@@ -135,7 +145,7 @@ export class PaymentService {
             }
 
             if (appointment?.patientEmail) {
-               
+
                 await this.mailQueue.add(
                     'sendPaymentFailed',
                     {
@@ -146,7 +156,7 @@ export class PaymentService {
             }
         }
 
-  
+
         if (event.event === 'refund.processed') {
             const refund = event.payload.refund.entity;
 
@@ -161,7 +171,7 @@ export class PaymentService {
                 await this.appointmentRepository.save(appointment);
             }
             if (appointment?.patientEmail) {
-               
+
                 await this.mailQueue.add(
                     'sendRefundProcessed',
                     {
@@ -173,5 +183,110 @@ export class PaymentService {
         }
 
         return { received: true };
+    }
+
+
+    async createSubscriptionOrder(data: {
+        subscriptionId: number;
+        amount: number;
+    }, doctorId: number) {
+        const subscription = await this.subscriptionRepo.findOne({
+            where: { id: data.subscriptionId },
+        });
+        console.log(data.subscriptionId)
+
+        if (!subscription) {
+            throw new BadRequestException('Subscription not found');
+        }
+
+        if (subscription.price !== data.amount) {
+            throw new BadRequestException('Amount mismatch');
+        }
+
+        const order = await this.razorpay.orders.create({
+            amount: data.amount * 100,
+            currency: 'INR',
+            receipt: `sub_${Date.now()}`,
+            notes: {
+                doctorId: doctorId,
+                subscriptionId: data.subscriptionId,
+            },
+        });
+
+        return {
+            key: process.env.RAZORPAY_KEY,
+            razorpayOrderId: order.id,
+            amount: order.amount,
+        };
+    }
+
+    async verifySubscriptionPayment(data: {
+        razorpay_payment_id: string;
+        razorpay_order_id: string;
+        razorpay_signature: string;
+    },doctorId: number) {
+        const generatedSignature = crypto
+            .createHmac('sha256', process.env.RAZORPAY_SECRET!)
+            .update(
+                data.razorpay_order_id + '|' + data.razorpay_payment_id,
+            )
+            .digest('hex');
+
+        if (generatedSignature !== data.razorpay_signature) {
+            throw new BadRequestException('Invalid payment signature');
+        }
+
+        // 1️⃣ Expire old active subscriptions
+        await this.doctorSubscriptionRepo.update(
+            { doctorId: doctorId, isActive: true },
+            { isActive: false, status: 'expired' },
+        );
+
+        // 2️⃣ Get subscriptionId from Razorpay order
+        const order = await this.razorpay.orders.fetch(
+            data.razorpay_order_id,
+        );
+
+        const subscriptionId = Number(
+            order.notes.subscriptionId,
+        );
+
+        const subscription = await this.subscriptionRepo.findOne({
+            where: { id: subscriptionId },
+        });
+
+        if (!subscription) {
+            throw new BadRequestException('Subscription not found');
+        }
+
+        // 3️⃣ Calculate dates
+        const startDate = new Date();
+        const endDate = new Date();
+        endDate.setMonth(
+            endDate.getMonth() + subscription.validity,
+        );
+
+        // 4️⃣ Create new subscription entry
+        await this.doctorSubscriptionRepo.save({
+            doctorId: doctorId,
+            subscriptionId,
+            duration: subscription.validity,
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+            paymentType: 'razorpay',
+            amount: subscription.price,
+            paymentId: data.razorpay_payment_id,
+            paymentStatus: true,
+            appointmentLimit:
+                subscription.totalAppointment.toString(),
+            usedAppointments: '0',
+            status: 'active',
+            isActive: true,
+        });
+
+        return {
+            success: true,
+            message: 'Subscription activated successfully',
+        };
     }
 }

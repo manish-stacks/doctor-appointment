@@ -151,15 +151,15 @@ export default function AppointmentDetail() {
                                 <h2 className="text-lg font-semibold text-gray-900">Hospital Information</h2>
                             </div>
                             <div className="p-6 space-y-3">
-                                <h3 className="text-lg font-semibold text-gray-900">{appointment.hospital?.name}</h3>
+                                <h3 className="text-lg font-semibold text-gray-900">{appointment?.doctor?.hospital?.name}</h3>
                                 <div className="flex items-start gap-3 text-gray-600">
                                     <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                                    <p className="text-sm">{appointment.hospital?.address}</p>
+                                    <p className="text-sm">{appointment?.doctor?.hospital?.address}</p>
                                 </div>
-                                {appointment.hospital?.phone && (
+                                {appointment?.doctor?.hospital?.phone && (
                                     <div className="flex items-center gap-3 text-gray-600">
                                         <Phone className="w-5 h-5 text-gray-400" />
-                                        <p className="text-sm">{appointment.hospital.phone}</p>
+                                        <p className="text-sm">{appointment?.doctor?.hospital.phone}</p>
                                     </div>
                                 )}
                             </div>
@@ -292,10 +292,10 @@ export default function AppointmentDetail() {
                                             <p className="text-gray-700 text-sm">{appointment.sideEffects}</p>
                                         </div>
                                     )}
-                                    <div>
+                                    {/* <div>
                                         <p className="text-xs text-gray-500 font-medium mb-1">Insurance Status</p>
                                         <p className="text-gray-900 font-medium">{appointment.isInsured}</p>
-                                    </div>
+                                    </div> */}
                                 </div>
                             </div>
                         )}

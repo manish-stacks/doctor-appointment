@@ -15,15 +15,34 @@ export class DoctorSubscriptionService {
         return this.doctorSubscriptionRepository.find();
     }
 
+    async getAllByDoctor(
+        doctorId: number,
+        page = 1,
+        limit = 10,
+    ) {
+        const skip = (page - 1) * limit;
 
-    async getAllByDoctor(doctorId: number) {
-        return this.doctorSubscriptionRepository
-            .createQueryBuilder('ds')
-            .leftJoinAndSelect('ds.subscription', 's')
-            .where('ds.doctorId = :doctorId', { doctorId })
-            .orderBy('ds.createdAt', 'DESC')
-            .getMany();
+        const [data, total] =
+            await this.doctorSubscriptionRepository
+                .createQueryBuilder('ds')
+                .leftJoinAndSelect('ds.subscription', 's')
+                .where('ds.doctorId = :doctorId', { doctorId })
+                .orderBy('ds.createdAt', 'DESC')
+                .skip(skip)
+                .take(limit)
+                .getManyAndCount();
+
+        return {
+            data,
+            meta: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            },
+        };
     }
+
     async create(userId: number, doctorId: number) {
         const doctorSubscription = this.doctorSubscriptionRepository.create({
             doctorId

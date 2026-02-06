@@ -14,7 +14,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.setGlobalPrefix('api');
   app.use(
-    '/razorpay/webhooks',
+    '/razorpay/appointment/webhooks',
     bodyParser.raw({ type: 'application/json' }),
   );
 

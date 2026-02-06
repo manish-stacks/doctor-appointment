@@ -56,7 +56,7 @@ export default function StepThreePayment({ appointment, onBack, onSuccess }: Pro
       }
 
       // Step 2: Create Razorpay Order
-      const { data } = await AxiosInstance.post("/payment/razorpay/create-order", {
+      const { data } = await AxiosInstance.post("/payment/razorpay/appointment/create", {
         appointmentId: bookingRes.data.appointmentId,
         amount: finalAmount,
       });
@@ -79,7 +79,7 @@ export default function StepThreePayment({ appointment, onBack, onSuccess }: Pro
           contact: appointment.phoneNumber,
         },
         handler: async function (response: any) {
-          await AxiosInstance.post("/payment/razorpay/verify", response);
+          await AxiosInstance.post("/payment/razorpay/appointment/verify", response);
           toast.success("Payment successful");
           onSuccess();
         },

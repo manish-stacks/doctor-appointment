@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Delete, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
 import { DoctorSubscriptionService } from './doctor_subscription.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
@@ -14,10 +14,20 @@ export class DoctorSubscriptionController {
 
     @UseGuards(JwtAuthGuard)
     @Get('/get-all')
-    async getAllByDctor(@Request() req: { user: { doctor_id: number; } }) {
+    async getAllByDoctor(
+        @Request() req: { user: { doctor_id: number } },
+        @Query('page') page = '1',
+        @Query('limit') limit = '10',
+    ) {
         const doctorId = req.user.doctor_id;
-        return this.doctorSubscriptionService.getAllByDoctor(doctorId);
+
+        return this.doctorSubscriptionService.getAllByDoctor(
+            doctorId,
+            Number(page),
+            Number(limit),
+        );
     }
+
 
     @Post()
     create(@Body() body: { userId: number; doctorId: number; }) {

@@ -330,7 +330,7 @@ export default function Booking() {
 
   const completeBooking = async (appointmentId: string, link: string) => {
 
-    const { data } = await AxiosInstance.post("/payment/razorpay/create-order", {
+    const { data } = await AxiosInstance.post("/payment/razorpay/appointment/create", {
       appointmentId: appointmentId,
       amount: finalAmount,
     });
@@ -357,7 +357,7 @@ export default function Booking() {
         color: "#2563eb",
       },
       handler: async function (response: any) {
-        await AxiosInstance.post("/payment/razorpay/verify", response);
+        await AxiosInstance.post("/payment/razorpay/appointment/verify", response);
         window.location.href = `${link}?success=true`;
       },
 
