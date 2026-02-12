@@ -103,13 +103,14 @@ export class AppointmentController {
     @Post('doctor/appointments')
     async doctorAppointments(
         @Request() req: { user: { id: number; } },
-        @Body() body: { page: number; limit: number; search: string }
+        @Body() body: { page: number; limit: number; search: string, patientId: number }
     ) {
         return this.appointmentService.doctorAppointments(
             req.user.id,
             body.page || 1,
             body.limit || 10,
-            body.search || ''
+            body.search || '',
+            body.patientId || ''
         );
     }
 

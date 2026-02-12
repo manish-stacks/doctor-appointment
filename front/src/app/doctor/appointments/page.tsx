@@ -21,9 +21,12 @@ import { AppointmentDetails } from '@/types/appointment';
 import { useEffect, useState } from 'react';
 import { AxiosInstance } from '@/helpers/Axios.instance';
 import { useRouter } from 'next/navigation';
-import Receipt from '@/components/Receipt';
+
 import Pagination from '@/components/ui/custom/pagination';
 import toast from 'react-hot-toast';
+import { ConfirmModal } from '@/components/ui/custom/ConfirmModal';
+import { generateReceiptPdf } from '@/helpers/generateReceipt';
+import { generatePrescriptionPdf } from '@/helpers/generatePrescriptionPdf';
 
 type PaymentStatus = 'Remaining' | 'Paid';
 type AppointmentStatus = 'Available' | 'Booked' | 'Hold' | 'Approved' | 'Rescheduled' | 'Completed' | 'CancelledByUser' | 'Cancelled' | 'CancelledByDoctor';
@@ -44,20 +47,24 @@ const statusBadge: Record<PaymentStatus | AppointmentStatus, string> = {
     Paid: 'bg-green-100 text-green-600',
 };
 
-export default function AppointmentTable() {
-
+export default function AppointmentTable({ patientId }: { patientId?: number }) {
     const router = useRouter();
     const [appointments, setAppointments] = useState<AppointmentDetails[]>([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState("");
-    const [selectedAppointment, setSelectedAppointment] = useState<AppointmentDetails>();
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<() => void>(() => { });
+    const [confirmTitle, setConfirmTitle] = useState("");
+    const [confirmDescription, setConfirmDescription] = useState("");
+
 
     const fetchAppointments = async () => {
         const res = await AxiosInstance.post('/appointment/doctor/appointments', {
             page,
             limit: 10,
             search,
+            patientId: patientId || '',
         });
 
         setAppointments(res.data.data);
@@ -65,40 +72,30 @@ export default function AppointmentTable() {
     };
     useEffect(() => {
         fetchAppointments();
-    }, [page, search]);
+    }, [page, search, patientId]);
 
 
-    const handleToChange = async (status: AppointmentStatus, id: number) => {
-        if(!confirm(`Are you sure you want to change the status to ${status}?`)){
-            return;
-        }
-        try {
-            await AxiosInstance.put(`/appointment/${id}/status`, {
-                status,
-            });
-            toast.success("Appointment status updated successfully.");
-            fetchAppointments();
-        } catch (error) {
-            toast.error("Failed to update appointment status.");
-            console.error("Error updating appointment status:", error);
-            return;
-        }
+    const handleToChange = (status: AppointmentStatus, id: number) => {
 
-    }
-    const handleDownload = (appointment: AppointmentDetails) => {
-        setSelectedAppointment(appointment);
+        setConfirmTitle(`Change Status to ${status}?`);
+        setConfirmDescription(`Are you sure you want to change appointment status to ${status}?`);
 
-        setTimeout(() => {
-            const printArea = document.getElementById("print-area");
-            if (!printArea) return;
+        setConfirmAction(() => async () => {
+            try {
+                await AxiosInstance.put(`/appointment/${id}/status`, { status });
+                toast.success("Appointment status updated successfully.");
+                fetchAppointments();
+            } catch (error) {
+                toast.error("Failed to update appointment status.");
+                console.error(error);
+            } finally {
+                setConfirmOpen(false);
+            }
+        });
 
-            const original = document.body.innerHTML;
-            document.body.innerHTML = printArea.innerHTML;
-            window.print();
-            document.body.innerHTML = original;
-            window.location.reload();
-        }, 300);
+        setConfirmOpen(true);
     };
+
 
 
     return (
@@ -152,7 +149,6 @@ export default function AppointmentTable() {
                                 <TableHead>Actions</TableHead>
                                 <TableHead>View</TableHead>
                                 <TableHead>Prescription</TableHead>
-                                <TableHead>Zoom</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -229,20 +225,23 @@ export default function AppointmentTable() {
                                         <Button onClick={() => router.push(`/doctor/appointments/${item.appointmentId}`)} variant="ghost" size="icon" className='cursor-pointer'>
                                             <Eye className="h-4 w-4" />
                                         </Button>
-                                        <Button onClick={() => handleDownload(item)} variant="ghost" size="icon" className='cursor-pointer'>
+                                        <Button onClick={() => generateReceiptPdf(item)} variant="ghost" size="icon" className='cursor-pointer'>
                                             <Download className="h-4 w-4" />
                                         </Button>
                                     </TableCell>
                                     <TableCell>
-                                        <Button variant="link" size="sm">
-                                            Show Prescription
-                                        </Button>
+                                        {
+                                            item?.prescriptions && item?.prescriptions.length > 0 ? (
+                                                <Button variant="link" size="sm" onClick={() => generatePrescriptionPdf(item, item.prescriptions)}>
+                                                    Show Prescription
+                                                </Button>
+                                            ) : (
+                                                "No Prescription Uploaded"
+                                            )
+                                        }
+
                                     </TableCell>
-                                    <TableCell>
-                                        <Button variant="link" size="sm">
-                                            Create Meeting
-                                        </Button>
-                                    </TableCell>
+
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -251,9 +250,21 @@ export default function AppointmentTable() {
                 <Pagination totalPages={totalPages} page={page} setPage={setPage} />
             </div>
 
-            <div className="hidden">
-                {selectedAppointment && <Receipt booking={selectedAppointment} />}
-            </div>
+
+            {
+                confirmOpen &&
+                <ConfirmModal
+                    variant="info"
+                    title={confirmTitle}
+                    description={confirmDescription}
+                    onConfirm={confirmAction}
+                    onCancel={() => setConfirmOpen(false)}
+                    confirmLabel="Yes"
+                    cancelLabel="Cancel"
+                />
+            }
+
+
         </div>
     );
 }

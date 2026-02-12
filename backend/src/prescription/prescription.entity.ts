@@ -19,13 +19,18 @@ export class Prescription {
   doctorId: number;
 
   @Column({ type: 'json' })
-  medicines: any; // [{name, dose, time, days}]
+  medicines: {
+    name: string;
+    dosage: string;
+    duration: string;
+    instructions: string;
+  }[];
 
   @Column({ type: 'text', nullable: true })
   advice: string;
 
-  @Column({ type: 'date', nullable: true })
-  nextFollowUpDate: string;
+  @Column({ nullable: true })
+  followUpDate: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -33,9 +38,9 @@ export class Prescription {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => Appointment, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'appointmentId' })
-  appointment: Appointment;
+  // @ManyToOne(() => Appointment, { nullable: true, onDelete: 'SET NULL' })
+  // @JoinColumn({ name: 'appointmentId' })
+  // appointment: Appointment;
 
   @ManyToOne(() => CaseFile, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'caseId' })
@@ -44,4 +49,10 @@ export class Prescription {
   @ManyToOne(() => Doctor, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'doctorId' })
   doctor: Doctor;
+
+  @ManyToOne(() => Appointment, (appointment) => appointment.prescriptions, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'appointmentId' })
+  appointment: Appointment;
 }

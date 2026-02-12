@@ -1,10 +1,11 @@
 "use client";
-import Receipt from '@/components/Receipt';
+
 import { Button } from '@/components/ui/button';
 import Breadcrumb from '@/components/ui/custom/breadcrumb';
 import { ConfirmModal } from '@/components/ui/custom/ConfirmModal';
 import Pagination from '@/components/ui/custom/pagination';
 import { AxiosInstance } from '@/helpers/Axios.instance';
+import { generateReceiptPdf } from '@/helpers/generateReceipt';
 import { AppointmentDetails } from '@/types/appointment';
 import { Download, Eye } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -39,7 +40,6 @@ const Appointments = () => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState("");
-    const [selectedAppointment, setSelectedAppointment] = useState<AppointmentDetails>();
     const [deleteId, setDeleteId] = useState<number | null>(null);
 
     const fetchAppointments = async () => {
@@ -57,20 +57,7 @@ const Appointments = () => {
     }, [page, search]);
 
 
-    const handleDownload = (appointment: AppointmentDetails) => {
-        setSelectedAppointment(appointment);
-
-        setTimeout(() => {
-            const printArea = document.getElementById("print-area");
-            if (!printArea) return;
-
-            const original = document.body.innerHTML;
-            document.body.innerHTML = printArea.innerHTML;
-            window.print();
-            document.body.innerHTML = original;
-            window.location.reload();
-        }, 300);
-    };
+    
     const confirmCancelAppointment = async () => {
         if (!deleteId) return;
 
@@ -176,7 +163,7 @@ const Appointments = () => {
                                                 </button>
 
                                                 <button
-                                                    onClick={() => handleDownload(appointment)}
+                                                    onClick={() => generateReceiptPdf(appointment)}
                                                     className="px-3 py-1 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                                                 >
                                                     <Download className="w-5 h-5" />
@@ -209,9 +196,7 @@ const Appointments = () => {
                 </div>
 
             </div>
-            <div className="hidden">
-                {selectedAppointment && <Receipt booking={selectedAppointment} />}
-            </div>
+            
 
             {deleteId && (
                 <ConfirmModal

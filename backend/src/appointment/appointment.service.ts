@@ -240,12 +240,45 @@ export class AppointmentService {
         };
     }
 
-    async doctorAppointments(userId: number, page = 1, limit = 10, search = '') {
+    // async doctorAppointments(userId: number, page = 1, limit = 10, search = '') {
+    //     const qb = this.appointmentRepository
+    //         .createQueryBuilder('a')
+    //         .leftJoinAndSelect('a.user', 'user')
+    //         .leftJoinAndSelect('a.hospital', 'hospital')
+    //         .where('a.doctorId = :userId', { userId })
+    //         .andWhere('a.appointmentStatus != :status', { status: 'NoFill' });
+
+    //     if (search) {
+    //         qb.andWhere(
+    //             '(a.appointmentId LIKE :search OR user.username LIKE :search OR a.appointmentStatus LIKE :search)',
+    //             { search: `%${search}%` },
+    //         );
+    //     }
+
+    //     const [data, total] = await qb
+    //         .skip((page - 1) * limit)
+    //         .take(limit)
+    //         .orderBy('a.createdAt', 'DESC')
+    //         .getManyAndCount();
+
+    //     return {
+    //         data,
+    //         total,
+    //         page,
+    //         lastPage: Math.ceil(total / limit),
+    //     };
+    // }
+
+    async doctorAppointments(userId: number, page = 1, limit = 10, search = '', patientId = '') {
+
         const qb = this.appointmentRepository
             .createQueryBuilder('a')
             .leftJoinAndSelect('a.user', 'user')
-            .leftJoinAndSelect('a.hospital', 'hospital')
+            .leftJoinAndSelect('a.doctor', 'doctor')
+            .leftJoinAndSelect('doctor.hospital', 'hospital')
+            .leftJoinAndSelect('a.prescriptions', 'prescription')
             .where('a.doctorId = :userId', { userId })
+            // .andWhere('a.patientId = :patientId', { patientId })
             .andWhere('a.appointmentStatus != :status', { status: 'NoFill' });
 
         if (search) {
@@ -268,6 +301,7 @@ export class AppointmentService {
             lastPage: Math.ceil(total / limit),
         };
     }
+
 
     async updateStatus(id: number, status: string) {
         const appointment = await this.appointmentRepository.findOne({ where: { id } });

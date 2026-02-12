@@ -1,6 +1,10 @@
 export interface AppointmentDetails {
   appointmentFor: string;
+  appointmentStatus: string;
   id: number;
+  phoneNumber: string;
+  discountAmount: number;
+  transactionId: string;
   appointmentId: string;
   patientName: string;
   patientAge: number;

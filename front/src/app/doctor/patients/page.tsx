@@ -1,110 +1,170 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from "@/components/ui/pagination"
-import { Eye, Pencil, Trash2, CalendarPlus } from "lucide-react"
 import Breadcrumb from "@/components/ui/custom/breadcrumb"
+import Pagination from "@/components/ui/custom/pagination"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Eye } from "lucide-react"
+import { AxiosInstance } from "@/helpers/Axios.instance"
+import Link from "next/link"
 
-const patients = [
-    {
-        id: 1,
-        name: "Vincent Patient",
-        email: "Confidential",
-        status: true,
-        avatar: "https://randomuser.me/api/portraits/men/1.jpg"
-    },
-    {
-        id: 2,
-        name: "Premium Patient",
-        email: "Confidential",
-        status: true,
-        avatar: "https://randomuser.me/api/portraits/women/2.jpg"
-    }
-]
-
+interface Patient {
+  id: number
+  totalAppointments: string
+  patientEmail: string
+  patientId: number
+  patientName: string
+  patientNumber: string
+}
 export default function PatientsPage() {
-    const [search, setSearch] = useState("")
 
-    const filteredPatients = patients.filter(p =>
-        p.name.toLowerCase().includes(search.toLowerCase())
-    )
+  const [patients, setPatients] = useState<Patient[]>([])
+  const [search, setSearch] = useState("")
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [loading, setLoading] = useState(false)
 
-    return (
-        <div className="p-4">
-            <Breadcrumb title="Patients" />
 
-            <div className="p-6 space-y-6 rounded-md border bg-white shadow-sm overflow-hidden">
-                <div className="flex justify-end items-end">
-                    <Button variant="link" size="sm" className="flex items-center gap-2" >Add New</Button>
-                </div>
+  const fetchPatients = async () => {
+    try {
+      setLoading(true)
 
-                <div className="flex items-center justify-between">
-                    <div>
-                        <Button>Export</Button>
-                    </div>
-                    <Input
-                        placeholder="Search"
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        className="w-64"
-                    />
-                </div>
+      const res = await AxiosInstance.get(
+        `/patient/my-patients?search=${search}&page=${page}`
+      )
 
-                <div className="overflow-x-auto rounded-md border">
-                    <table className="w-full text-sm">
-                        <thead className="bg-gray-100 text-left">
-                            <tr>
-                                <th className="p-4"><input type="checkbox" /></th>
-                                <th className="p-4">#</th>
-                                <th className="p-4">User Name</th>
-                                <th className="p-4">Email</th>
-                                <th className="p-4">Status</th>
-                                <th className="p-4">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredPatients.map((patient, index) => (
-                                <tr key={patient.id} className="border-t">
-                                    <td className="p-4"><input type="checkbox" /></td>
-                                    <td className="p-4">{index + 1}</td>
-                                    <td className="p-4 flex items-center gap-2">
-                                        <Avatar>
-                                            <AvatarImage src={patient.avatar} />
-                                            <AvatarFallback>{patient.name[0]}</AvatarFallback>
-                                        </Avatar>
-                                        <span className="text-blue-600">{patient.name}</span>
-                                    </td>
-                                    <td className="p-4">{patient.email}</td>
-                                    <td className="p-4">
-                                        <Switch checked={patient.status} />
-                                    </td>
-                                    <td className="p-4 flex gap-2 text-blue-600">
-                                        <Eye className="cursor-pointer" />
-                                        <Pencil className="cursor-pointer text-green-600" />
-                                        <Trash2 className="cursor-pointer text-red-600" />
-                                        <CalendarPlus className="cursor-pointer" />
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+      setPatients(res.data.data || res.data)
+      setTotalPages(res.data.totalPages || 1)
 
-                <div className="flex justify-between items-center text-sm text-gray-600">
-                    <div>Showing 1 to {filteredPatients.length} of {patients.length} entries</div>
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationLink isActive>1</PaginationLink>
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
-                </div>
-            </div>
+    } catch (error) {
+      console.error("Error fetching patients:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      setPage(1)
+      fetchPatients()
+    }, 500)
+
+    return () => clearTimeout(delayDebounce)
+  }, [search])
+
+
+  useEffect(() => {
+    fetchPatients()
+  }, [page])
+
+  return (
+    <div className="p-4">
+      <Breadcrumb title="Patients" />
+
+      <div className="p-6 space-y-6 rounded-md border bg-white shadow-sm">
+
+        {/* HEADER */}
+        <div className="flex items-center justify-between">
+          <Button>Export</Button>
+
+          <Input
+            placeholder="Search by name / email / mobile"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-72"
+          />
         </div>
-    )
+
+        {/* TABLE */}
+        <div className="overflow-x-auto rounded-md border">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-100 text-left">
+              <tr>
+                <th className="p-4">#</th>
+                <th className="p-4">Patient</th>
+                <th className="p-4">Email</th>
+                <th className="p-4">Mobile</th>
+                <th className="p-4 text-center">Appointments</th>
+                <th className="p-4 text-center">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {loading && (
+                <tr>
+                  <td colSpan={6} className="p-6 text-center">
+                    Loading patients...
+                  </td>
+                </tr>
+              )}
+
+              {!loading && patients.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="p-6 text-center">
+                    No patients found
+                  </td>
+                </tr>
+              )}
+
+              {!loading && patients.map((patient, index) => (
+                <tr key={patient.patientId} className="border-t hover:bg-gray-50">
+
+                  <td className="p-4">
+                    {(page - 1) * 10 + index + 1}
+                  </td>
+
+                  <td className="p-4 flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src="" />
+                      <AvatarFallback>
+                        {patient.patientName?.[0] || "P"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-blue-600 font-medium">
+                      {patient.patientName}
+                    </span>
+                  </td>
+
+                  <td className="p-4">
+                    {patient.patientEmail || "-"}
+                  </td>
+
+                  <td className="p-4">
+                    {patient.patientNumber || "-"}
+                  </td>
+
+                  <td className="p-4 text-center">
+                    <span className="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">
+                      {patient.totalAppointments}
+                    </span>
+                  </td>
+
+                  <td className="p-4 text-center">
+                    <Link href={`/doctor/patients/${patient.id}`} >
+                      <Eye className="cursor-pointer text-blue-600 hover:scale-110 transition" />
+                    </Link>
+                  </td>
+
+                </tr>
+              ))}
+
+            </tbody>
+          </table>
+        </div>
+
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <Pagination
+            totalPages={totalPages}
+            page={page}
+            setPage={setPage}
+          />
+        )}
+
+      </div>
+    </div>
+  )
 }

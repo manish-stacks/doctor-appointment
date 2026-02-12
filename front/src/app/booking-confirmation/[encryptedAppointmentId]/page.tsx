@@ -1,19 +1,19 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { CheckCircle, XCircle, Calendar, Clock, MapPin, User, Phone, IndianRupee, Download, Home, FileText } from "lucide-react";
 import Image from "next/image";
-import { AppointmentDetails } from "@/types/appointment";
-import { AxiosInstance } from "@/helpers/Axios.instance";
+import { useEffect, useState } from "react";
 import { decryptId } from "@/helpers/Helper";
-import Receipt from "@/components/Receipt";
+import { AxiosInstance } from "@/helpers/Axios.instance";
+import { AppointmentDetails } from "@/types/appointment";
+import { generateReceiptPdf } from "@/helpers/generateReceipt";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { CheckCircle, XCircle, Calendar, Clock, MapPin, User, Phone, IndianRupee, Download, Home, FileText, Info } from "lucide-react";
+
 
 export default function BookingConfirmation() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = useParams();
-  const success = searchParams.get("success") === "true";
+  const success = searchParams?.get("success") === "true";
   const encryptedAppointmentId = params?.encryptedAppointmentId as string;
 
   const [loading, setLoading] = useState(true);
@@ -43,16 +43,7 @@ export default function BookingConfirmation() {
   }, [encryptedAppointmentId]);
 
 
-  const handleDownload = () => {
-    const printContents = document.getElementById("print-area")!.innerHTML;
-    const originalContents = document.body.innerHTML;
-
-    document.body.innerHTML = printContents;
-    window.print();
-    document.body.innerHTML = originalContents;
-    window.location.reload();
-  };
-
+  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -81,7 +72,7 @@ export default function BookingConfirmation() {
             Unfortunately, your booking could not be completed. Please try again.
           </p>
           <div className="text-sm text-gray-500 mb-6">
-            Redirecting to home in <span className="font-semibold text-red-600">{countdown}</span> seconds...
+            Redirecting to home in <span className="font-semibold text-red-600">{0}</span> seconds...
           </div>
           <button
             onClick={() => router.push("/")}
@@ -178,7 +169,7 @@ export default function BookingConfirmation() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Contact Number</p>
-                    <p className="text-gray-900 font-semibold">+91 {booking.phoneNumber}</p>
+                    <p className="text-gray-900 font-semibold">+91 {booking?.phoneNumber}</p>
                   </div>
                 </div>
 
@@ -188,7 +179,7 @@ export default function BookingConfirmation() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Hospital Address</p>
-                    <p className="text-gray-900 font-semibold">{booking.hospital?.address}</p>
+                    <p className="text-gray-900 font-semibold">{booking?.hospital?.address}</p>
                   </div>
                 </div>
               </div>
@@ -229,7 +220,7 @@ export default function BookingConfirmation() {
           {/* Important Information */}
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-6">
             <h3 className="font-semibold text-amber-900 mb-3 flex items-center gap-2">
-              <span className="text-xl">ℹ️</span>
+             <Info className="w-4 h-4" />
               Important Information
             </h3>
             <ul className="space-y-2 text-sm text-amber-800">
@@ -255,7 +246,7 @@ export default function BookingConfirmation() {
           {/* Action Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
-              onClick={handleDownload}
+              onClick={() => generateReceiptPdf(booking)}
               className="flex items-center justify-center gap-2 px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
             >
               <Download className="w-5 h-5" />
@@ -285,10 +276,7 @@ export default function BookingConfirmation() {
           </div>
         </div>
       </div>
-      {/* Hidden for print */}
-      <div className="hidden">
-        <Receipt booking={booking} />
-      </div>
+      
     </>
   );
 }

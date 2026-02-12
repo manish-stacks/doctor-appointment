@@ -3,8 +3,9 @@ import { CaseFile } from 'src/case/case.entity';
 import { Doctor } from 'src/doctor/doctor.entity';
 import { Hospital } from 'src/hospital/hospital.entity';
 import { Patient } from 'src/patient/patient.entity';
+import { Prescription } from 'src/prescription/prescription.entity';
 import { User } from 'src/user/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 
 @Entity('appointments')
 export class Appointment {
@@ -143,4 +144,7 @@ export class Appointment {
     @ManyToOne(() => CaseFile, { nullable: true, onDelete: 'SET NULL' })
     @JoinColumn({ name: 'caseId' })
     case: CaseFile;
+
+    @OneToMany(() => Prescription, (prescription) => prescription.appointment)
+    prescriptions: Prescription[];
 }

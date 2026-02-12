@@ -8,6 +8,7 @@ import confetti from 'canvas-confetti';
 import { encryptId } from "@/helpers/Helper";
 import { userDetails } from "@/types/store";
 
+
 export function DoctorDashboard() {
   const userDetails = useUserStore((state) => state.getUserDetails);
   const [userdata, setUserData] = useState<userDetails | null>(null);
@@ -41,9 +42,7 @@ export function DoctorDashboard() {
       console.error('Doctor ID is not available');
       return;
     }
-    // const encryptedDoctorId = encryptId(String(doctorId));
-    // const link = `${window.location.origin}/doctor-profile/${encryptedDoctorId}`;
-
+    
     const encryptedDoctorId = encryptId(String(doctorId));
     const encodedEncryptedDoctorId = encodeURIComponent(encryptedDoctorId);
     const link = `${window.location.origin}/profile/${encodedEncryptedDoctorId}`;

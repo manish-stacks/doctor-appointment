@@ -46,19 +46,20 @@ export default function Header() {
 
 
   const redirectToDashboard = () => {
-    console.log(userdata?.role)
-
     if (userdata?.role === 'patient' || userdata?.role === 'user') {
+      console.log("redirect")
       router.push('/patient/dashboard');
+      return;
     } else if (userdata?.role === 'doctor') {
       router.push('/doctor/dashboard');
+      return
     }
   };
 
   return (
     <>
       <TopInfoBar />
-      <header className={`sticky top-0 z-40 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-md' : 'bg-white/90 backdrop-blur-sm'
+      <header className={`sticky top-0 z-[99] transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-md' : 'bg-white/90 backdrop-blur-sm'
         }`}>
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex justify-between items-center">

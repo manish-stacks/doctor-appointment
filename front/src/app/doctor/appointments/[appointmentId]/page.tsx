@@ -3,23 +3,49 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AxiosInstance } from "@/helpers/Axios.instance";
 import { AppointmentDetails } from "@/types/appointment";
-import { Calendar, Clock, Phone, MapPin, IndianRupee, Video, Download, Check } from "lucide-react";
-import Receipt from "@/components/Receipt";
+import { Calendar, Clock, Phone, MapPin, IndianRupee, Video, Download, Check, DownloadCloud } from "lucide-react";
+
 import RescheduleModal from "@/components/RescheduleModal";
+import PrescriptionModal from "@/components/PrescriptionModal";
+import { generatePrescriptionPdf } from "@/helpers/generatePrescriptionPdf";
+import { generateReceiptPdf } from "@/helpers/generateReceipt";
 
 
 export default function AppointmentDetail() {
-    const { appointmentId } = useParams<{ appointmentId: string }>();
+    const { appointmentId } = useParams<{ appointmentId: string }>() || {};
     const [appointment, setAppointment] = useState<AppointmentDetails | null>(null);
     const [showReschedule, setShowReschedule] = useState(false);
+    const [showPrescription, setShowPrescription] = useState(false);
+    const [prescription, setPrescription] = useState(null);
 
-    useEffect(() => {
-        const fetchDetail = async () => {
+
+    const fetchPrescription = async () => {
+        try {
+            const { data } = await AxiosInstance.get(
+                `/prescription/appointment/${appointment?.id}`
+            );
+            setPrescription(data);
+        } catch (error) {
+            console.error("Failed to fetch prescription details", error);
+        }
+    };
+    const fetchDetail = async () => {
+        try {
             const { data } = await AxiosInstance.get(`/appointment/${appointmentId}/booking`);
             setAppointment(data);
-        };
+        } catch (error) {
+            console.error("Failed to fetch appointment details", error);
+        }
+    };
+    useEffect(() => {
+        if (!appointmentId) return;
         fetchDetail();
     }, [appointmentId]);
+
+    useEffect(() => {
+        if (!appointment?.id) return;
+        fetchPrescription();
+    }, [appointment?.id]);
 
     if (!appointment) {
         return (
@@ -45,22 +71,14 @@ export default function AppointmentDetail() {
             CancelledByDoctor: 'bg-red-100 text-red-600',
             Remaining: 'bg-red-100 text-red-600',
             Paid: 'bg-green-100 text-green-600',
+            Pending: 'bg-yellow-100 text-yellow-600',
         };
-        return styles[status] || styles.Pending;
+
+        return styles[status as keyof typeof styles] || styles.Pending;
     };
 
-    const handleDownload = () => {
 
-        const printArea = document.getElementById("print-area");
-        if (!printArea) return;
 
-        const original = document.body.innerHTML;
-        document.body.innerHTML = printArea.innerHTML;
-        window.print();
-        document.body.innerHTML = original;
-        window.location.reload();
-
-    };
 
     return (
         <div className="min-h-screen py-8 px-4">
@@ -69,12 +87,50 @@ export default function AppointmentDetail() {
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
                     <div className="flex items-center justify-between flex-wrap gap-4">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900 mb-1">Appointment Details</h1>
-                            <p className="text-sm text-gray-500">Appointment ID: {appointment.appointmentId}</p>
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900 mb-1">Appointment Details</h1>
+                                <p className="text-sm text-gray-500 mb-2">Appointment ID: {appointment.appointmentId}</p>
+                            </div>
                         </div>
-                        <span className={`px-4 py-2 rounded-md border font-medium text-sm ${getStatusBadge(appointment.appointmentStatus)}`}>
-                            {appointment.appointmentStatus}
-                        </span>
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+                            {/* Left Section */}
+                            <div>
+                                <span
+                                    className={`px-4 py-2 rounded-md border font-medium text-sm ${getStatusBadge(
+                                        appointment?.appointmentStatus
+                                    )}`}
+                                >
+                                    {appointment.appointmentStatus}
+                                </span>
+                            </div>
+
+                            {/* Right Section */}
+                            <div className="flex items-center gap-3 flex-wrap">
+
+
+                                {prescription && (
+                                    <button
+                                        onClick={() =>
+                                            generatePrescriptionPdf(appointment, prescription)
+                                        }
+                                        className="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2"
+                                    >
+                                        <DownloadCloud className="w-4 h-4" />
+                                        Download Prescription
+                                    </button>
+                                )}
+                            </div>
+                            <button
+                                onClick={() => setShowPrescription(true)}
+                                className="bg-purple-600 text-white px-4 py-2 rounded-md flex"
+                            >
+                                {prescription ? "Edit Prescription" : "Add Prescription"}
+                            </button>
+                        </div>
+
+
+
                     </div>
                 </div>
 
@@ -183,7 +239,7 @@ export default function AppointmentDetail() {
                                 )}
 
                                 <button
-                                    onClick={handleDownload} className="flex-1 min-w-[180px] px-5 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md transition-colors flex items-center justify-center gap-2">
+                                    onClick={() => generateReceiptPdf(appointment)} className="flex-1 min-w-[180px] px-5 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md transition-colors flex items-center justify-center gap-2">
                                     <Download className="w-4 h-4" />
                                     Download Receipt
                                 </button>
@@ -313,9 +369,17 @@ export default function AppointmentDetail() {
                 />
             )}
 
-            <div className="hidden">
-                {appointment && <Receipt booking={appointment} />}
-            </div>
+
+            {showPrescription && (
+                <PrescriptionModal
+                    appointmentId={appointment.id}
+                    prescription={prescription}
+                    onClose={() => setShowPrescription(false)}
+                    onSuccess={fetchPrescription}
+                />
+            )}
+
+
         </div>
     );
 }

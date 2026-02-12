@@ -127,8 +127,8 @@ export class DoctorService {
         await this.doctorSubscriptionRepository.save(doctorSubscription);
     }
 
-    async findMe(userId: number) { 
-        return this.doctorRepository.findOne({ where: { userId }, relations: ['user', 'hospital'], }); 
+    async findMe(userId: number) {
+        return this.doctorRepository.findOne({ where: { userId }, relations: ['user', 'hospital'], });
     }
 
     async findOneByUserId(userId: number) {
@@ -194,7 +194,7 @@ export class DoctorService {
         page?: number;
         limit?: number;
     }) {
-        
+
         const page = Number(query.page) || 1;
         const limit = Number(query.limit) || 8;
         const skip = (page - 1) * limit;
@@ -363,5 +363,76 @@ export class DoctorService {
             .take(10)
             .getMany();
     }
+    async getDashboard(doctorId: number) {
 
+        const today = new Date().toISOString().split('T')[0];
+        // YYYY-MM-DD (safe if your date column is string type)
+
+        // ================= TOTAL =================
+        const total = await this.appointmentRepository.count({
+            where: { doctorId },
+        });
+
+        // ================= TODAY =================
+        const todayAppointments = await this.appointmentRepository.count({
+            where: {
+                doctorId,
+                date: today,
+            },
+        });
+
+        // ================= PENDING =================
+        const pending = await this.appointmentRepository.count({
+            where: {
+                doctorId,
+                appointmentStatus: 'Booked',
+            },
+        });
+
+        // ================= COMPLETED =================
+        const completed = await this.appointmentRepository.count({
+            where: {
+                doctorId,
+                appointmentStatus: 'Completed',
+            },
+        });
+
+        // ================= REVENUE =================
+        const revenueResult = await this.appointmentRepository
+            .createQueryBuilder('appointment')
+            .select('SUM(appointment.finalAmount)', 'total')
+            .where('appointment.doctorId = :doctorId', { doctorId })
+            .andWhere('appointment.paymentStatus = :status', { status: 'Paid' })
+            .andWhere('appointment.appointmentStatus = :status', { status: 'Booked' })
+            .getRawOne();
+
+        const revenue = Number(revenueResult?.total || 0);
+
+        // ================= RECENT 5 =================
+        const recentAppointments = await this.appointmentRepository.find({
+            where: { doctorId, appointmentStatus: 'Booked' },
+            order: { createdAt: 'DESC' },
+            take: 5,
+            select: [
+                'id',
+                'appointmentId',
+                'patientName',
+                'date',
+                'time',
+                'finalAmount',
+                'appointmentStatus',
+            ],
+        });
+
+        return {
+            stats: {
+                total,
+                today: todayAppointments,
+                pending,
+                completed,
+                revenue,
+            },
+            recentAppointments,
+        };
+    }
 }

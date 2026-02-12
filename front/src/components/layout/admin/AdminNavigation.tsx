@@ -71,7 +71,7 @@ const AdminNavigation = ({ setSidebarOpen, setProfileDropdownOpen, profileDropdo
                             onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                         >
                             <img
-                                src={userData?.image}
+                                src={userData?.image|| `https://ui-avatars.com/api/?name=${userData?.username}&size=150`}
                                 alt="Doctor profile"
                                 className="h-8 w-8 rounded-full object-cover ring-2 ring-white"
                             />

@@ -33,7 +33,7 @@ export class PatientController {
         return this.patientService.findAll(patientId, page, limit, search);
     }
 
-   
+
     @Put('my-family/:id')
     updateFamily(@Param('id') id: number, @Body() dto: CreatePatientDto) {
         return this.patientService.update(id, dto);
@@ -42,6 +42,14 @@ export class PatientController {
     @Delete('my-family/:id')
     deleteFamily(@Param('id') id: number) {
         return this.patientService.remove(id);
+    }
+
+    @Get('my-patients')
+    myPatients(
+        @Request() req: { user: { id: number } },
+        @Query('search') search?: string
+    ) {
+        return this.patientService.findMyPatients(req.user.id, search);
     }
 
 

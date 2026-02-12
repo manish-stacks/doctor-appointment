@@ -5,12 +5,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Patient } from './patient.entity';
 import { CreatePatientDto } from './patient.dto';
+import { Appointment } from 'src/appointment/appointment.entity';
 
 @Injectable()
 export class PatientService {
   constructor(
     @InjectRepository(Patient)
     private patientRepo: Repository<Patient>,
+
+    @InjectRepository(Appointment)
+    private appointmentRepo: Repository<Appointment>,
   ) { }
 
   async findMyPatient(userId: number, relation: string) {
@@ -67,4 +71,38 @@ export class PatientService {
     await this.patientRepo.delete(id);
     return { message: 'Deleted successfully' };
   }
+
+  async findMyPatients(userId: number, search?: string) {
+
+    const query = this.appointmentRepo
+      .createQueryBuilder('appointment')
+      .where('appointment.doctorId = :userId', { userId });
+
+    // 🔎 Dynamic search
+    if (search) {
+      query.andWhere(
+        `(appointment.patientName LIKE :search 
+        OR appointment.patientEmail LIKE :search 
+        OR appointment.patientNumber LIKE :search)`,
+        { search: `%${search}%` }
+      );
+    }
+
+    return query
+      .select([
+        'appointment.patientId as patientId',
+        'appointment.patientName as patientName',
+        'appointment.patientEmail as patientEmail',
+        'appointment.patientNumber as patientNumber',
+        'COUNT(appointment.id) as totalAppointments'
+      ])
+      .groupBy('appointment.patientId')
+      .addGroupBy('appointment.patientName')
+      .addGroupBy('appointment.patientEmail')
+      .addGroupBy('appointment.patientNumber')
+      .getRawMany();
+  }
+
+
+
 }

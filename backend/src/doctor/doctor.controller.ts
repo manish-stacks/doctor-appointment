@@ -68,7 +68,7 @@ export class DoctorController {
   }) {
     return this.doctorService.findAll(query);
   }
-  
+
   @Get('locations')
   getLocations() {
     return this.doctorService.getLocations();
@@ -78,6 +78,12 @@ export class DoctorController {
   @Get('search')
   async searchDoctor(@Query('q') q: string) {
     return this.doctorService.searchDoctor(q);
+  }
+  @UseGuards(JwtAuthGuard)
+
+  @Get('dashboard')
+  async getDashboard(@Request() req: { user: { id: number; } }) {
+    return this.doctorService.getDashboard(req.user.id);
   }
 
 
