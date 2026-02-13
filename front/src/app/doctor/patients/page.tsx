@@ -9,6 +9,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Eye } from "lucide-react"
 import { AxiosInstance } from "@/helpers/Axios.instance"
 import Link from "next/link"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Patient {
   id: number
@@ -16,7 +22,8 @@ interface Patient {
   patientEmail: string
   patientId: number
   patientName: string
-  patientNumber: string
+  patientPhone: string
+  patientUniqId: string
 }
 export default function PatientsPage() {
 
@@ -25,7 +32,7 @@ export default function PatientsPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
-
+  const [exporting, setExporting] = useState(false);
 
   const fetchPatients = async () => {
     try {
@@ -59,6 +66,41 @@ export default function PatientsPage() {
     fetchPatients()
   }, [page])
 
+
+  const handleExport = async (type: "csv" | "pdf") => {
+    setExporting(true);
+    try {
+      const res = await AxiosInstance.get(
+        `/patient/export?type=${type}&search=${search}`,
+        {
+          responseType: "blob", 
+        }
+      );
+
+      const blob = new Blob([res.data], {
+        type:
+          type === "csv"
+            ? "text/csv"
+            : "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `patients.${type}`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error("Export failed:", error);
+    }finally{
+      setExporting(false);
+    }
+  };
+
+
   return (
     <div className="p-4">
       <Breadcrumb title="Patients" />
@@ -67,7 +109,15 @@ export default function PatientsPage() {
 
         {/* HEADER */}
         <div className="flex items-center justify-between">
-          <Button>Export</Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button>{exporting ? "Exporting..." : "Export ▼"}</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => handleExport("csv")}>Export as CSV</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport("pdf")}>Export as PDF</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Input
             placeholder="Search by name / email / mobile"
@@ -124,7 +174,7 @@ export default function PatientsPage() {
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-blue-600 font-medium">
-                      {patient.patientName}
+                      {patient.patientName}{patient.patientUniqId && ` (${patient.patientUniqId})`}
                     </span>
                   </td>
 
@@ -133,7 +183,7 @@ export default function PatientsPage() {
                   </td>
 
                   <td className="p-4">
-                    {patient.patientNumber || "-"}
+                    {patient.patientPhone || "-"}
                   </td>
 
                   <td className="p-4 text-center">
@@ -143,7 +193,7 @@ export default function PatientsPage() {
                   </td>
 
                   <td className="p-4 text-center">
-                    <Link href={`/doctor/patients/${patient.id}`} >
+                    <Link href={`/doctor/patients/${patient.patientId}`} >
                       <Eye className="cursor-pointer text-blue-600 hover:scale-110 transition" />
                     </Link>
                   </td>

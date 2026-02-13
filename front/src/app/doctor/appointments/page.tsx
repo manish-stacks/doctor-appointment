@@ -28,8 +28,8 @@ import { ConfirmModal } from '@/components/ui/custom/ConfirmModal';
 import { generateReceiptPdf } from '@/helpers/generateReceipt';
 import { generatePrescriptionPdf } from '@/helpers/generatePrescriptionPdf';
 
-type PaymentStatus = 'Remaining' | 'Paid';
-type AppointmentStatus = 'Available' | 'Booked' | 'Hold' | 'Approved' | 'Rescheduled' | 'Completed' | 'CancelledByUser' | 'Cancelled' | 'CancelledByDoctor';
+export type PaymentStatus = 'Remaining' | 'Paid';
+export type AppointmentStatus = 'Available' | 'Booked' | 'Hold' | 'Approved' | 'Rescheduled' | 'Completed' | 'CancelledByUser' | 'Cancelled' | 'CancelledByDoctor';
 
 
 

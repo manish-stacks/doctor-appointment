@@ -115,32 +115,64 @@ export class AppointmentService {
 
     async updateStep1(id: number, body: stepOneDto, userId: number) {
 
-        if (!body.selectedPatientId && body.appointmentFor !== 'For me') throw new Error('Please select a patient');
+        if (!body.selectedPatientId && body.appointmentFor !== 'For me') {
+            throw new Error('Please select a patient');
+        }
+
         const appointment = await this.appointmentRepository.findOne({ where: { id } });
         if (!appointment) throw new Error('Appointment not found');
 
         let patientId: number | null = null;
 
-        // SELF CASE
+
         if (body.appointmentFor === 'For me') {
-            await this.userRepository.update(userId, {
-                email: body.email,
-                username: body.patientName,
-                phone: body.phoneNumber,
-                address: body.patientAddress,
-                age: Number(body.patientAge),
+
+            // Check if self patient already exists
+            const selfPatient = await this.patientRepository.findOne({
+                where: {
+                    userId: userId,
+                    relation: 'For me'
+                }
             });
 
-            patientId = null; // SELF → no patient table entry
+            if (selfPatient) {
+                // UPDATE existing self patient
+                await this.patientRepository.update(selfPatient.id, {
+                    name: body.patientName,
+                    age: Number(body.patientAge),
+                    email: body.email,
+                    phone: body.phoneNumber
+                });
+
+                patientId = selfPatient.id;
+
+            } else {
+                // CREATE self patient first time
+                const newSelfPatient = await this.patientRepository.save({
+                    userId,
+                    patientId: 'PAT' + Date.now().toString().slice(-6),
+                    name: body.patientName,
+                    age: Number(body.patientAge),
+                    relation: 'For me',
+                    email: body.email,
+                    phone: body.phoneNumber
+                });
+
+                patientId = newSelfPatient.id;
+            }
         }
+
 
         // NEW PATIENT
         if (body.selectedPatientId === 'new') {
             const newPatient = await this.patientRepository.save({
                 userId,
+                patientId: 'PAT' + Date.now().toString().slice(-6),
                 name: body.patientName,
                 age: Number(body.patientAge),
                 relation: body.appointmentFor,
+                email: body.email,
+                phone: body.phoneNumber
             });
 
             patientId = newPatient.id;
@@ -151,6 +183,7 @@ export class AppointmentService {
             patientId = Number(body.selectedPatientId);
         }
 
+        // UPDATE APPOINTMENT
         await this.appointmentRepository.update(id, {
             patientId: patientId,
             appointmentFor: body.appointmentFor,
@@ -164,14 +197,9 @@ export class AppointmentService {
             patientName: body.patientName,
         });
 
-        // return this.appointmentRepository.findOne({
-        //     where: { id },
-        //     relations: ['user', 'hospital', 'doctor', 'patient'],
-        // });
         return this.findOneAppointment(id);
-
-
     }
+
 
     async updateBooking(id: number, data: BookingPayload, images: string[]) {
 
@@ -216,6 +244,7 @@ export class AppointmentService {
             .createQueryBuilder('a')
             .leftJoinAndSelect('a.doctor', 'doctor')
             .leftJoinAndSelect('doctor.hospital', 'hospital')
+            .leftJoinAndSelect('a.prescriptions', 'prescription')
             .where('a.userId = :userId', { userId })
             .andWhere('a.appointmentStatus != :status', { status: 'NoFill' });
 
@@ -240,36 +269,14 @@ export class AppointmentService {
         };
     }
 
-    // async doctorAppointments(userId: number, page = 1, limit = 10, search = '') {
-    //     const qb = this.appointmentRepository
-    //         .createQueryBuilder('a')
-    //         .leftJoinAndSelect('a.user', 'user')
-    //         .leftJoinAndSelect('a.hospital', 'hospital')
-    //         .where('a.doctorId = :userId', { userId })
-    //         .andWhere('a.appointmentStatus != :status', { status: 'NoFill' });
 
-    //     if (search) {
-    //         qb.andWhere(
-    //             '(a.appointmentId LIKE :search OR user.username LIKE :search OR a.appointmentStatus LIKE :search)',
-    //             { search: `%${search}%` },
-    //         );
-    //     }
-
-    //     const [data, total] = await qb
-    //         .skip((page - 1) * limit)
-    //         .take(limit)
-    //         .orderBy('a.createdAt', 'DESC')
-    //         .getManyAndCount();
-
-    //     return {
-    //         data,
-    //         total,
-    //         page,
-    //         lastPage: Math.ceil(total / limit),
-    //     };
-    // }
-
-    async doctorAppointments(userId: number, page = 1, limit = 10, search = '', patientId = '') {
+    async doctorAppointments(
+        userId: number,
+        page = 1,
+        limit = 10,
+        search = '',
+        patientId?: number
+    ) {
 
         const qb = this.appointmentRepository
             .createQueryBuilder('a')
@@ -278,8 +285,11 @@ export class AppointmentService {
             .leftJoinAndSelect('doctor.hospital', 'hospital')
             .leftJoinAndSelect('a.prescriptions', 'prescription')
             .where('a.doctorId = :userId', { userId })
-            // .andWhere('a.patientId = :patientId', { patientId })
             .andWhere('a.appointmentStatus != :status', { status: 'NoFill' });
+
+        if (patientId) {
+            qb.andWhere('a.patientId = :patientId', { patientId });
+        }
 
         if (search) {
             qb.andWhere(
@@ -301,6 +311,7 @@ export class AppointmentService {
             lastPage: Math.ceil(total / limit),
         };
     }
+
 
 
     async updateStatus(id: number, status: string) {
@@ -410,5 +421,12 @@ export class AppointmentService {
                 patient: true,
             },
         });
+    }
+
+    async markAsPaid(id: number) {
+        const appointment = await this.appointmentRepository.findOne({ where: { id } });
+        if (!appointment) return 'Appointment not found';
+        appointment.paymentStatus = 'Paid';
+        return this.appointmentRepository.save(appointment);
     }
 }

@@ -3,12 +3,33 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AxiosInstance } from "@/helpers/Axios.instance";
 import { AppointmentDetails } from "@/types/appointment";
-import { Calendar, Clock, Phone, MapPin, IndianRupee, Video, Download, Check, DownloadCloud } from "lucide-react";
+import { Calendar, Clock, Phone, MapPin, IndianRupee, Video, Download, Check, DownloadCloud, MessageCircle, Mail } from "lucide-react";
 
 import RescheduleModal from "@/components/RescheduleModal";
 import PrescriptionModal from "@/components/PrescriptionModal";
 import { generatePrescriptionPdf } from "@/helpers/generatePrescriptionPdf";
 import { generateReceiptPdf } from "@/helpers/generateReceipt";
+import toast from "react-hot-toast";
+import { ConfirmModal } from "@/components/ui/custom/ConfirmModal";
+import { AppointmentStatus } from "../page";
+const getStatusBadge = (status: string) => {
+    const styles = {
+        Available: 'bg-green-100 text-green-600',
+        Booked: 'bg-blue-100 text-blue-600',
+        Hold: 'bg-yellow-100 text-yellow-600',
+        Approved: 'bg-purple-100 text-purple-600',
+        Rescheduled: 'bg-orange-100 text-orange-600',
+        Completed: 'bg-gray-100 text-gray-800',
+        CancelledByUser: 'bg-red-100 text-red-600',
+        Cancelled: 'bg-red-100 text-red-600',
+        CancelledByDoctor: 'bg-red-100 text-red-600',
+        Remaining: 'bg-red-100 text-red-600',
+        Paid: 'bg-green-100 text-green-600',
+        Pending: 'bg-yellow-100 text-yellow-600',
+    };
+
+    return styles[status as keyof typeof styles] || styles.Pending;
+};
 
 
 export default function AppointmentDetail() {
@@ -17,7 +38,11 @@ export default function AppointmentDetail() {
     const [showReschedule, setShowReschedule] = useState(false);
     const [showPrescription, setShowPrescription] = useState(false);
     const [prescription, setPrescription] = useState(null);
-
+    const [loading, setLoading] = useState(false);
+    const [confirmTitle, setConfirmTitle] = useState("");
+    const [confirmDescription, setConfirmDescription] = useState("");
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<() => void>(() => { });
 
     const fetchPrescription = async () => {
         try {
@@ -58,26 +83,54 @@ export default function AppointmentDetail() {
         );
     }
 
-    const getStatusBadge = (status: string) => {
-        const styles = {
-            Available: 'bg-green-100 text-green-600',
-            Booked: 'bg-blue-100 text-blue-600',
-            Hold: 'bg-yellow-100 text-yellow-600',
-            Approved: 'bg-purple-100 text-purple-600',
-            Rescheduled: 'bg-orange-100 text-orange-600',
-            Completed: 'bg-gray-100 text-gray-800',
-            CancelledByUser: 'bg-red-100 text-red-600',
-            Cancelled: 'bg-red-100 text-red-600',
-            CancelledByDoctor: 'bg-red-100 text-red-600',
-            Remaining: 'bg-red-100 text-red-600',
-            Paid: 'bg-green-100 text-green-600',
-            Pending: 'bg-yellow-100 text-yellow-600',
-        };
 
-        return styles[status as keyof typeof styles] || styles.Pending;
+
+
+
+    const handleWhatsAppShare = () => {
+        const text = `Appointment Details:
+        Doctor: Dr. ${appointment.doctor?.name}
+        Date: ${appointment.date}
+        Time: ${appointment.time}
+        Hospital: ${appointment.doctor?.hospital?.name}`;
+        window.open(`https://wa.me/${appointment.patientNumber}?text=${encodeURIComponent(text)}`);
     };
 
+    const handleEmailPrescription = () => {
+        window.location.href = `mailto:${appointment.patientEmail}?subject=Prescription&body=Please find your prescription attached.`;
+    };
 
+    const handleMarkAsPaid = async () => {
+        try {
+            setLoading(true);
+            await AxiosInstance.patch(`/appointment/${appointment.id}/mark-paid`);
+            toast.success("Appointment marked as paid.");
+            fetchDetail();
+        } finally {
+            setLoading(false);
+        }
+    };
+    const handleStatusChange = (status: AppointmentStatus) => {
+        if (status === 'Rescheduled') return setShowReschedule(true);
+
+        setConfirmTitle(`Change Status to ${status}?`);
+        setConfirmDescription(`Are you sure you want to change appointment status to ${status}?`);
+
+        setConfirmAction(() => async () => {
+            try {
+                await AxiosInstance.put(`/appointment/${appointment.id}/status`, { status });
+                toast.success("Appointment status updated successfully.");
+                fetchPrescription();
+            } catch (error) {
+                toast.error("Failed to update appointment status.");
+                console.error(error);
+            } finally {
+                setConfirmOpen(false);
+            }
+        });
+
+        setConfirmOpen(true);
+    };
 
 
     return (
@@ -91,6 +144,16 @@ export default function AppointmentDetail() {
                                 <h1 className="text-2xl font-bold text-gray-900 mb-1">Appointment Details</h1>
                                 <p className="text-sm text-gray-500 mb-2">Appointment ID: {appointment.appointmentId}</p>
                             </div>
+                            <select
+                                value={appointment.appointmentStatus}
+                                onChange={(e) => handleStatusChange(e.target.value)}
+                                className="border p-2 rounded "
+                            >
+                                <option value="Approved">Approved</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                                <option value="Rescheduled">Rescheduled</option>
+                            </select>
                         </div>
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
@@ -109,17 +172,7 @@ export default function AppointmentDetail() {
                             <div className="flex items-center gap-3 flex-wrap">
 
 
-                                {prescription && (
-                                    <button
-                                        onClick={() =>
-                                            generatePrescriptionPdf(appointment, prescription)
-                                        }
-                                        className="bg-green-600 hover:bg-green-700 transition text-white px-4 py-2 rounded-md font-medium text-sm flex items-center gap-2"
-                                    >
-                                        <DownloadCloud className="w-4 h-4" />
-                                        Download Prescription
-                                    </button>
-                                )}
+
                             </div>
                             <button
                                 onClick={() => setShowPrescription(true)}
@@ -223,13 +276,7 @@ export default function AppointmentDetail() {
                         {/* Action Buttons */}
                         <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                             <div className="flex flex-wrap gap-3">
-                                <button
-                                    onClick={() => setShowReschedule(true)}
-                                    className="flex-1 min-w-[180px] px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
-                                >
-                                    <Calendar className="w-4 h-4" />
-                                    Reschedule
-                                </button>
+
 
                                 {appointment?.zoomUrl && (
                                     <button className="flex-1 min-w-[180px] px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2">
@@ -239,10 +286,33 @@ export default function AppointmentDetail() {
                                 )}
 
                                 <button
-                                    onClick={() => generateReceiptPdf(appointment)} className="flex-1 min-w-[180px] px-5 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md transition-colors flex items-center justify-center gap-2">
+                                    onClick={() => generateReceiptPdf(appointment)} className="flex-1 min-w-[180px] px-4 py-1 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md transition-colors flex items-center justify-center gap-2">
                                     <Download className="w-4 h-4" />
-                                    Download Receipt
+                                    Receipt
                                 </button>
+                                <button onClick={handleWhatsAppShare} className="flex-1 min-w-[180px] px-4 py-1 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2">
+                                    <MessageCircle size={16} /> WhatsApp
+                                </button>
+                                {prescription && (
+                                    <button
+                                        onClick={() =>
+                                            generatePrescriptionPdf(appointment, prescription)
+                                        }
+                                        className="flex-1 min-w-[180px] px-4 py-1 bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        <DownloadCloud className="w-4 h-4" />
+                                         Prescription
+                                    </button>
+                                )}
+                                {appointment.paymentStatus === "Remaining" && (
+                                    <button
+                                        disabled={loading}
+                                        onClick={handleMarkAsPaid}
+                                        className="flex-1 min-w-[180px] px-4 py-1 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                                    >
+                                        Mark as Paid
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -379,7 +449,18 @@ export default function AppointmentDetail() {
                 />
             )}
 
-
+            {
+                confirmOpen &&
+                <ConfirmModal
+                    variant="info"
+                    title={confirmTitle}
+                    description={confirmDescription}
+                    onConfirm={confirmAction}
+                    onCancel={() => setConfirmOpen(false)}
+                    confirmLabel="Yes"
+                    cancelLabel="Cancel"
+                />
+            }
         </div>
     );
 }

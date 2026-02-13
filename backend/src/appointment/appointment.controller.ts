@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Delete, Get, Param, Post, Put, Request, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Request, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
 import { AppointmentCreateDto } from 'src/doctor/doctor.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -110,8 +110,13 @@ export class AppointmentController {
             body.page || 1,
             body.limit || 10,
             body.search || '',
-            body.patientId || ''
+            body.patientId
         );
     }
 
+
+    @Patch(':id/mark-paid')
+    async markAsPaid(@Param('id') id: number) {
+        return this.appointmentService.markAsPaid(id);
+    }
 }

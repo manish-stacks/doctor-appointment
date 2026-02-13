@@ -12,6 +12,9 @@ export class Patient {
     userId: number; // login user
 
     @Column()
+    patientId: string;
+
+    @Column()
     name: string;
 
     @Column()
@@ -22,6 +25,12 @@ export class Patient {
 
     @Column()
     relation: string; // self, mother, father, son
+
+    @Column({ nullable: true })
+    email: string;
+
+    @Column({ nullable: true })
+    phone: string;
 
     @CreateDateColumn()
     createdAt: Date;

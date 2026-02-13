@@ -10,7 +10,7 @@ import { generateReceiptPdf } from "@/helpers/generateReceipt";
 
 
 export default function AppointmentDetail() {
-    const { appointmentId } = useParams<{ appointmentId: string }>()||{};
+    const { appointmentId } = useParams<{ appointmentId: string }>() || {};
     const [appointment, setAppointment] = useState<AppointmentDetails | null>(null);
     const [showReschedule, setShowReschedule] = useState(false);
 
@@ -44,7 +44,7 @@ export default function AppointmentDetail() {
         return styles[status as keyof typeof styles] || styles.Pending;
     };
 
-    
+
 
     return (
         <div className="min-h-screen py-8 px-4">
@@ -168,13 +168,18 @@ export default function AppointmentDetail() {
                         {/* Action Buttons */}
                         <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                             <div className="flex flex-wrap gap-3">
-                                <button
-                                    onClick={() => setShowReschedule(true)}
-                                    className="flex-1 min-w-[180px] px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
-                                >
-                                    <Calendar className="w-4 h-4" />
-                                    Reschedule
-                                </button>
+                                {
+                                   ["Pending","Booked"].includes(appointment?.paymentStatus)  && (
+                                        <button
+                                            onClick={() => setShowReschedule(true)}
+                                            className="flex-1 min-w-[180px] px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <Calendar className="w-4 h-4" />
+                                            Reschedule
+                                        </button>
+                                    )
+                                }
+
 
                                 {appointment?.zoomUrl && (
                                     <button className="flex-1 min-w-[180px] px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors flex items-center justify-center gap-2">
@@ -314,7 +319,7 @@ export default function AppointmentDetail() {
                 />
             )}
 
-            
+
         </div>
     );
 }

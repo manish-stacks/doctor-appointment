@@ -1,8 +1,21 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Request, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Post,
+    Put,
+    Query,
+    Request,
+    UseGuards,
+    Res
+} from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { PatientService } from './patient.service';
 import { CreatePatientDto } from './patient.dto';
+import { Response } from 'express';
 
 @Controller('patient')
 @UseGuards(JwtAuthGuard)
@@ -51,6 +64,39 @@ export class PatientController {
     ) {
         return this.patientService.findMyPatients(req.user.id, search);
     }
+
+    @Get('export')
+    async exportPatients(
+        @Query('type') type: 'csv' | 'pdf',
+        @Query('search') search: string,
+        @Res() res: Response,
+        @Request() req: { user: { id: number } },
+    ) {
+        if (type === 'csv') {
+            const csv = await this.patientService.exportCSV(req.user.id, search);
+
+            res.header('Content-Type', 'text/csv');
+            res.attachment('patients.csv');
+            return res.send(csv);
+        }
+
+        if (type === 'pdf') {
+            const pdfBuffer = await this.patientService.exportPDF(req.user.id, search);
+
+            res.set({
+                'Content-Type': 'application/pdf',
+                'Content-Disposition': 'attachment; filename=patients.pdf',
+                'Content-Length': pdfBuffer.length,
+            });
+
+            return res.end(pdfBuffer);
+        }
+
+        return res.status(400).json({
+            message: 'Invalid export type',
+        });
+    }
+
 
 
 }

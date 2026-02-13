@@ -16,7 +16,6 @@ import { HospitalModule } from './hospital/hospital.module';
 import { MedicineCategoryModule } from './medicine_category/medicine_category.module';
 import { PrescriptionModule } from './prescription/prescription.module';
 import { ReportModule } from './report/report.module';
-import { UserAddressModule } from './user_address/user_address.module';
 import { VideocallHistoryModule } from './videocall_history/videocall_history.module';
 import { WorkingHourModule } from './working_hour/working_hour.module';
 import { ZoomMeetingModule } from './zoom_meeting/zoom_meeting.module';
@@ -87,7 +86,6 @@ import { CaseModule } from './case/case.module';
     MedicineCategoryModule,
     PrescriptionModule,
     ReportModule,
-    UserAddressModule,
     VideocallHistoryModule,
     WorkingHourModule,
     ZoomMeetingModule,

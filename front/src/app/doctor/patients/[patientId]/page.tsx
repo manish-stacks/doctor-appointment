@@ -7,8 +7,6 @@ import { useParams } from "next/navigation";
 const PatientAppointment = () => {
     const { patientId } = useParams<{ patientId: string }>() || {};
 
-   
-
     return (
         <>
             <AppointmentTable patientId={Number(patientId)} />

@@ -5,6 +5,7 @@ import Breadcrumb from '@/components/ui/custom/breadcrumb';
 import { ConfirmModal } from '@/components/ui/custom/ConfirmModal';
 import Pagination from '@/components/ui/custom/pagination';
 import { AxiosInstance } from '@/helpers/Axios.instance';
+import { generatePrescriptionPdf } from '@/helpers/generatePrescriptionPdf';
 import { generateReceiptPdf } from '@/helpers/generateReceipt';
 import { AppointmentDetails } from '@/types/appointment';
 import { Download, Eye } from 'lucide-react';
@@ -57,7 +58,7 @@ const Appointments = () => {
     }, [page, search]);
 
 
-    
+
     const confirmCancelAppointment = async () => {
         if (!deleteId) return;
 
@@ -108,21 +109,22 @@ const Appointments = () => {
                         <table className="min-w-full bg-white">
                             <thead>
                                 <tr className="bg-gray-100">
-                                    <th className="p-3 text-left">#</th>
-                                    <th className="p-3 text-left">Appointment Id</th>
-                                    <th className="p-3 text-left">Report Or Patient Image</th>
-                                    <th className="p-3 text-left">Patient Name</th>
-                                    <th className="p-3 text-left">Amount</th>
-                                    <th className="p-3 text-left">Doctor Name</th>
-                                    <th className="p-3 text-left">Date</th>
-                                    <th className="p-3 text-left">Payment Status</th>
-                                    <th className="p-3 text-left">Status</th>
-                                    <th className="p-3 text-left">View Appointment</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">#</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">Appointment Id</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">Patient Image</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">Patient</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">Amount</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">Doctor</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">Date</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">Payment Status</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">Status</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">View</th>
+                                    <th className="p-2 text-left text-sm text-slate-600">Prescription</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {appointments.map((appointment, index) => (
-                                    <tr key={appointment.id} className="border-b">
+                                    <tr key={appointment.id} className="border-b text-sm">
                                         <td className="p-3">{index + 1}</td>
                                         <td className="p-3">#{appointment?.appointmentId}</td>
                                         <td className="p-3 flex items-center gap-2">
@@ -183,7 +185,17 @@ const Appointments = () => {
 
                                             </div>
                                         </td>
-
+                                        <td>
+                                            {
+                                                appointment?.prescriptions && appointment?.prescriptions.length > 0 ? (
+                                                    <Button variant="link" size="sm" onClick={() => generatePrescriptionPdf(appointment, appointment.prescriptions)}>
+                                                        Show Prescription
+                                                    </Button>
+                                                ) : (
+                                                    "No Prescription Uploaded"
+                                                )
+                                            }
+                                        </td>
 
                                     </tr>
                                 ))}
@@ -196,7 +208,7 @@ const Appointments = () => {
                 </div>
 
             </div>
-            
+
 
             {deleteId && (
                 <ConfirmModal
