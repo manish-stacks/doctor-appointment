@@ -49,12 +49,9 @@ export const generateReceiptPdf = (booking: AppointmentDetails) => {
   doc.setFontSize(11);
   doc.text(`Dr. ${booking?.doctor?.name}`, pageWidth - 80, 62);
   doc.text(`${booking?.doctor?.expertise}`, pageWidth - 80, 68);
-  doc.text(
-    `${booking?.doctor?.hospital?.name || "N/A"}`,
-    pageWidth - 80,
-    74
-  );
-
+  doc.text(`${booking?.doctor?.hospital?.name || "N/A"}`,pageWidth - 80,74);
+  // doc.text(`${booking?.doctor?.hospital?.address || "N/A"}`,pageWidth - 80,80);
+  // doc.text(`${booking?.doctor?.hospital?.phone || "N/A"}`,pageWidth - 80,86);
   /* ================= SERVICE TABLE ================= */
   autoTable(doc, {
     startY: 85,

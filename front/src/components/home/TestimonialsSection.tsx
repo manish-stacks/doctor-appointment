@@ -2,42 +2,43 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { AxiosInstance } from '@/helpers/Axios.instance';
 
 interface TestimonialsSectionProps {
   isDarkMode: boolean;
 }
 
-const testimonials = [
-  {
-    name: 'Sarah Johnson',
-    role: 'Working Mother',
-    location: 'New York, NY',
-    image: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
-    rating: 5,
-    testimonial: 'MediCare+ made it incredibly easy to find a pediatrician for my daughter. The booking process was seamless, and Dr. Martinez was thorough and caring. The telemedicine feature is a game-changer for busy parents!',
-    highlight: 'Saved 3 hours per appointment',
-  },
-  {
-    name: 'Michael Chen',
-    role: 'Senior Executive',
-    location: 'San Francisco, CA',
-    image: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
-    rating: 5,
-    testimonial: 'As someone with a demanding schedule, being able to book appointments online and get instant confirmations has been revolutionary. The quality of care and professionalism of doctors is outstanding.',
-    highlight: 'Reduced wait times by 80%',
-  },
-  {
-    name: 'Emily Rodriguez',
-    role: 'College Student',
-    location: 'Austin, TX',
-    image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
-    rating: 5,
-    testimonial: 'The affordable pricing and easy access to specialists helped me get the mental health support I needed without breaking the bank. The platform is intuitive and the doctors genuinely care.',
-    highlight: 'Affordable student pricing',
-  }
-];
+interface Testimonial {
+  id: number;
+  name: string;
+  role: string;
+  location: string;
+  image: string;
+  testimonial: string;
+  rating: number;
+  highlight: string;
+}
+
 
 export function TestimonialsSection({ isDarkMode }: TestimonialsSectionProps) {
+
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    fetchTestimonials();
+  }, []);
+
+  const fetchTestimonials = async () => {
+    try {
+      const res = await AxiosInstance.get('/testimonials');
+      setTestimonials(res.data);
+    } catch (error) {
+      console.error('Error fetching testimonials', error);
+    }
+  };
+
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1, duration: 0.8 } },
@@ -58,12 +59,11 @@ export function TestimonialsSection({ isDarkMode }: TestimonialsSectionProps) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div className="text-center mb-16" variants={itemVariants}>
-          {/* <Badge className="bg-yellow-100 text-yellow-700 px-4 py-2 mb-4">Testimonials</Badge> */}
-          <h3 className={`text-4xl md:text-5xl font-bold mb-6 transition-colors duration-500 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+          <h3 className={`text-4xl md:text-4xl font-bold mb-6 transition-colors duration-500 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Trusted by Thousands of Patients
           </h3>
           <p className={`text-xl max-w-3xl mx-auto transition-colors duration-500 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-            Real stories from patients who have transformed their healthcare experience with MediCare+.
+            Real stories from patients who have transformed their healthcare experience.
           </p>
         </motion.div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

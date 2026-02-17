@@ -836,16 +836,16 @@ export default function Booking() {
                 </h3>
                 <div className="space-y-3">
                   <div>
-                    <p className="font-medium text-gray-900">{appointmentDetails?.hospital?.name}</p>
+                    <p className="font-medium text-gray-900">{appointmentDetails?.doctor?.hospital?.name}</p>
                   </div>
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-sm text-gray-600">{appointmentDetails?.hospital?.address}</p>
+                    <p className="text-sm text-gray-600">{appointmentDetails?.doctor?.hospital?.address}</p>
                   </div>
-                  {appointmentDetails?.hospital?.phone && (
+                  {appointmentDetails?.doctor?.hospital?.phone && (
                     <div className="flex items-center gap-3">
                       <Phone className="w-5 h-5 text-gray-400" />
-                      <p className="text-sm text-gray-600">{appointmentDetails?.hospital?.phone}</p>
+                      <p className="text-sm text-gray-600">{appointmentDetails?.doctor?.hospital?.phone}</p>
                     </div>
                   )}
                 </div>

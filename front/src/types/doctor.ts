@@ -80,6 +80,9 @@ export interface Doctor {
   patientVideoCall: boolean;
   degree: string;
   location: string;
+  nextAvailable?: string;
+  rating?: number;
+  reviews?: number;
 }
 
 export interface DoctorResponse {

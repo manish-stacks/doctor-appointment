@@ -231,7 +231,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md z-[99]">
                 <DialogHeader>
                     <DialogTitle className="text-center text-2xl font-bold text-blue-700 pt-5">
                         Patient Login

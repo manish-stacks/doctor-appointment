@@ -22,7 +22,7 @@ export default function Home() {
       {/* <StatsSection isDarkMode={isDarkMode} /> */}
       <FeaturesSection isDarkMode={isDarkMode} />
       <SpecialistsSection isDarkMode={isDarkMode} />
-      <SearchDoctorSection isDarkMode={isDarkMode} handlePatientLogin={openLoginModal} />
+      <SearchDoctorSection isDarkMode={isDarkMode}  />
       <PricingSection isDarkMode={isDarkMode}  />
       <TestimonialsSection isDarkMode={isDarkMode} />
       <FAQSection isDarkMode={isDarkMode} />

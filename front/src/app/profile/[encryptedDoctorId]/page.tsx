@@ -162,6 +162,8 @@ const DoctorProfilePage = () => {
   };
 
   const handleTimeSlotClick = (time: string) => {
+    
+    return
     setSelectedTime(time);
     handleBookAppointment();
     // setShowBookingSection(true);
