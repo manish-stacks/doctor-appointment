@@ -31,9 +31,9 @@ export class Hospital {
     @Column({ default: false })
     isActive: boolean;
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     userId: number
-   
+
     @CreateDateColumn()
     createdAt: Date;
 

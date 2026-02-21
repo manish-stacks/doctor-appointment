@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException, Search } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Doctor } from './doctor.entity';
 import { DeepPartial, Repository } from 'typeorm';
@@ -12,7 +12,7 @@ import { Subscription } from 'src/subscription/subscription.entity';
 import { TimeSlotEntity } from 'src/time-slot/time-slot.entity';
 import { Appointment } from 'src/appointment/appointment.entity';
 import { maskEmail, maskPhone } from 'src/helper/helper';
-
+import * as moment from 'moment';
 
 @Injectable()
 export class DoctorService {
@@ -251,6 +251,73 @@ export class DoctorService {
             },
         };
     }
+    async getPopularDoctors() {
+        const doctors = await this.doctorRepository
+            .createQueryBuilder('doctor')
+            .leftJoinAndSelect('doctor.user', 'user')
+            .leftJoinAndSelect('doctor.hospital', 'hospital')
+            .leftJoinAndSelect('doctor.category', 'category')
+            .where('doctor.isActive = :isActive', { isActive: true })
+            .andWhere('doctor.isPopular = :isPopular', { isPopular: true })
+            .take(4)
+            .getMany();
+
+        const result: any[] = [];
+
+        for (const d of doctors) {
+
+            const todayName = moment().format('dddd'); // Monday, Tuesday...
+            const todayDate = moment().format('YYYY-MM-DD');
+
+            // 🔹 Get today's schedule
+            const schedule = await this.timeSlotRepository.findOne({
+                where: { doctorId: d.id, day: todayName, active: true },
+            });
+
+            // 🔹 Get today's booked appointments
+            const bookedAppointments = await this.appointmentRepository.find({
+                where: {
+                    doctorId: d.id,
+                    date: todayDate,
+                    appointmentStatus: 'Booked',
+                },
+                select: ['time'],
+            });
+
+            let nextAvailable = 'No Slot Available';
+
+            if (schedule && schedule.slots?.length > 0) {
+
+                for (const slot of schedule.slots) {
+
+                    const isBooked = bookedAppointments.some(
+                        b => b.time === slot.start
+                    );
+
+                    if (!isBooked) {
+                        nextAvailable = `${todayName} ${slot.start}`;
+                        break;
+                    }
+                }
+            }
+
+            result.push({
+                id: d.id,
+                name: d.name,
+                image: d.image,
+                experience: d.experience,
+                appointmentFees: d.appointmentFees,
+                category: d.category?.name,
+                degree: d.certificate,
+                location: d.user?.address,
+                phone: maskPhone(d.hospital?.phone),
+                available: d.isActive,
+                nextAvailable,
+            });
+        }
+
+        return result;
+    }
 
 
     async getLocations() {
@@ -434,5 +501,66 @@ export class DoctorService {
             },
             recentAppointments,
         };
+    }
+
+
+
+    async getDoctorsForAdmin(query: { type?: string; page?: number; limit?: number; }) {
+        const page = query.page || 1;
+        const limit = query.limit || 10;
+        const skip = (page - 1) * limit;
+
+        const qb = this.doctorRepository
+            .createQueryBuilder('doctor')
+            .leftJoinAndSelect('doctor.user', 'user')
+            .leftJoinAndSelect('doctor.hospital', 'hospital');
+
+        if (query.type === 'PENDING') {
+            qb.andWhere('doctor.isVerified = false');
+        }
+
+        if (query.type === 'ACTIVE') {
+            qb.andWhere('doctor.isActive = true');
+        }
+
+        if (query.type === 'INACTIVE') {
+            qb.andWhere('doctor.isActive = false');
+        }
+
+        if (query.type === 'POPULAR') {
+            qb.andWhere('doctor.isPopular = true');
+        }
+
+        if (query.type === 'KYC') {
+            qb.andWhere('doctor.kycApproved = false');
+        }
+
+        const [data, total] = await qb.skip(skip).take(limit).getManyAndCount();
+
+        return {
+            data,
+            lastPage: Math.ceil(total / limit),
+        };
+    }
+
+    async updateDoctorStatus(id: number, payload: Partial<Doctor>) {
+        await this.doctorRepository.update(id, payload);
+        return { message: 'Updated Successfully' };
+    }
+
+    async toggleActive(id: number) {
+        const doctor = await this.doctorRepository.findOne({ where: { id } });
+        if (!doctor) return { message: 'Doctor not found' };
+        doctor.isActive = !doctor.isActive;
+        await this.doctorRepository.save(doctor);
+        return { message: 'Status Updated' };
+    }
+
+    async togglePopular(id: number) {
+        const doctor = await this.doctorRepository.findOne({ where: { id } });
+        if (!doctor) return { message: 'Doctor not found' };
+        doctor.isPopular = !doctor.isPopular;
+        await this.doctorRepository.save(doctor);
+        return { message: 'Popular Updated' };
     }
 }

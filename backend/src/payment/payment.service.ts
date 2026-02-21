@@ -9,6 +9,8 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.entity';
 import { Subscription } from 'src/subscription/subscription.entity';
+import { Notification } from 'src/notification/notification.entity';
+import { Payment } from './payment.entity';
 // import { MailService } from 'src/mail/mail.service';
 const Razorpay = require('razorpay');
 
@@ -26,9 +28,14 @@ export class PaymentService {
         @InjectRepository(Subscription)
         private subscriptionRepo: Repository<Subscription>,
 
+        @InjectRepository(Notification)
+        private notificationRepo: Repository<Notification>,
         @InjectQueue('appointment')
         private readonly mailQueue: Queue,
         // private readonly mailService: MailService,
+
+        @InjectRepository(Payment)
+        private paymentRepo: Repository<Payment>,
 
     ) {
         this.razorpay = new Razorpay({
@@ -36,6 +43,75 @@ export class PaymentService {
             key_secret: process.env.RAZORPAY_SECRET,
         });
     }
+
+
+    async getAllTransactions(query: { page?: number; limit?: number; }) {
+        const page = query.page || 1;
+        const limit = query.limit || 10;
+        const skip = (page - 1) * limit;
+
+        const [data, total] = await this.paymentRepo.findAndCount({
+            skip,
+            take: limit,
+            order: { createdAt: 'DESC' },
+        });
+
+        return {
+            data,
+            lastPage: Math.ceil(total / limit),
+        };
+    }
+
+    async getDoctorEarnings() {
+        return this.paymentRepo
+            .createQueryBuilder('payment')
+            .select('payment.doctorId', 'doctorId')
+            .addSelect('SUM(payment.doctorEarning)', 'totalEarning')
+            .where('payment.paymentStatus = :status', { status: 'Paid' })
+            .groupBy('payment.doctorId')
+            .getRawMany();
+    }
+
+    async getPlatformCommission() {
+        const result = await this.paymentRepo
+            .createQueryBuilder('payment')
+            .select('SUM(payment.platformCommission)', 'totalCommission')
+            .where('payment.paymentStatus = :status', { status: 'Paid' })
+            .getRawOne();
+
+            
+        return {
+            totalCommission: result.totalCommission || 0,
+        };
+    }
+
+    async getRefunds() {
+        return this.paymentRepo.find({
+            where: { paymentStatus: 'Refunded' },
+            order: { createdAt: 'DESC' },
+        });
+    }
+
+    async getSubscriptionPayments() {
+        return this.paymentRepo.find({
+            where: { referenceType: 'SUBSCRIPTION' },
+            order: { createdAt: 'DESC' },
+        });
+    }
+
+    async markPayoutDone(doctorId: number) {
+        await this.paymentRepo.update(
+            { doctorId, payoutDone: false },
+            { payoutDone: true },
+        );
+
+        return { message: 'Payout marked as completed' };
+    }
+
+
+    // admin functions end
+
+
 
 
 
@@ -127,7 +203,16 @@ export class PaymentService {
                 appointment.paymentStatus = 'Paid';
                 appointment.appointmentStatus = 'BOOKED';
                 await this.appointmentRepository.save(appointment);
+
+
+                await this.notificationRepo.save({
+                    userId: appointment.userId,
+                    title: 'Appointment Confirmed',
+                    message: 'Your appointment has been successfully booked.',
+                    type: 'booking',
+                });
             }
+
         }
 
 
@@ -224,7 +309,7 @@ export class PaymentService {
         razorpay_payment_id: string;
         razorpay_order_id: string;
         razorpay_signature: string;
-    },doctorId: number) {
+    }, doctorId: number) {
         const generatedSignature = crypto
             .createHmac('sha256', process.env.RAZORPAY_SECRET!)
             .update(

@@ -11,7 +11,7 @@ export class HospitalController {
 
     @UseGuards(JwtAuthGuard)
     @Get()
-     getHospitals(@Request() req: { user: { id: number; } }) {
+    getHospitals(@Request() req: { user: { id: number; } }) {
         const userId = req.user.id;
         if (userId) {
             return this.hospitalService.getHospitalsWithUserExtras(userId);
@@ -46,4 +46,22 @@ export class HospitalController {
     async deleteHospital(@Param('id') id: number) {
         return this.hospitalService.deleteHospital(id);
     }
+
+
+    @Post('list')
+    getAllHospitals(@Body() body: any) {
+        return this.hospitalService.getHospitals(body);
+    }
+
+    @Put(':id/approve')
+    approveHospital(@Param('id') id: number) {
+        return this.hospitalService.approveHospital(id);
+    }
+
+    @Put(':id/toggle')
+    toggleStatus(@Param('id') id: number) {
+        return this.hospitalService.toggleStatus(id);
+    }
+    
+
 }

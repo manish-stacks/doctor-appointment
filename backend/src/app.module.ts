@@ -30,6 +30,8 @@ import { AppointmentModule } from './appointment/appointment.module';
 import { UserModule } from './user/user.module';
 import { PatientModule } from './patient/patient.module';
 import { CaseModule } from './case/case.module';
+import { TestimonialsModule } from './testimonials/testimonials.module';
+import { NotificationModule } from './notification/notification.module';
 
 
 @Module({
@@ -95,6 +97,8 @@ import { CaseModule } from './case/case.module';
     PaymentModule,
     PatientModule,
     CaseModule,
+    TestimonialsModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

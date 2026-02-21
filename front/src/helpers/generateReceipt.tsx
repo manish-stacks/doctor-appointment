@@ -106,5 +106,13 @@ export const generateReceiptPdf = (booking: AppointmentDetails) => {
     { align: "center" }
   );
 
-  doc.save(`Receipt_${booking?.appointmentId}.pdf`);
+  // doc.save(`Receipt_${booking?.appointmentId}.pdf`);
+  const pdfBlob = doc.output("blob");
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  const link = document.createElement("a");
+  link.href = pdfUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.click();
 };

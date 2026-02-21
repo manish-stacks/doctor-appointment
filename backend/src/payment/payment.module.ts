@@ -10,11 +10,13 @@ import { AppointmentModule } from 'src/appointment/appointment.module';
 import { DoctorSubscription } from 'src/doctor_subscription/doctor_subscription.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { Subscription } from 'src/subscription/subscription.entity';
+import { Notification } from 'src/notification/notification.entity';
+import { Payment } from './payment.entity';
 
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([Appointment,DoctorSubscription,Subscription]),
+        TypeOrmModule.forFeature([Appointment, DoctorSubscription, Subscription, Notification, Payment]),
         BullModule.registerQueue({
             name: 'appointment',
         }),

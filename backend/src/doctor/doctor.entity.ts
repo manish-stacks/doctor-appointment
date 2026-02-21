@@ -76,11 +76,14 @@ export class Doctor {
   @Column({ default: false })
   isVerified: boolean;
 
-  // @Column({ default: false })
-  // subscriptionStatus: boolean;
-
   @Column({ default: false })
   isPopular: boolean;
+
+  @Column({ nullable: true })
+  kycDocument: string;
+
+  @Column({ default: false })
+  kycApproved: boolean;
 
   @Column({ default: false })
   patientVideoCall: boolean;

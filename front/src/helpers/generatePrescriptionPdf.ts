@@ -285,5 +285,14 @@ export const generatePrescriptionPdf = async (
 
 
 
-  doc.save(`Prescription_${appointment?.appointmentId}.pdf`);
+  // doc.save(`Prescription_${appointment?.appointmentId}.pdf`);
+  const pdfBlob = doc.output("blob");
+  const pdfUrl = URL.createObjectURL(pdfBlob);
+
+  const link = document.createElement("a");
+  link.href = pdfUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.click();
+
 };

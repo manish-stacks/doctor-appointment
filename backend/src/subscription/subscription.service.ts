@@ -38,7 +38,6 @@ export class SubscriptionService {
         return subscription ? subscription : null;
     }
 
-
     async create(name: string, plan: string, totalAppointment: number) {
         const subscription = new Subscription();
         subscription.name = name;

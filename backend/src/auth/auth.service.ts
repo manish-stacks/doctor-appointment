@@ -128,7 +128,7 @@ export class AuthService {
           user: {},
         }
       }
-      const user = await this.userRepo.findOne({ where: { email, role } });
+      const user = await this.userRepo.findOne({ where: { email } });
       if (!user || !user.password) {
         return {
           success: false,

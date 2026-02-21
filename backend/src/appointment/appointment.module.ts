@@ -17,6 +17,7 @@ import { MailModule } from 'src/mail/mail.module';
 import { AppointmentProcessor } from 'src/queues/appointment.queue';
 import { MailProcessor } from 'src/queues/mail.queue';
 import { Patient } from 'src/patient/patient.entity';
+import { Notification } from 'src/notification/notification.entity';
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import { Patient } from 'src/patient/patient.entity';
       Hospital,
       DoctorSubscription,
       TimeSlotEntity,
-      Patient
+      Patient,Notification
     ]),
 
     BullModule.registerQueue({

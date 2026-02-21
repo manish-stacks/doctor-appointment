@@ -25,15 +25,37 @@ export class CategoryService {
     }
 
 
+    // async findAll() {
+    //     return this.categoryRepository.find({select: {id: true, name: true, image: true, isActive: true,icon: true}});
+    // }
+
     async findAll() {
-        return this.categoryRepository.find({select: {id: true, name: true, image: true}});
+        const categories = await this.categoryRepository
+            .createQueryBuilder('category')
+            .leftJoinAndSelect('category.doctors', 'doctor')
+            .loadRelationCountAndMap(
+                'category.doctorCount',
+                'category.doctors'
+            )
+            .select([
+                'category.id',
+                'category.name',
+                'category.image',
+                'category.icon',
+                'category.isActive',
+                'category.slug'
+            ])
+            .getMany();
+
+        return categories;
     }
+
 
     async findOne(id: number) {
         return this.categoryRepository.findOne({ where: { id } });
     }
 
-  
+
 
 
     async update(id: number, createCategoryDto: Category, filePath?: string) {

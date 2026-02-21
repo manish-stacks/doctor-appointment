@@ -5,6 +5,7 @@ import { AxiosInstance } from "@/helpers/Axios.instance";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+
 interface Patient {
   id: string;
   username: string;
@@ -12,8 +13,13 @@ interface Patient {
   phone: string;
   dob: string | null;
   gender: string | null;
+  state?: string;
+  city?: string;
+  address?: string;
+  age?: number;
   image: string;
 }
+
 
 export default function PatientProfile() {
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -43,6 +49,11 @@ export default function PatientProfile() {
       formData.append("phone", patient.phone);
       formData.append("dob", patient.dob || "");
       formData.append("gender", patient.gender || "");
+      formData.append("state", patient.state || "");
+      formData.append("city", patient.city || "");
+      formData.append("address", patient.address || "");
+      formData.append("age", String(patient.age || ""));
+
       if (imageFile) formData.append("image", imageFile);
 
       await AxiosInstance.post("/user/update-profile", formData, {
@@ -89,7 +100,7 @@ export default function PatientProfile() {
         </div>
 
         {/* Form */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-3xl">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-6xl">
           <div>
             <label>Name</label>
             <input
@@ -140,14 +151,57 @@ export default function PatientProfile() {
               <option value="other">Other</option>
             </select>
           </div>
+
+          <div>
+            <label>State</label>
+            <input
+              className="w-full p-2 border rounded"
+              value={patient.state || ""}
+              onChange={(e) =>
+                setPatient({ ...patient, state: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <label>City</label>
+            <input
+              className="w-full p-2 border rounded"
+              value={patient.city || ""}
+              onChange={(e) =>
+                setPatient({ ...patient, city: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="md:col-span-2">
+            <label>Address</label>
+            <input
+              className="w-full p-2 border rounded"
+              value={patient.address || ""}
+              onChange={(e) =>
+                setPatient({ ...patient, address: e.target.value })
+              }
+            />
+          </div>
+
+          <div>
+            <label>Age</label>
+            <input
+              type="number"
+              className="w-full p-2 border rounded"
+              value={patient.age || ""}
+              onChange={(e) =>
+                setPatient({ ...patient, age: Number(e.target.value) })
+              }
+            />
+          </div>
+
         </div>
 
         {/* Buttons */}
         <div className="flex space-x-4 mt-8">
-          <button className="bg-red-600 text-white py-2 px-4 rounded">
-            DELETE ACCOUNT
-          </button>
-
+          
           <button
             onClick={handleUpdate}
             disabled={loading}

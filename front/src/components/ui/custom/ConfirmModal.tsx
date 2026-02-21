@@ -21,7 +21,7 @@ const variants = {
 
 type Variant = keyof typeof variants;
 export function ConfirmModal({
-  variant= "delete",
+  variant = "delete",
   title = "Delete item?",
   description = "This action cannot be undone. This will permanently remove the item.",
   confirmLabel = "Delete",
@@ -83,7 +83,7 @@ export function ConfirmModal({
           >
             {cancelLabel}
           </button>
-{/* ${current.bg} ${current.text} */}
+          {/* ${current.bg} ${current.text} */}
           <button
             onClick={onConfirm}
             className={`flex-1 rounded-lg ${current.bg} px-4 py-2 text-sm font-medium ${current.text} hover:${current.bg} transition focus:ring-2 focus:ring-red-500`}

@@ -73,7 +73,10 @@ export class DoctorController {
   getLocations() {
     return this.doctorService.getLocations();
   }
-
+  @Get('popular')
+  getCategories() {
+    return this.doctorService.getPopularDoctors();
+  }
 
   @Get('search')
   async searchDoctor(@Query('q') q: string) {
@@ -112,6 +115,31 @@ export class DoctorController {
     return this.doctorService.remove(id);
   }
 
+  // admin routes
 
+  @Post("list")
+  getDoctors(@Body() body: any) {
+    return this.doctorService.getDoctorsForAdmin(body);
+  }
+
+  @Put(':id/approve')
+  approveDoctor(@Param('id') id: number) {
+    return this.doctorService.updateDoctorStatus(id, { isVerified: true });
+  }
+
+  @Put(':id/toggle-active')
+  toggleActive(@Param('id') id: number) {
+    return this.doctorService.toggleActive(id);
+  }
+
+  @Put(':id/toggle-popular')
+  togglePopular(@Param('id') id: number) {
+    return this.doctorService.togglePopular(id);
+  }
+
+  @Put(':id/approve-kyc')
+  approveKyc(@Param('id') id: number) {
+    return this.doctorService.updateDoctorStatus(id, { kycApproved: true });
+  }
 
 }

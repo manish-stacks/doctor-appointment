@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -7,6 +7,42 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) { }
+
+
+  @Get('all')
+  getAll(@Body() body: any) {
+    return this.paymentService.getAllTransactions(body);
+  }
+
+  @Get('doctor-earnings')
+  getDoctorEarnings() {
+    return this.paymentService.getDoctorEarnings();
+  }
+
+  @Get('platform-commission')
+  getPlatformCommission() {
+    return this.paymentService.getPlatformCommission();
+  }
+
+  @Get('refunds')
+  getRefunds() {
+    return this.paymentService.getRefunds();
+  }
+
+  @Get('subscription-payments')
+  getSubscriptionPayments() {
+    return this.paymentService.getSubscriptionPayments();
+  }
+
+  @Put('payout/:doctorId')
+  markPayout(@Param('doctorId') doctorId: number) {
+    return this.paymentService.markPayoutDone(doctorId);
+  }
+
+
+
+
+
 
 
   @Post('razorpay/appointment/create')

@@ -32,7 +32,6 @@ export type PaymentStatus = 'Remaining' | 'Paid';
 export type AppointmentStatus = 'Available' | 'Booked' | 'Hold' | 'Approved' | 'Rescheduled' | 'Completed' | 'CancelledByUser' | 'Cancelled' | 'CancelledByDoctor';
 
 
-
 const statusBadge: Record<PaymentStatus | AppointmentStatus, string> = {
     Available: 'bg-green-100 text-green-600',
     Booked: 'bg-blue-100 text-blue-600',

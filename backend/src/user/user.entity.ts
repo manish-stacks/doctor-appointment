@@ -48,10 +48,10 @@ export class User {
   @Column({ length: 255, nullable: true })
   gender?: string;
 
-  @Column({ length: 255, nullable: true})
+  @Column({ length: 255, nullable: true })
   state?: string;
 
-  @Column({ length: 255, nullable: true})
+  @Column({ length: 255, nullable: true })
   city?: string;
 
   @Column({ length: 255, nullable: true })
@@ -74,6 +74,23 @@ export class User {
 
   @Column({ type: 'tinyint', default: 1 })
   contact_number_verified: boolean;
+
+
+  @Column({ default: true })
+  emailNotifications: boolean;
+
+  @Column({ default: true })
+  smsNotifications: boolean;
+
+  @Column({ default: true })
+  appointmentReminders: boolean;
+
+  @Column({ default: true })
+  showProfileToDoctors: boolean;
+
+  @Column({ default: false })
+  allowAnalytics: boolean;
+
 
   @CreateDateColumn()
   createdAt: Date;

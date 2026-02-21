@@ -63,4 +63,50 @@ export class HospitalService {
     deleteHospital(id: number) {
         return this.hospitalRepository.delete(id);
     }
+
+    async getHospitals(query: { page?: number; limit?: number; type?: string }) {
+        const page = query.page || 1;
+        const limit = query.limit || 10;
+        const skip = (page - 1) * limit;
+
+        const qb = this.hospitalRepository.createQueryBuilder('hospital');
+
+        if (query.type === 'PENDING') {
+            qb.andWhere('hospital.isVerified = false');
+        }
+
+        if (query.type === 'ACTIVE') {
+            qb.andWhere('hospital.isActive = true');
+        }
+
+        if (query.type === 'INACTIVE') {
+            qb.andWhere('hospital.isActive = false');
+        }
+
+        const [data, total] = await qb.skip(skip).take(limit).getManyAndCount();
+
+        return {
+            data,
+            lastPage: Math.ceil(total / limit),
+        };
+    }
+
+    async approveHospital(id: number) {
+        await this.hospitalRepository.update(id, { isVerified: true });
+        return { message: 'Hospital Approved' };
+    }
+
+
+    async toggleStatus(id: number) {
+        const hospital = await this.hospitalRepository.findOne({ where: { id } });
+        if (!hospital) return;
+
+        hospital.isActive = !hospital.isActive;
+        await this.hospitalRepository.save(hospital);
+
+        return { message: 'Status Updated' };
+    }
+
+    
+
 }

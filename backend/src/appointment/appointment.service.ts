@@ -12,6 +12,7 @@ import { BookingPayload, stepOneDto } from './appointment.dto';
 import { handleMultipleImages } from 'src/helper/cloudinary.helper';
 import { Patient } from 'src/patient/patient.entity';
 import { User } from 'src/user/user.entity';
+import { Notification } from 'src/notification/notification.entity';
 
 @Injectable()
 export class AppointmentService {
@@ -24,6 +25,9 @@ export class AppointmentService {
 
         @InjectRepository(User)
         private userRepository: Repository<User>,
+
+        @InjectRepository(Notification)
+        private notificationRepo: Repository<Notification>,
 
         @InjectQueue('appointment')
         private readonly appointmentQueue: Queue,
@@ -233,6 +237,14 @@ export class AppointmentService {
                 },
                 { delay: 1 * 60 * 1000 },
             );
+
+
+            await this.notificationRepo.save({
+                userId: appointment.userId,
+                title: 'Appointment Confirmed',
+                message: 'Your appointment has been successfully booked.',
+                type: 'booking',
+            });
         }
 
         return this.appointmentRepository.save(appointment);
@@ -428,5 +440,52 @@ export class AppointmentService {
         if (!appointment) return 'Appointment not found';
         appointment.paymentStatus = 'Paid';
         return this.appointmentRepository.save(appointment);
+    }
+    // admin functions
+    async getAppointmentsForAdmin(query: { type?: string; page?: number; limit?: number; }) {
+        const page = query.page || 1;
+        const limit = query.limit || 10;
+        const skip = (page - 1) * limit;
+
+        const qb = this.appointmentRepository
+            .createQueryBuilder('a')
+            .leftJoinAndSelect('a.user', 'user')
+            .leftJoinAndSelect('a.doctor', 'doctor')
+            .leftJoinAndSelect('doctor.hospital', 'hospital')
+            .where('a.appointmentStatus != :status', { status: 'NoFill' });
+
+        if (query.type === 'TODAY') {
+            const today = new Date().toISOString().split('T')[0];
+            qb.andWhere('a.date = :today', { today });
+        }
+
+        if (query.type === 'CANCELLED') {
+            qb.andWhere('a.appointmentStatus IN (:...statuses)', {
+                statuses: ['Cancelled', 'CancelledByUser', 'CancelledByDoctor'],
+            });
+        }
+
+        if (query.type === 'COMPLETED') {
+            qb.andWhere('a.appointmentStatus = :status', { status: 'Completed' });
+        }
+
+        if (query.type === 'REFUND') {
+            qb.andWhere('a.paymentStatus = :status', { status: 'RefundRequested' });
+        }
+
+        if (query.type === 'RESCHEDULE') {
+            qb.andWhere('a.appointmentStatus = :status', { status: 'Rescheduled' });
+        }
+
+        const [data, total] = await qb
+            .skip(skip)
+            .take(limit)
+            .orderBy('a.createdAt', 'DESC')
+            .getManyAndCount();
+
+        return {
+            data,
+            lastPage: Math.ceil(total / limit),
+        };
     }
 }

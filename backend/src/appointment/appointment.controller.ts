@@ -119,4 +119,24 @@ export class AppointmentController {
     async markAsPaid(@Param('id') id: number) {
         return this.appointmentService.markAsPaid(id);
     }
+
+    // admin routes
+    @Post('list')
+    getAppointments(@Body() body: any) {
+        return this.appointmentService.getAppointmentsForAdmin(body);
+    }
+
+    @Put(':id/status')
+    updateAdminStatus(
+        @Param('id') id: number,
+        @Body('status') status: string,
+    ) {
+        return this.appointmentService.updateStatus(id, status);
+    }
+
+    @Put(':id/mark-paid')
+    markPaid(@Param('id') id: number) {
+        return this.appointmentService.markAsPaid(id);
+    }
+
 }
