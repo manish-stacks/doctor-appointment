@@ -5,7 +5,7 @@ import {
   Get,
   Body,
   UseGuards,
-  Request,
+  Request, Req, Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -15,6 +15,7 @@ import {
   resendOtpDto,
   VerifyOtpDto,
 } from 'src/user/user.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -55,4 +56,16 @@ export class AuthController {
       phone: req.user.phone,
     };
   }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() { }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req: { user: { token: string; } }, @Res() res) {
+    const { token } = req.user;
+    return res.redirect(`http://localhost:3000/google-success?token=${token}`);
+  }
+
 }

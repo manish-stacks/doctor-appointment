@@ -63,14 +63,14 @@ export class CreateUserDto {
   login_otp?: number;
 
   @IsOptional()
-  otp_expires_at?: Date;
+  otpExpireTime?: Date;
 
   @IsOptional()
   HowManyOtpSend?: number;
 
   @IsOptional()
   @IsBoolean()
-  contact_number_verified: boolean;
+  verified: boolean;
 
   @IsOptional()
   @IsString()

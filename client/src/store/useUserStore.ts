@@ -18,11 +18,13 @@ export const useUserStore = create<UserState>()(
             },
             fetchUserDetails: (response) => {
                 const encryptedDetails = encryptData(response.user);
+                const expiryDate = new Date(response.user.exp * 1000);
                 set({
                     isLoggedIn: true,
                     userDetails: encryptedDetails
                 });
-                Cookies.set("token", response.token, { expires: 7 });
+
+                Cookies.set("token", response.token, { expires: expiryDate });
             },
             getUserDetails: () => {
                 const encryptedDetails = get().userDetails;

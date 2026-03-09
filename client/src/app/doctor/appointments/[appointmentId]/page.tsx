@@ -96,9 +96,9 @@ export default function AppointmentDetail() {
         window.open(`https://wa.me/${appointment.patientNumber}?text=${encodeURIComponent(text)}`);
     };
 
-    const handleEmailPrescription = () => {
-        window.location.href = `mailto:${appointment.patientEmail}?subject=Prescription&body=Please find your prescription attached.`;
-    };
+    // const handleEmailPrescription = () => {
+    //     window.location.href = `mailto:${appointment.patientEmail}?subject=Prescription&body=Please find your prescription attached.`;
+    // };
 
     const handleMarkAsPaid = async () => {
         try {

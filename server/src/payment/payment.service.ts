@@ -45,7 +45,7 @@ export class PaymentService {
     }
 
 
-    async getAllTransactions(query: { page?: number; limit?: number; }) {
+    async getAllTransactions(query: { page?: number; limit?: number } = {}) {
         const page = query.page || 1;
         const limit = query.limit || 10;
         const skip = (page - 1) * limit;
@@ -79,7 +79,7 @@ export class PaymentService {
             .where('payment.paymentStatus = :status', { status: 'Paid' })
             .getRawOne();
 
-            
+
         return {
             totalCommission: result.totalCommission || 0,
         };

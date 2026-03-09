@@ -1,4 +1,4 @@
-/* eslint-disable prettier/prettier */ 
+/* eslint-disable prettier/prettier */
 
 import {
   Body,
@@ -16,21 +16,28 @@ import { treatmentsDto } from './treatments.dto';
 
 @Controller('treatments')
 export class TreatmentsController {
-  constructor(private readonly treatmentsService: TreatmentsService) {}
+  constructor(private readonly treatmentsService: TreatmentsService) { }
 
   @Get()
   findAll() {
     return this.treatmentsService.findAll();
   }
 
+
   @Post()
   create(@Body() treatmentsDto: treatmentsDto) {
     return this.treatmentsService.create(treatmentsDto);
   }
+
+  @Post('list')
+  list(@Body() body: any) {
+    return this.treatmentsService.list(body);
+  }
+
   @Get('category/:id')
   async findTreatmentsByCategory(@Param('id', ParseIntPipe) id: number) {
     const treatments = await this.treatmentsService.findTreatmentsByCategory(id);
-    
+
     return {
       success: true,
       message: 'Treatments retrieved successfully',
@@ -57,4 +64,5 @@ export class TreatmentsController {
   toggleStatus(@Param('id', ParseIntPipe) id: number) {
     return this.treatmentsService.toggleStatus(id);
   }
+
 }

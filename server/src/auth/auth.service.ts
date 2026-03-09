@@ -22,7 +22,203 @@ export class AuthService {
     private mailerUtil: MailerUtil,
   ) { }
 
-  async verifyOtp(VerifyOtpDto: VerifyOtpDto): Promise<{
+  /*
+  |--------------------------------------------------------------------------
+  | LOGIN WITH MOBILE (AUTO REGISTER)
+  |--------------------------------------------------------------------------
+  */
+  async login(LoginDto: LoginDto) {
+
+    const { phone, role } = LoginDto;
+
+    if (!phone) {
+      throw new BadRequestException('Phone number required');
+    }
+
+    if (!/^\d{10}$/.test(phone)) {
+      throw new BadRequestException('Phone must be 10 digits');
+    }
+
+    let user = await this.userRepo.findOne({ where: { phone } });
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTO REGISTER
+    |--------------------------------------------------------------------------
+    */
+
+    if (!user) {
+
+      const createUser: CreateUserDto = {
+        ...LoginDto,
+        verified: false,
+        image: '',
+      };
+
+      user = await this.register(createUser);
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROLE CHECK
+    |--------------------------------------------------------------------------
+    */
+
+    if (role && role !== user.role) {
+      throw new BadRequestException(`You are not allowed to login as ${role}`);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | GENERATE OTP
+    |--------------------------------------------------------------------------
+    */
+
+    const otp = otp_generator() as number;
+
+    const otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
+
+    user.otp = otp;
+    user.otpExpireTime = otpExpireTime;
+
+    await this.userRepo.save(user);
+
+    console.log("OTP:", otp);
+
+    return {
+      success: true,
+      message: 'OTP sent successfully',
+    };
+
+  }
+  /*
+  |--------------------------------------------------------------------------
+  | VERIFY OTP
+  |--------------------------------------------------------------------------
+  */
+  async verifyOtp(VerifyOtpDto: VerifyOtpDto) {
+
+    const { phone, otp } = VerifyOtpDto;
+
+    const user = await this.userRepo.findOne({ where: { phone } });
+
+    if (!user) {
+      return {
+        success: false,
+        message: 'User not found',
+      };
+    }
+
+    if (!user.otp || user.otp !== Number(otp)) {
+      return {
+        success: false,
+        message: 'Invalid OTP',
+      };
+    }
+
+    const now = new Date();
+
+    if (!user.otpExpireTime || user.otpExpireTime < now) {
+      return {
+        success: false,
+        message: 'OTP expired',
+      };
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUCCESS
+    |--------------------------------------------------------------------------
+    */
+
+    user.otp = null;
+    user.otpExpireTime = null;
+    user.HowManyOtpSend = 0;
+    user.verified = true;
+
+    await this.userRepo.save(user);
+
+    const payload = {
+      id: user.id,
+      username: user.username,
+      phone: user.phone,
+      email: user.email,
+      image: user.image,
+      role: user.role,
+      verified: user.verified,
+      doctor_id: user?.doctorId || null,
+    };
+
+
+    const token = this.jwtService.sign(payload);
+
+    return {
+      success: true,
+      message: 'OTP verified successfully',
+      token,
+      role: user.role,
+      user: payload
+    };
+
+  }
+
+
+  /*
+  |--------------------------------------------------------------------------
+  | RESEND OTP
+  |--------------------------------------------------------------------------
+  */
+  async resendOtp(resendOtpDto: resendOtpDto) {
+
+    const { phone } = resendOtpDto;
+
+    const user = await this.userRepo.findOne({ where: { phone } });
+
+    if (!user) {
+      return {
+        success: false,
+        message: 'User not found'
+      };
+    }
+
+    if (user.HowManyOtpSend >= 3) {
+      return {
+        success: false,
+        message: 'OTP limit reached'
+      };
+    }
+
+    const otp = otp_generator() as number;
+
+    const otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
+
+    user.otp = otp;
+    user.otpExpireTime = otpExpireTime;
+    user.HowManyOtpSend += 1;
+
+    await this.userRepo.save(user);
+
+    console.log("Resend OTP:", otp);
+
+    return {
+      success: true,
+      message: 'OTP resent successfully'
+    };
+
+  }
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOGIN WITH EMAIL
+  |--------------------------------------------------------------------------
+  */
+
+  async loginWithEmail(body: {
+    email: string;
+    password: string;
+    role: string;
+  }): Promise<{
     success: boolean;
     message: string;
     token?: string;
@@ -30,114 +226,45 @@ export class AuthService {
     user: object;
   }> {
     try {
-      const { phone, otp, type = 'register' } = VerifyOtpDto;
-      const user = await this.userRepo.findOne({ where: { phone } });
+      const { email, password } = body;
+
+      if (!email || !password) {
+        return {
+          success: false,
+          message: 'Email/phone and password required.',
+          role: '',
+          user: {},
+        };
+      }
+
+      // const user = await this.userRepo.findOne({ where: { email } });
+      let user;
+
+      if (/^\d{10}$/.test(email)) {
+
+        user = await this.userRepo.findOne({
+          where: { phone: email }
+        });
+
+      } else {
+
+        user = await this.userRepo.findOne({
+          where: { email: email }
+        });
+
+      }
 
       if (!user) {
         return {
           success: false,
-          message: 'User not found.',
+          message: 'Account not found.',
           role: '',
           user: {},
         };
       }
 
-      const currentTime = new Date();
-
-      const storedOtp = type === 'login' ? user.login_otp : user.otp;
-      const otpExpiresAt =
-        type === 'login' ? user.otp_expires_at : user.otp_expires_at;
-
-      if (storedOtp !== Number(otp)) {
-        return { success: false, message: 'Invalid OTP.', role: '', user: {} };
-      }
-
-      if (otpExpiresAt! < currentTime) {
-        return {
-          success: false,
-          message: 'OTP has expired.',
-          role: '',
-          user: {},
-        };
-      }
-
-      // Reset OTP and OTP send count upon successful verification
-      if (type === 'login') {
-        user.login_otp = 0;
-        user.HowManyOtpSend = 0;
-      } else {
-        user.otp = 0;
-        user.HowManyOtpSend = 0;
-        user.contact_number_verified = true;
-      }
-
-      await this.userRepo.save(user);
-
-      const payload = {
-        id: user.id,
-        username: user.username,
-        phone: user.phone,
-        image: user.image,
-        role: user.role,
-        doctor_id: user?.doctorId,
-      };
-      const token = this.jwtService.sign(payload);
-      const send_user = {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        phone: user.phone,
-        image: user.image,
-        role: user.role,
-        doctor_id: user?.doctorId,
-        contact_number_verified: user?.contact_number_verified,
-      };
-
-      return {
-        success: true,
-        message: 'OTP verified successfully.',
-        token,
-        role: user.role,
-        user: send_user,
-      };
-    } catch (error) {
-      console.error('Error during OTP verification:', error);
-      return {
-        success: false,
-        message: 'Something went wrong during OTP verification.',
-        role: '',
-        user: {},
-      };
-    }
-  }
-
-  async loginWithEmail(body: { email: string, password: string, role: string }): Promise<{
-    success: boolean;
-    message: string;
-    token?: string;
-    role: string;
-    user: object;
-  }> {
-    try {
-      const { email, password, role } = body;
-      if (!email || !password) {
-        return {
-          success: false,
-          message: 'Email and password are required.',
-          role: '',
-          user: {},
-        }
-      }
-      const user = await this.userRepo.findOne({ where: { email } });
-      if (!user || !user.password) {
-        return {
-          success: false,
-          message: 'Password not set for this account. Please reset password.',
-          role: '',
-          user: {},
-        };
-      }
       const isPasswordValid = await bcrypt.compare(password, user.password);
+
       if (!isPasswordValid) {
         return {
           success: false,
@@ -146,204 +273,125 @@ export class AuthService {
           user: {},
         };
       }
+
       const payload = {
         id: user.id,
         username: user.username,
         phone: user.phone,
-        image: user.image,
-        role: user.role,
-        doctor_id: user?.doctorId,
-      };
-      const token = this.jwtService.sign(payload);
-      const send_user = {
-        id: user.id,
         email: user.email,
-        username: user.username,
-        phone: user.phone,
         image: user.image,
         role: user.role,
-        doctor_id: user?.doctorId,
-        contact_number_verified: user?.contact_number_verified,
+        verified: user.verified,
+        doctor_id: user?.doctorId || null,
       };
+
+      const token = this.jwtService.sign(payload);
+
       return {
         success: true,
         message: 'Login successful.',
         token,
         role: user.role,
-        user: send_user,
+        user: payload,
       };
     } catch (error) {
-      console.error('Error during login:', error);
+      console.error(error);
+
       return {
         success: false,
-        message: 'Something went wrong during login.',
+        message: 'Login failed.',
         role: '',
         user: {},
       };
     }
   }
-  async resendOtp(
-    resendOtpDto: resendOtpDto,
-  ): Promise<{ success: boolean; message: string }> {
-    try {
-      const { phone, type = 'register' } = resendOtpDto;
-      const user = await this.userRepo.findOne({ where: { phone } });
-      console.log('HowManyOtpSend:', user?.HowManyOtpSend);
 
-      if (!user) {
-        return {
-          success: false,
-          message:
-            'No account found with this phone. Please check and try again.',
-        };
-      }
-
-      if (user.HowManyOtpSend && user.HowManyOtpSend >= 3) {
-        return {
-          success: false,
-          message:
-            'You have reached the maximum limit for OTP requests. Please wait a while before trying again.',
-        };
-      }
-
-      const otp = otp_generator();
-      const otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
-
-      console.log('otpExpireTime', otpExpireTime);
-
-      // Increment OTP send count
-      user.HowManyOtpSend = (user.HowManyOtpSend || 0) + 1;
-
-      // Check the type and save the OTP accordingly
-      if (type === 'login') {
-        user.login_otp = otp;
-        user.otp_expires_at = otpExpireTime;
-      } else if (type === 'register') {
-        user.otp = otp;
-        user.otp_expires_at = otpExpireTime;
-      }
-
-      await this.userRepo.save(user);
-
-      return {
-        success: true,
-        message: `A new OTP has been sent to your phone for ${type}. Please check your messages.`,
-      };
-    } catch (error) {
-      console.error('Error during OTP resend:', error);
-      return {
-        success: false,
-        message:
-          'An error occurred while resending the OTP. Please try again later.',
-      };
-    }
-  }
-
-  async login(
-    LoginDto: LoginDto,
-  ): Promise<{ success: boolean; message: string; }> {
-    const { phone, role } = LoginDto;
-
-    if (!phone) {
-      throw new BadRequestException('Phone Number are required.');
-    }
-
-    if (!/^\d{10}$/.test(phone)) {
-      throw new BadRequestException('Phone number must be exactly 10 numeric digits.');
-    }
-
-    const user = await this.userRepo.findOne({ where: { phone } });
-
-    if (user) {
-      if (role && role !== 'guest' && user?.role !== role) {
-        throw new BadRequestException(`You are not authorized to login as ${role}.`);
-      }
-    } else {
-
-      const createUserDto: CreateUserDto = {
-        ...LoginDto,
-        image: '',
-        contact_number_verified: false,
-      };
-
-
-      await this.register(createUserDto);
-      return {
-        success: true,
-        message: 'User registered successfully. OTP sent to your phone number.'
-      };
-    }
-
-    const otp = otp_generator();
-    const otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
-
-    user.login_otp = otp;
-    user.otp_expires_at = otpExpireTime;
-    await this.userRepo.save(user);
-
-    return {
-      success: true,
-      message: 'Login otp send successful on phone number.'
-    };
-  }
-
-
+  /*
+  |--------------------------------------------------------------------------
+  | REGISTER USER
+  |--------------------------------------------------------------------------
+  */
   async register(createUserDto: CreateUserDto): Promise<User> {
 
-    // console.log(createUserDto)
     const { phone, role } = createUserDto;
 
-    if (!role || !phone) {
-      throw new BadRequestException('Username and phone are required.');
+    if (!phone || !role) {
+      throw new BadRequestException('Phone and role required');
     }
 
-    if (!/^\d{10}$/.test(phone)) {
-      throw new BadRequestException('Phone number must be exactly 10 numeric digits.');
-    }
-
-
-    const getRandomColor = () => {
-      const letters = '0123456789ABCDEF';
-      let color = '';
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    };
-
-    const backgroundColor = getRandomColor();
-    const textColor = getRandomColor();
     const existingUser = await this.userRepo.findOne({ where: { phone } });
 
     if (existingUser) {
-      throw new ConflictException(
-        'Phone number already exists and is verified.',
-      );
+      throw new ConflictException('Phone already exists');
     }
 
-    const otp = otp_generator();
+    const otp = otp_generator() as number;
+
     const otpExpireTime = new Date(Date.now() + 2 * 60 * 1000);
 
-    const avatar = `https://ui-avatars.com/api/?name=Guest&background=${backgroundColor}&color=${textColor}`;
+    const avatar = `https://ui-avatars.com/api/?name=Guest`;
 
+    createUserDto.username = "Guest";
     createUserDto.otp = otp;
-    createUserDto.username = 'Guest';
-    createUserDto.otp_expires_at = otpExpireTime;
-    //createUserDto.gender = gender === 'MR' ? 'Male' : 'Female';
+    createUserDto.otpExpireTime = otpExpireTime;
     createUserDto.image = avatar;
-    createUserDto.role = role;
     createUserDto.isActive = true;
-    createUserDto.password = await bcrypt.hash(phone, 10);
-    createUserDto.contact_number_verified = false;
+
+    /* password dummy */
+
+    createUserDto.password = await bcrypt.hash(String(phone), 10);
 
     const user = this.userRepo.create(createUserDto);
+
     const savedUser = await this.userRepo.save(user);
 
-    // Send OTP to the user
-    // await this.sendOtp(phone, otp);
-
-    console.log('OTP Expire Time:', otpExpireTime);
+    console.log("Register OTP:", otp);
 
     return savedUser;
+
+  }
+
+
+  async googleLogin(profile: any) {
+    const email = profile.emails[0].value;
+    const name = profile.displayName;
+    const image = profile.photos[0].value;
+
+    let user = await this.userRepo.findOne({
+      where: { email }
+    });
+
+
+    if (!user) {
+      const newUser = this.userRepo.create({
+        email,
+        username: name,
+        image,
+        verified: true,
+        role: 'user',
+        isActive: true
+      });
+
+      user = await this.userRepo.save(newUser);
+    }
+
+    const payload = {
+      id: user.id,
+      username: user.username,
+      phone: user.phone,
+      email: user.email,
+      image: user.image,
+      role: user.role,
+      verified: user.verified,
+      doctor_id: user?.doctorId || null,
+    };
+
+    const token = this.jwtService.sign(payload);
+
+    return {
+      token,
+      role: user.role,
+      user: payload
+    };
   }
 }

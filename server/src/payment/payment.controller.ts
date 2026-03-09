@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Param, Post, Put, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
@@ -10,8 +10,8 @@ export class PaymentController {
 
 
   @Get('all')
-  getAll(@Body() body: any) {
-    return this.paymentService.getAllTransactions(body);
+  getAll(@Query() query: { page?: number; limit?: number }) {
+    return this.paymentService.getAllTransactions(query);
   }
 
   @Get('doctor-earnings')

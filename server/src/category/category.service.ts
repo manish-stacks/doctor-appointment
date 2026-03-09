@@ -25,6 +25,32 @@ export class CategoryService {
     }
 
 
+    async findAndCount(body: { page: number; limit: number; search?: string }) {
+
+        const { page, limit, search } = body;
+
+        const skip = (page - 1) * limit;
+
+        const query = this.categoryRepository.createQueryBuilder('category');
+
+        if (search) {
+            query.andWhere('category.name LIKE :search', {
+                search: `%${search}%`
+            });
+        }
+
+        query.skip(skip).take(limit);
+
+        const [data, total] = await query.getManyAndCount();
+
+        return {
+            data,
+            total,
+            page,
+            lastPage: Math.ceil(total / limit)
+        };
+    }
+
     // async findAll() {
     //     return this.categoryRepository.find({select: {id: true, name: true, image: true, isActive: true,icon: true}});
     // }

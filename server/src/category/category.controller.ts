@@ -36,6 +36,12 @@ export class CategoryController {
         };
     }
 
+    
+    @Post('list')
+    list(@Body() body: any) {
+        return this.categoryService.findAndCount(body);
+    }
+
     @Get(':id')
     async findOne(@Param('id') id: number) {
         const category = await this.categoryService.findOne(id);

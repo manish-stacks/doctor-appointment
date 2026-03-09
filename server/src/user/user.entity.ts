@@ -12,10 +12,11 @@ import {
 
 @Entity('users')
 export class User {
+
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true })
   id: number;
 
-  @Column({ length: 50 })
+  @Column({ length: 50, nullable: true })
   email: string;
 
   @Column({ type: 'timestamp', nullable: true })
@@ -27,20 +28,21 @@ export class User {
   @Column({ nullable: true })
   password: string;
 
-  @Column()
+  @Column({ default: 0 })
   HowManyOtpSend: number;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   phone: string;
 
-  @Column({ type: 'int', nullable: true })
-  otp?: number;
+  /* OTP */
 
   @Column({ type: 'int', nullable: true })
-  login_otp?: number;
+  otp: number | null;
 
   @Column({ type: 'timestamp', nullable: true })
-  otp_expires_at?: Date;
+  otpExpireTime: Date | null;
+
+  /* Profile */
 
   @Column({ length: 255, nullable: true })
   dob?: string;
@@ -63,6 +65,8 @@ export class User {
   @Column({ nullable: true })
   age: number;
 
+  /* Doctor relation */
+
   @Column({ type: 'bigint', unsigned: true, nullable: true })
   doctorId: number;
 
@@ -72,9 +76,10 @@ export class User {
   @Column({ default: false })
   isActive: boolean;
 
-  @Column({ type: 'tinyint', default: 1 })
-  contact_number_verified: boolean;
+  @Column({ type: 'tinyint', default: 0 })
+  verified: boolean;
 
+  /* Settings */
 
   @Column({ default: true })
   emailNotifications: boolean;
@@ -91,7 +96,6 @@ export class User {
   @Column({ default: false })
   allowAnalytics: boolean;
 
-
   @CreateDateColumn()
   createdAt: Date;
 
@@ -99,7 +103,7 @@ export class User {
   updatedAt: Date;
 
   @OneToOne(() => Doctor, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'doctorId' }) // FK auto-created
+  @JoinColumn({ name: 'doctorId' })
   doctor: Doctor;
-}
 
+}

@@ -95,7 +95,7 @@ const superAdminMenu: MenuGroupConfig[] = [
     items: [
       { label: 'All Transactions', href: '/super-admin/payments/all-transactions', icon: CreditCard },
       { label: 'Doctor Earnings', href: '/super-admin/payments/doctor-earnings', icon: CreditCard },
-      { label: 'Platform Commission', href: '/super-admin/payments/platform-commission', icon: CreditCard },
+      // { label: 'Platform Commission', href: '/super-admin/payments/platform-commission', icon: CreditCard },
       { label: 'Refunds', href: '/super-admin/payments/refunds', icon: CreditCard },
       { label: 'Payout Management', href: '/super-admin/payments/payout-management', icon: CreditCard },
       { label: 'Subscription Payments', href: '/super-admin/payments/subscription-payments', icon: CreditCard },
@@ -113,8 +113,6 @@ const superAdminMenu: MenuGroupConfig[] = [
     items: [
       { label: 'Categories', href: '/super-admin/categories', icon: CreditCard },
       { label: 'Treatments', href: '/super-admin/treatments', icon: Bell },
-      { label: 'Add Treatments', href: '/super-admin/add-treatments', icon: Bell },
-      { label: 'Add Categories', href: '/super-admin/add-categories', icon: Bell },
     ],
   },
   {

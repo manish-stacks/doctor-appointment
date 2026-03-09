@@ -17,7 +17,7 @@ export function MobileMenuSidebar({ isOpen, onClose }: { isOpen: boolean; onClos
       {/* Header */}
       <div className="p-6 border-b border-gray-200">
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <div className="relative">
               <svg width="40" height="40" viewBox="0 0 50 50" className="text-[#0ea5e9]">
                 <path
@@ -33,7 +33,7 @@ export function MobileMenuSidebar({ isOpen, onClose }: { isOpen: boolean; onClos
             <h1 className="text-xl font-bold text-gray-900">
               MediCare<span className="text-[#0ea5e9]">+</span>
             </h1>
-          </div>
+          </Link>
           <button onClick={onClose} className="text-[#0ea5e9] hover:text-blue-700">
             <X className="w-6 h-6" />
           </button>

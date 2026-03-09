@@ -234,15 +234,15 @@ export default function DoctorLoginPage() {
 
 
                 {/* Main Card */}
-                <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+                <div className="bg-white rounded-2xl shadow-xl p-8 py-14 border border-gray-100">
                     <div className="relative overflow-hidden">
                         <AnimatePresence mode="wait">
                             <DialogHeader key="header" className={`space-y-1 mb-8 ${step === 'otp' ? 'hidden' : ''}`}>
                                 <p className="text-center text-2xl font-bold text-blue-700 pt-5">
-                                    Doctor Login
+                                    Continue to your account
                                 </p>
                                 <p className="text-center text-sm text-gray-500 mt-1">
-                                    Secure access to your appointments & reports
+                                    Secure access to appointments & reports
                                 </p>
                             </DialogHeader>
 
@@ -260,17 +260,17 @@ export default function DoctorLoginPage() {
                                     <Tabs value={loginMethod} onValueChange={(value) => setLoginMethod(value as LoginMethod)}>
                                         <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-xl p-1">
                                             <TabsTrigger className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow" value="mobile">
-                                                Mobile OTP
+                                                Continue with Mobile
                                             </TabsTrigger>
                                             <TabsTrigger className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow" value="email">
-                                                Email Login
+                                                Email / Password
                                             </TabsTrigger>
                                         </TabsList>
 
 
                                         <TabsContent value="email" className="space-y-4">
                                             <div className="space-y-2 mt-6">
-                                                <Label htmlFor="email">Doctor Email Address</Label>
+                                                <Label htmlFor="email">Doctor Email or Mobile Number</Label>
                                                 <div className="relative">
                                                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                                                     <Input
@@ -327,7 +327,7 @@ export default function DoctorLoginPage() {
                                                 disabled={isLoading}
                                                 className="w-full h-11 rounded-xl text-base font-semibold bg-blue-600 hover:bg-blue-700"
                                             >
-                                                {isLoading ? 'Signing In...' : 'Sign In to Dashboard'}
+                                                {isLoading ? 'Please wait...' : 'Continue'}
                                                 {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
                                             </Button>
                                         </TabsContent>
@@ -369,7 +369,7 @@ export default function DoctorLoginPage() {
                                             </Button>
                                         </TabsContent>
 
-                                        <div className="mt-8 pt-6 border-t border-gray-200">
+                                        {/* <div className="mt-8 pt-6 border-t border-gray-200">
                                             <p className="text-xs text-gray-500 text-center mb-4">
                                                 Or continue with professional accounts
                                             </p>
@@ -383,7 +383,7 @@ export default function DoctorLoginPage() {
                                                     <span className="text-sm font-medium">Facebook</span>
                                                 </button>
                                             </div>
-                                        </div>
+                                        </div> */}
                                     </Tabs>
                                 </motion.div>
                             )}
@@ -487,17 +487,15 @@ export default function DoctorLoginPage() {
                 </div>
 
                 {/* Footer */}
-                <div className="text-center mt-8 space-y-2">
+                {/* <div className="text-center mt-8 space-y-2">
                     <p className="text-sm text-gray-600">
                         Don&apos;t have an account?
                         <button className="text-blue-600 hover:text-blue-700 hover:underline ml-1">
                             Register as Doctor
                         </button>
                     </p>
-                    <p className="text-xs text-gray-500">
-                        Protected by enterprise-grade security
-                    </p>
-                </div>
+                   
+                </div> */}
             </div>
         </div>
     );

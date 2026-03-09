@@ -41,6 +41,22 @@ export class TreatmentsService {
 
   }
 
+  async list(body: { page: number; limit: number }) {
+
+    const { page = 1, limit = 10 } = body;
+
+    const [data, count] = await this.treatmentsRepository.findAndCount({
+      relations: ['category'],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { id: 'DESC' }
+    });
+
+    return {
+      data,
+      lastPage: Math.ceil(count / limit),
+    };
+  }
   async create(treatmentsDto: treatmentsDto): Promise<ResponseFormat> {
 
     if (!treatmentsDto.name || treatmentsDto.name.trim() === '') {

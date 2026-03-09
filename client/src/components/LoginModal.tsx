@@ -234,10 +234,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             <DialogContent className="sm:max-w-md z-[99]">
                 <DialogHeader>
                     <DialogTitle className="text-center text-2xl font-bold text-blue-700 pt-5">
-                        Patient Login
+                        Continue to your account
                     </DialogTitle>
                     <p className="text-center text-sm text-gray-500 mt-1">
-                        Secure access to your appointments & reports
+                        Secure access to appointments & reports
                     </p>
                 </DialogHeader>
 
@@ -258,17 +258,17 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                 <Tabs value={loginMethod} onValueChange={(value) => setLoginMethod(value as LoginMethod)}>
                                     <TabsList className="grid w-full grid-cols-2 bg-gray-100 rounded-xl p-1">
                                         <TabsTrigger className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow" value="mobile">
-                                            Mobile OTP
+                                            Continue with Mobile
                                         </TabsTrigger>
                                         <TabsTrigger className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow" value="email">
-                                            Email Login
+                                            Email / Password
                                         </TabsTrigger>
                                     </TabsList>
 
 
                                     <TabsContent value="email" className="space-y-4 mt-6">
                                         <div className="space-y-2">
-                                            <Label htmlFor="email">Email Address</Label>
+                                            <Label htmlFor="email">Email or Mobile Number</Label>
                                             <div className="relative">
                                                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                                                 <Input
@@ -320,7 +320,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                             disabled={isLoading}
                                             className="w-full h-11 rounded-xl text-base font-semibold bg-blue-600 hover:bg-blue-700"
                                         >
-                                            {isLoading ? 'Signing In...' : 'Sign In'}
+                                            {isLoading ? 'Please wait...' : 'Continue'}
                                             {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
                                         </Button>
                                     </TabsContent>
@@ -369,8 +369,17 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                             Or continue with professional accounts
                                         </p>
                                         <div className="grid grid-cols-2 gap-4">
-                                            <button className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition border-2 hover:bg-gray-50 hover:border-gray-300">
-                                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png" alt="Google" className="w-5 h-5" />
+
+                                            <button
+                                                onClick={() =>
+                                                    window.location.href = "http://localhost:5000/api/auth/google"
+                                                }
+                                                className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 hover:bg-gray-50"
+                                            >
+                                                <img
+                                                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/768px-Google_%22G%22_logo.svg.png"
+                                                    className="w-5 h-5"
+                                                />
                                                 <span className="text-sm font-medium">Google</span>
                                             </button>
                                             <button className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition border-2 hover:bg-gray-50 hover:border-gray-300">
@@ -411,7 +420,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                             Verify OTP
                                         </h3>
                                         <p className="text-sm text-gray-500">
-                                            Code sent to <span className="font-medium">{mobileNumber}</span>
+                                            Enter verification code <span className="font-medium">{mobileNumber}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -457,12 +466,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                                     <Button
                                         onClick={handleVerifyOTP}
                                         disabled={isLoading}
-                                        className="
-        w-full h-12 rounded-xl text-base font-semibold
-        bg-green-600 hover:bg-green-700
-        shadow-md
-      "
-                                    >
+                                        className=" w-full h-12 rounded-xl text-base font-semibold bg-green-600 hover:bg-green-700 shadow-md" >
                                         {isLoading ? "Verifying..." : "Verify OTP"}
                                         {!isLoading && <ArrowRight className="w-4 h-4 ml-2" />}
                                     </Button>
@@ -484,8 +488,15 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                             </motion.div>
 
                         )}
+                        {/* <div className="text-center mt-8 space-y-2">
+                            <p className="text-sm text-gray-600">
+                                Don&apos;t have an account?
+                                <button className="text-blue-600 hover:text-blue-700 hover:underline ml-1">
+                                    Register as User
+                                </button>
+                            </p>
 
-
+                        </div> */}
                     </AnimatePresence>
                 </div>
             </DialogContent>
