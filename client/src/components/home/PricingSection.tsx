@@ -74,6 +74,7 @@ export function PricingSection({ isDarkMode }: PricingSectionProps) {
 
       setPlans(formattedPlans);
     } catch (error) {
+      console.error(error);
       toast.error('Failed to get subscription');
     }
   };

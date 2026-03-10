@@ -125,7 +125,7 @@ export default function DoctorsPage() {
 
     const fetchFavorites = async () => {
         const res = await AxiosInstance.get('/favorite/doctors');
-        setFavorites(res.data.map((f: any) => f.doctorId));
+        setFavorites(res.data.map((f) => f.doctorId));
     };
 
     const loadFilters = async () => {
@@ -134,7 +134,7 @@ export default function DoctorsPage() {
             AxiosInstance.get('/doctor/locations'),
         ]);
 
-        setCategories(catRes.data.map((c: any) => c.name));
+        setCategories(catRes.data.map((c) => c.name));
         setLocations(locRes.data);
     };
 

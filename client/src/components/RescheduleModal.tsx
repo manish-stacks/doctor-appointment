@@ -7,10 +7,10 @@ function RescheduleModal({ appointmentId, onClose }: { appointmentId: string; on
     const [selectedDate, setSelectedDate] = useState("");
     const [selectedTime, setSelectedTime] = useState("");
     const [loading, setLoading] = useState(false);
-    const [availableSlots, setAvailableSlots] = useState([
-        "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"
-    ]);
-
+    // const [availableSlots, setAvailableSlots] = useState([
+    //     "09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"
+    // ]);
+    const availableSlots = ["09:00", "10:00", "11:00", "12:00", "14:00", "15:00", "16:00", "17:00"];
     const handleReschedule = async () => {
         if (!selectedDate || !selectedTime) {
             toast.error("Please select both date and time");
@@ -27,6 +27,7 @@ function RescheduleModal({ appointmentId, onClose }: { appointmentId: string; on
             onClose();
             window.location.reload();
         } catch (error) {
+            console.error(error);
             toast.error("Failed to reschedule. Please try again.");
         } finally {
             setLoading(false);

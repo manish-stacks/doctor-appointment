@@ -154,9 +154,15 @@ export default function BlogPage() {
     </div>
   );
 }
-
+type Blog = {
+  id: number;
+  title: string;
+  description: string;
+  image?: string;
+  category: string;
+};
 /* ─── Individual Blog Card ─── */
-function BlogCard({ blog }) {
+function BlogCard({ blog }:{ blog: Blog }) {
   const [hovered, setHovered] = useState(false);
 
   return (

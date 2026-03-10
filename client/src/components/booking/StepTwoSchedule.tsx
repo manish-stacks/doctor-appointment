@@ -51,8 +51,8 @@ export default function StepTwoSchedule({ appointment, onBack, onNext }: Props) 
 
   const generateSlots = (start: string, end: string, duration: number) => {
     const slots: string[] = [];
-    let [sh, sm] = start.split(":").map(Number);
-    let [eh, em] = end.split(":").map(Number);
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
 
     let current = sh * 60 + sm;
     const endMin = eh * 60 + em;

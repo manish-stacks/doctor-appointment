@@ -14,7 +14,7 @@ import { TestimonialsSection } from "@/components/home/TestimonialsSection";
 import { useUIStore } from "@/store/uiStore";
 
 export default function Home() {
-  const { isDarkMode, openLoginModal } = useUIStore();
+  const { isDarkMode } = useUIStore();
  
   return (
     <>

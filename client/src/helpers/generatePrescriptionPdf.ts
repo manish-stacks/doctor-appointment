@@ -4,17 +4,17 @@ import autoTable from "jspdf-autotable";
 
 /* ================= MAIN FUNCTION ================= */
 export const generatePrescriptionPdf = async (
-  appointment: any,
-  prescription: any
+  appointment,
+  prescription
 ) => {
   const doc = new jsPDF("p", "mm", "a4");
 
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
 
-  const primaryColor: any = [26, 115, 232];
-  const borderColor: any = [220, 220, 220];
-  const lightBg: any = [248, 250, 252];
+  const primaryColor = [26, 115, 232];
+  const borderColor = [220, 220, 220];
+  const lightBg = [248, 250, 252];
 
   let yPos = 20;
 
@@ -46,6 +46,7 @@ export const generatePrescriptionPdf = async (
     });
     doc.addImage(img, "PNG", pageWidth - 40, 12, 25, 25);
   } catch (err) {
+    console.error(err);
     console.log("Logo failed");
   }
 
@@ -155,7 +156,7 @@ export const generatePrescriptionPdf = async (
     autoTable(doc, {
       startY: yPos,
       head: [["#", "Medicine", "Dosage", "Duration", "Instructions"]],
-      body: prescription.medicines.map((m: any, i: number) => [
+      body: prescription.medicines.map((m, i: number) => [
         i + 1,
         m.name || "-",
         m.dosage || "-",
@@ -180,7 +181,7 @@ export const generatePrescriptionPdf = async (
       },
     });
 
-    yPos = (doc as any).lastAutoTable.finalY + 10;
+    yPos = (doc).lastAutoTable.finalY + 10;
   } else {
     doc.setFontSize(10);
     doc.setTextColor(120);

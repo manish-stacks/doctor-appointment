@@ -124,7 +124,7 @@ export default function ContactPage() {
             Get In <span style={{ color: "#93c5fd" }}>Touch</span>
           </h1>
           <p style={{ color: "#94a3b8", fontSize: 15, maxWidth: 500 }}>
-            Have a question or need assistance? We're here to help. Reach out to us anytime.
+            Have a question or need assistance? We&lsquo;re here to help. Reach out to us anytime.
           </p>
         </div>
       </div>

@@ -78,7 +78,7 @@ export default function StepThreePayment({ appointment, onBack, onSuccess }: Pro
           email: appointment.patientEmail,
           contact: appointment.phoneNumber,
         },
-        handler: async function (response: any) {
+        handler: async function (response) {
           await AxiosInstance.post("/payment/razorpay/appointment/verify", response);
           toast.success("Payment successful");
           onSuccess();
@@ -86,7 +86,7 @@ export default function StepThreePayment({ appointment, onBack, onSuccess }: Pro
         theme: { color: "#2563eb" },
       };
 
-      const rzp = new (window as any).Razorpay(options);
+      const rzp = new window.Razorpay(options);
       rzp.open();
 
       rzp.on("payment.failed", () => {

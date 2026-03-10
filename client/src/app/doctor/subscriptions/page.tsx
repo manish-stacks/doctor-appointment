@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { motion, number } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Breadcrumb from '@/components/ui/custom/breadcrumb';
 import { AxiosInstance } from '@/helpers/Axios.instance';
 import { PlanFeatures } from '@/components/home/PricingSection';
@@ -105,17 +105,18 @@ export default function SubscriptionPanel() {
       theme: {
         color: "#2563eb",
       },
-      handler: async function (response: any) {
+      handler: async function (response) {
         await AxiosInstance.post("/payment/razorpay/subscription/verify", response);
         toast.success("Payment successful");
       },
 
     };
 
-    const rzp = new (window as any).Razorpay(options);
+    const rzp = new window.Razorpay(options);
     rzp.open();
 
-    rzp.on("payment.failed", function (response: any) {
+    rzp.on("payment.failed", function (response) {
+      console.log(response);
       toast.error("Payment failed");
     });
   };

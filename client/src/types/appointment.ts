@@ -41,6 +41,11 @@ export interface AppointmentDetails {
       phone: string;
     };
   };
+  hospital?: { 
+    id: number;
+    name: string;
+    address: string;
+  };
   discountAmount?: string;
   totalAmount?: string;
   finalAmount?: string;

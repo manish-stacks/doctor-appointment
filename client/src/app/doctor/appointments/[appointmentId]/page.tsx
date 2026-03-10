@@ -3,7 +3,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AxiosInstance } from "@/helpers/Axios.instance";
 import { AppointmentDetails } from "@/types/appointment";
-import { Calendar, Clock, Phone, MapPin, IndianRupee, Video, Download, Check, DownloadCloud, MessageCircle, Mail } from "lucide-react";
+import { Calendar, Clock, Phone, MapPin, IndianRupee, Video, Download, Check, DownloadCloud, MessageCircle } from "lucide-react";
 
 import RescheduleModal from "@/components/RescheduleModal";
 import PrescriptionModal from "@/components/PrescriptionModal";

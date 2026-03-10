@@ -14,7 +14,7 @@ interface Medicine {
 
 interface Props {
   appointmentId: number;
-  prescription?: any; // existing prescription for edit
+  prescription?: { medicines: Medicine[]; advice: string; followUpDate: string }; // existing prescription for edit
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -97,6 +97,7 @@ export default function PrescriptionModal({
       onSuccess();
       onClose();
     } catch (error) {
+      console.error(error);
       toast.error("Something went wrong");
     } finally {
       setLoading(false);

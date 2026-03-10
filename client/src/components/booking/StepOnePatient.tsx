@@ -44,11 +44,11 @@ export default function StepOnePatient({ appointment, onSuccess }: Props) {
     });
   }, [appointment]);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleImageUpload = (e: any, index: number) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
 

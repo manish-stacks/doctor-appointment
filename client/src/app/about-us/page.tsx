@@ -84,7 +84,7 @@ const values = [
 ];
 
 // Counter component with animation
-function Counter({ end, duration = 2000, suffix = "" }) {
+function Counter({ end, duration = 2000, suffix = "" }: { end: number, duration?: number, suffix?: string }) {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
@@ -105,13 +105,18 @@ function Counter({ end, duration = 2000, suffix = "" }) {
 
   useEffect(() => {
     if (!isVisible) return;
-    let startTime = null;
-    const animate = (currentTime) => {
+
+    let startTime: number | null = null;
+
+    const animate = (currentTime: number) => { // <-- type defined here
       if (!startTime) startTime = currentTime;
+
       const progress = Math.min((currentTime - startTime) / duration, 1);
       setCount(Math.floor(progress * end));
+
       if (progress < 1) requestAnimationFrame(animate);
     };
+
     requestAnimationFrame(animate);
   }, [isVisible, end, duration]);
 
@@ -126,7 +131,7 @@ export default function AboutUsPage() {
       {/* ── Hero Section ── */}
       <div
         className="relative w-full overflow-hidden"
-        style={{ 
+        style={{
           minHeight: 480,
           background: "linear-gradient(135deg, #1e3a5f 0%, #1a2e4a 40%, #0f3460 100%)",
         }}

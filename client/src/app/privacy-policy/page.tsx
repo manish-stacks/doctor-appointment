@@ -420,7 +420,7 @@ export default function PrivacyPolicyPage() {
                       Your Privacy Matters
                     </h4>
                     <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7 }}>
-                      We are committed to protecting your privacy and maintaining the security of your personal health information. If you have any questions or concerns about this Privacy Policy or our data practices, please don't hesitate to contact our Privacy Officer.
+                      We are committed to protecting your privacy and maintaining the security of your personal health information. If you have any questions or concerns about this Privacy Policy or our data practices, please don&apos;t hesitate to contact our Privacy Officer.
                     </p>
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from "react";
 import {
-    Table, TableBody, TableCaption, TableCell,
+    Table, TableBody, TableCell,
     TableHead, TableHeader, TableRow
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";

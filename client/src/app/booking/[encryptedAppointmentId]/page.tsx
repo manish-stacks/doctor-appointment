@@ -23,7 +23,7 @@ export default function Booking() {
 
   // Step 1 Form states
   const [appointmentFor, setAppointmentFor] = useState("For me");
-  const [patients, setPatients] = useState<any[]>([]);
+  const [patients, setPatients] = useState([]);
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
   const [selfData, setSelfData] = useState({
     name: "",
@@ -356,17 +356,18 @@ export default function Booking() {
       theme: {
         color: "#2563eb",
       },
-      handler: async function (response: any) {
+      handler: async function (response) {
         await AxiosInstance.post("/payment/razorpay/appointment/verify", response);
         window.location.href = `${link}?success=true`;
       },
 
     };
 
-    const rzp = new (window as any).Razorpay(options);
+    const rzp = new window.Razorpay(options);
     rzp.open();
 
-    rzp.on("payment.failed", function (response: any) {
+    rzp.on("payment.failed", function (response) {
+      console.log(response);
       window.location.href = `${link}&success=false`;
     });
   };

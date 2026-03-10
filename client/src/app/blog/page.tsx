@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 
 const currentBlog = {
   id: 3,
@@ -54,13 +54,13 @@ const latestBlogs = [
 ];
 
 export default function BlogDetailPage() {
-  const [copiedLink, setCopiedLink] = useState(false);
+  // const [copiedLink, setCopiedLink] = useState(false);
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 1500);
-  };
+  // const handleCopyLink = () => {
+  //   navigator.clipboard.writeText(window.location.href);
+  //   setCopiedLink(true);
+  //   setTimeout(() => setCopiedLink(false), 1500);
+  // };
 
   return (
     <div className="min-h-screen" style={{ background: "#f0f4f8" }}>
@@ -291,7 +291,7 @@ export default function BlogDetailPage() {
                 <div className="divide-y" style={{ borderColor: "#eef2f7" }}>
                   {latestBlogs.map((blog, idx) => (
                     <a
-                      key={blog.id}
+                      key={idx}
                       href="#"
                       className="flex items-start gap-4 p-4 block transition-colors duration-200"
                       style={{ textDecoration: "none" }}

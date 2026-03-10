@@ -20,7 +20,7 @@ import Breadcrumb from '@/components/ui/custom/breadcrumb';
 import { AppointmentDetails } from '@/types/appointment';
 import { useEffect, useState } from 'react';
 import { AxiosInstance } from '@/helpers/Axios.instance';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import Pagination from '@/components/ui/custom/pagination';
 import toast from 'react-hot-toast';
@@ -46,8 +46,12 @@ const statusBadge: Record<PaymentStatus | AppointmentStatus, string> = {
     Paid: 'bg-green-100 text-green-600',
 };
 
-export default function AppointmentTable({ patientId }: { patientId?: number }) {
+
+
+export default function AppointmentTable() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const patientId = searchParams.get("patientId");
     const [appointments, setAppointments] = useState<AppointmentDetails[]>([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);

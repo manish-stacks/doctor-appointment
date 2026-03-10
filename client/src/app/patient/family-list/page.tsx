@@ -180,7 +180,7 @@ function FamilyModal({
 }: {
     initialData: Family | null;
     onClose: () => void;
-    onSave: (data: any) => void;
+    onSave: (data: Omit<Family, 'id'>) => void;
 }) {
     const [form, setForm] = useState({
         name: initialData?.name || '',

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DialogHeader, DialogTitle } from '@/components/ui/custom/dialog';
+import { DialogHeader } from '@/components/ui/custom/dialog';
 
 import { Phone, Shield, ArrowLeft, ArrowRight, Mail, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

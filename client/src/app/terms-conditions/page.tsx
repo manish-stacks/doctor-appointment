@@ -224,7 +224,7 @@ export default function TermsConditionsPage() {
                   Introduction
                 </h2>
                 <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.8 }}>
-                  Welcome to HealthCare Blog. These Terms and Conditions ("Terms") govern your use of our website and services. By accessing or using our services, you agree to comply with and be bound by these Terms. Please read them carefully before using our platform.
+                  Welcome to HealthCare Blog. These Terms and Conditions (&quot;Terms&quot;) govern your use of our website and services. By accessing or using our services, you agree to comply with and be bound by these Terms. Please read them carefully before using our platform.
                 </p>
               </div>
 
@@ -263,7 +263,7 @@ export default function TermsConditionsPage() {
                       Acknowledgment
                     </h4>
                     <p style={{ fontSize: 14, color: "#475569", lineHeight: 1.7 }}>
-                      By using HealthCare Blog's services, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. If you have any questions or concerns, please contact our legal team.
+                      By using HealthCare Blog&apos;s services, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. If you have any questions or concerns, please contact our legal team.
                     </p>
                   </div>
                 </div>

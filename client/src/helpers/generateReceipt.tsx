@@ -75,7 +75,7 @@ export const generateReceiptPdf = (booking: AppointmentDetails) => {
   });
 
   /* ================= PAYMENT SUMMARY ================= */
-  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  const finalY = (doc).lastAutoTable.finalY + 10;
 
   autoTable(doc, {
     startY: finalY,

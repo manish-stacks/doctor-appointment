@@ -37,6 +37,7 @@ export default function PatientSettings() {
                     allowAnalytics: res.data.allowAnalytics,
                 });
             } catch (err) {
+                console.error(err);
                 toast.error('Failed to load settings');
             }
         };
@@ -83,6 +84,7 @@ export default function PatientSettings() {
             await AxiosInstance.post('/user/update-settings', settings);
             toast.success('Settings updated successfully');
         } catch (err) {
+            console.error(err);
             toast.error('Failed to update settings');
         }
     };
@@ -92,6 +94,7 @@ export default function PatientSettings() {
             toast.success('Account deactivated');
             window.location.href = '/';
         } catch (error) {
+            console.error(error);
             toast.error('Failed to delete account');
         }
     };

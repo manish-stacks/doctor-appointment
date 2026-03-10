@@ -9,11 +9,11 @@ import { encryptId } from '@/helpers/Helper';
 
 const PatientDashboard = () => {
   const getUserDetails = useUserStore((state) => state.getUserDetails);
-  const [user, setUser] = useState<any>();
+  const [user, setUser] = useState();
   const [appointments, setAppointments] = useState<AppointmentDetails[]>([]);
   const router = useRouter();
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState([]);
 
 
 
