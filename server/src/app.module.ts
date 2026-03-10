@@ -42,7 +42,7 @@ import { NotificationModule } from './notification/notification.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'mysql',
-        host: configService.get<string>('DB_HOST'),
+        host: configService.get<string>('DB_HOST') || 'localhost',
         port: configService.get<number>('DB_PORT'),
         username: configService.get<string>('DB_USER'),
         password: configService.get<string>('DB_PASSWORD'),
