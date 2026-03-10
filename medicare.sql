@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 17, 2026 at 01:47 PM
+-- Generation Time: Mar 10, 2026 at 06:25 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -71,8 +71,7 @@ CREATE TABLE `appointments` (
 INSERT INTO `appointments` (`id`, `appointmentId`, `userId`, `doctorId`, `patientId`, `caseId`, `hospitalId`, `paymentType`, `appointmentFor`, `sideEffects`, `razorpayOrderId`, `date`, `time`, `couponCode`, `discountAmount`, `finalAmount`, `appointmentFees`, `paymentStatus`, `transactionId`, `illnessInfo`, `doctorNotes`, `cancelReason`, `discountCode`, `discountPrice`, `zoomUrl`, `appointmentStatus`, `createdAt`, `updatedAt`, `patientName`, `patientAge`, `patientNumber`, `patientEmail`, `patientAddress`, `images`) VALUES
 (21, 'APP1770968161345', 3, 1, 8, NULL, NULL, 'Offline', 'For me', 'No', NULL, '2026-02-15', '17:59', '', 0, 500, 500, 'Paid', NULL, 'dfasd', 'No', NULL, NULL, NULL, NULL, 'Completed', '2026-02-13 13:06:01.349119', '2026-02-13 16:15:44.000000', 'Manish', '25', '7050494706', 'hbsdevelopersteam@gmail.com', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL),
 (24, 'APP1770985712796', 3, 1, 8, NULL, NULL, 'Online', 'For me', 'No', 'order_SFdCWasA2kAEB8', '2026-02-16', '10:30', '', 0, 500, 500, 'Paid', 'pay_SFdCez7fNx0RAT', 'I have dvt', 'No', NULL, NULL, NULL, NULL, 'Completed', '2026-02-13 17:58:32.797877', '2026-02-13 18:19:02.000000', 'Saroj Kumar', '22', '7050494706', 'hbsdevelopersteam@gmail.com', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL),
-(25, 'APP1771331993669', 3, 1, NULL, NULL, NULL, '', '', '', NULL, '', '', '', NULL, 0, NULL, NULL, NULL, NULL, '', NULL, NULL, NULL, NULL, 'NoFill', '2026-02-17 18:09:53.673592', '2026-02-17 18:09:53.673592', '', '', '', '', '', NULL),
-(26, 'APP1771331994548', 3, 1, 8, NULL, NULL, '', 'For me', 'No', NULL, '', '', '', NULL, 0, NULL, NULL, NULL, '', 'No', NULL, NULL, NULL, NULL, 'NoFill', '2026-02-17 18:09:54.549587', '2026-02-17 18:09:58.000000', 'Manish', '25', '7050494706', 'hbsdevelopersteam@gmail.com', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL);
+(27, 'APP1772801348203', 3, 1, 9, NULL, NULL, 'Online', 'Brother', 'No', 'order_SNwi1PQW52MfH1', '2026-03-08', '17:29', '', 0, 500, 500, 'Paid', 'pay_SNwi8eEuoB9uj1', 'Illness Information', 'No', NULL, NULL, NULL, NULL, 'Completed', '2026-03-06 18:19:08.207517', '2026-03-06 18:22:05.000000', 'Manish', '30', '7050494706', 'hbsdevelopersteam@gmail.com', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL);
 
 -- --------------------------------------------------------
 
@@ -171,15 +170,17 @@ CREATE TABLE `doctors` (
   `patientVideoCall` tinyint(4) NOT NULL DEFAULT 0,
   `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6),
   `updatedAt` datetime(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
-  `doctorId` varchar(255) DEFAULT NULL
+  `doctorId` varchar(255) DEFAULT NULL,
+  `kycDocument` varchar(255) DEFAULT NULL,
+  `kycApproved` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `doctors`
 --
 
-INSERT INTO `doctors` (`id`, `name`, `userId`, `expertise`, `hospitalId`, `categoryId`, `treatmentId`, `image`, `desc`, `education`, `certificate`, `appointmentFees`, `experience`, `timeSlot`, `dob`, `gender`, `isActive`, `isVerified`, `isPopular`, `patientVideoCall`, `createdAt`, `updatedAt`, `doctorId`) VALUES
-(1, 'Suman', 1, 'Surgical Procedures', 1, 2, 3, 'https://res.cloudinary.com/do34gd7bu/image/upload/v1770798476/uploads/k4uljydnrzspgvpgyt6s.jpg', 'Experience the future of healthcare with our comprehensive platform designed for modern patients and healthcare providers.\r\n\r\nSmart Scheduling\r\nAI-powered appointment booking that finds the perfect time slot for you\r\n\r\n24/7 Telemedicine\r\nConnect with doctors instantly through video consultations anytime\r\n\r\n', '[{\"id\":\"1\",\"degree\":\"10\",\"institution\":\"Delhi\",\"year\":\"2012\"},{\"id\":\"2\",\"degree\":\"12\",\"institution\":\"Delhi\",\"year\":\"2015\"}]', '[{\"id\":\"1\",\"name\":\"MBBS\",\"year\":\"2013\"},{\"id\":\"2\",\"name\":\"MA\",\"year\":\"2020\"},{\"id\":\"3\",\"name\":\"MBA\",\"year\":\"2020\"}]', '500', '10', '30', '1998-07-19', 'male', 1, 1, 1, 0, '2025-07-19 17:38:22.499802', '2026-02-11 13:57:56.000000', 'DOC1770798476830');
+INSERT INTO `doctors` (`id`, `name`, `userId`, `expertise`, `hospitalId`, `categoryId`, `treatmentId`, `image`, `desc`, `education`, `certificate`, `appointmentFees`, `experience`, `timeSlot`, `dob`, `gender`, `isActive`, `isVerified`, `isPopular`, `patientVideoCall`, `createdAt`, `updatedAt`, `doctorId`, `kycDocument`, `kycApproved`) VALUES
+(1, 'Suman', 1, 'Surgical Procedures', 1, 2, 3, 'https://res.cloudinary.com/do34gd7bu/image/upload/v1770798476/uploads/k4uljydnrzspgvpgyt6s.jpg', 'Experience the future of healthcare with our comprehensive platform designed for modern patients and healthcare providers.\r\n\r\nSmart Scheduling\r\nAI-powered appointment booking that finds the perfect time slot for you\r\n\r\n24/7 Telemedicine\r\nConnect with doctors instantly through video consultations anytime\r\n\r\n', '[{\"id\":\"1\",\"degree\":\"10\",\"institution\":\"Delhi\",\"year\":\"2012\"},{\"id\":\"2\",\"degree\":\"12\",\"institution\":\"Delhi\",\"year\":\"2015\"}]', '[{\"id\":\"1\",\"name\":\"MBBS\",\"year\":\"2013\"},{\"id\":\"2\",\"name\":\"MA\",\"year\":\"2020\"},{\"id\":\"3\",\"name\":\"MBA\",\"year\":\"2020\"}]', '500', '10', '30', '1998-07-19', 'male', 1, 1, 1, 0, '2025-07-19 17:38:22.499802', '2026-02-11 13:57:56.000000', 'DOC1770798476830', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -296,6 +297,30 @@ CREATE TABLE `medicine_categories` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `title` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `isRead` tinyint(4) NOT NULL DEFAULT 0,
+  `isDeleted` tinyint(4) NOT NULL DEFAULT 0,
+  `userId` bigint(20) UNSIGNED DEFAULT NULL,
+  `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6),
+  `id` bigint(20) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`title`, `message`, `type`, `isRead`, `isDeleted`, `userId`, `createdAt`, `id`) VALUES
+('This id demo', 'this is demo messsage ', 'admin', 0, 0, 3, '0000-00-00 00:00:00.000000', 1);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `patients`
 --
 
@@ -318,7 +343,30 @@ CREATE TABLE `patients` (
 --
 
 INSERT INTO `patients` (`id`, `userId`, `name`, `age`, `gender`, `relation`, `createdAt`, `updatedAt`, `patientId`, `email`, `phone`) VALUES
-(8, 3, 'Manish', 25, NULL, 'For me', '2026-02-13 13:13:31.407967', '2026-02-17 18:09:58.000000', 'PAT834729', 'hbsdevelopersteam@gmail.com', '7050494706');
+(8, 3, 'Manish', 25, NULL, 'For me', '2026-02-13 13:13:31.407967', '2026-02-17 18:09:58.000000', 'PAT834729', 'hbsdevelopersteam@gmail.com', '7050494706'),
+(9, 3, 'Manish', 30, NULL, 'Brother', '2026-03-06 18:19:38.029431', '2026-03-06 18:19:38.029431', 'PAT378028', 'hbsdevelopersteam@gmail.com', '7050494706');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `payments`
+--
+
+CREATE TABLE `payments` (
+  `id` int(11) NOT NULL,
+  `transactionId` varchar(255) NOT NULL,
+  `referenceId` varchar(255) NOT NULL,
+  `referenceType` varchar(255) NOT NULL,
+  `doctorId` int(11) DEFAULT NULL,
+  `userId` int(11) DEFAULT NULL,
+  `amount` decimal(10,0) NOT NULL,
+  `platformCommission` decimal(10,0) NOT NULL DEFAULT 0,
+  `doctorEarning` decimal(10,0) NOT NULL DEFAULT 0,
+  `paymentMethod` varchar(255) NOT NULL,
+  `paymentStatus` varchar(255) NOT NULL,
+  `payoutDone` tinyint(4) NOT NULL DEFAULT 0,
+  `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -344,7 +392,8 @@ CREATE TABLE `prescriptions` (
 
 INSERT INTO `prescriptions` (`id`, `appointmentId`, `caseId`, `doctorId`, `medicines`, `advice`, `createdAt`, `updatedAt`, `followUpDate`) VALUES
 (4, 21, NULL, 1, '[{\"name\":\"gfdg\",\"dosage\":\"\",\"duration\":\"dfg\",\"instructions\":\"fdg\"}]', 'df', '2026-02-13 16:56:24.504189', '2026-02-13 16:56:24.504189', '2026-02-13'),
-(5, 24, NULL, 1, '[{\"name\":\"Laufa\",\"dosage\":\"asdsdf\",\"duration\":\"5\",\"instructions\":\"gbdxfgdg\"}]', 'fdgdfgdfdfhbf', '2026-02-13 18:18:46.991076', '2026-02-13 18:18:46.991076', '2026-02-21');
+(5, 24, NULL, 1, '[{\"name\":\"Laufa\",\"dosage\":\"asdsdf\",\"duration\":\"5\",\"instructions\":\"gbdxfgdg\"}]', 'fdgdfgdfdfhbf', '2026-02-13 18:18:46.991076', '2026-02-13 18:18:46.991076', '2026-02-21'),
+(6, 27, NULL, 1, '[{\"name\":\"safdas\",\"dosage\":\"500\",\"duration\":\"sdfgdf\",\"instructions\":\"fgv\"},{\"name\":\"sad\",\"dosage\":\"77\",\"duration\":\"dsfsda\",\"instructions\":\"fasd\"}]', 'addsfasd', '2026-03-06 18:21:58.009840', '2026-03-06 18:21:58.009840', '2026-03-11');
 
 -- --------------------------------------------------------
 
@@ -490,10 +539,10 @@ CREATE TABLE `treatments` (
 --
 
 INSERT INTO `treatments` (`id`, `name`, `isActive`, `createdAt`, `updatedAt`, `categoryId`) VALUES
-(1, 'Lifestyle changes', 1, '2026-02-13 12:54:28.000000', '2026-02-13 12:54:31.000000', 1),
+(1, 'Lifestyle changes', 1, '2026-02-13 12:54:28.000000', '2026-03-09 18:10:01.000000', 1),
 (2, 'Medications', 1, '2026-02-13 12:54:35.000000', '2026-02-13 12:54:40.000000', 1),
-(3, 'Laser therapy', 1, '2026-02-13 12:54:42.000000', '2026-02-13 12:54:45.179904', 2),
-(4, 'Cryotherapy', 1, '2026-02-13 00:00:00.000000', '2026-02-13 12:54:50.361763', 2);
+(3, 'Laser therapy', 1, '2026-02-13 12:54:42.000000', '2026-03-09 18:02:12.000000', 2),
+(4, 'Cryotherapy', 1, '2026-02-13 00:00:00.000000', '2026-03-09 18:10:52.000000', 2);
 
 -- --------------------------------------------------------
 
@@ -503,37 +552,44 @@ INSERT INTO `treatments` (`id`, `name`, `isActive`, `createdAt`, `updatedAt`, `c
 
 CREATE TABLE `users` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `email` varchar(50) NOT NULL,
+  `email` varchar(50) DEFAULT NULL,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `username` varchar(100) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `HowManyOtpSend` int(11) NOT NULL,
-  `phone` varchar(255) NOT NULL,
+  `HowManyOtpSend` int(11) NOT NULL DEFAULT 0,
+  `phone` varchar(255) DEFAULT NULL,
   `otp` int(11) DEFAULT NULL,
-  `login_otp` int(11) DEFAULT NULL,
-  `otp_expires_at` timestamp NULL DEFAULT NULL,
   `dob` varchar(255) DEFAULT NULL,
   `gender` varchar(255) DEFAULT NULL,
   `role` varchar(255) NOT NULL DEFAULT 'user',
   `image` varchar(255) DEFAULT NULL,
   `isActive` tinyint(4) NOT NULL DEFAULT 0,
-  `contact_number_verified` tinyint(4) NOT NULL DEFAULT 1,
   `createdAt` datetime(6) NOT NULL DEFAULT current_timestamp(6),
   `updatedAt` datetime(6) NOT NULL DEFAULT current_timestamp(6) ON UPDATE current_timestamp(6),
   `address` varchar(255) DEFAULT NULL,
   `doctorId` bigint(20) UNSIGNED DEFAULT NULL,
   `age` int(11) DEFAULT NULL,
   `state` varchar(255) DEFAULT NULL,
-  `city` varchar(255) DEFAULT NULL
+  `city` varchar(255) DEFAULT NULL,
+  `emailNotifications` tinyint(4) NOT NULL DEFAULT 1,
+  `smsNotifications` tinyint(4) NOT NULL DEFAULT 1,
+  `appointmentReminders` tinyint(4) NOT NULL DEFAULT 1,
+  `showProfileToDoctors` tinyint(4) NOT NULL DEFAULT 1,
+  `allowAnalytics` tinyint(4) NOT NULL DEFAULT 0,
+  `otpExpireTime` timestamp NULL DEFAULT NULL,
+  `verified` tinyint(4) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `email_verified_at`, `username`, `password`, `HowManyOtpSend`, `phone`, `otp`, `login_otp`, `otp_expires_at`, `dob`, `gender`, `role`, `image`, `isActive`, `contact_number_verified`, `createdAt`, `updatedAt`, `address`, `doctorId`, `age`, `state`, `city`) VALUES
-(1, 'mks957678@gmail.com', NULL, 'Suman', NULL, 0, '6200027897', 810737, 0, '2026-02-13 12:44:41', '1998-07-19', 'male', 'doctor', 'https://res.cloudinary.com/do34gd7bu/image/upload/v1770798476/uploads/k4uljydnrzspgvpgyt6s.jpg', 1, 0, '2025-07-19 17:10:10.754959', '2026-02-13 18:12:53.000000', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitam.', 1, NULL, 'Delhi', 'Delhi'),
-(3, 'hbsdevelopersteam@gmail.com', '2026-01-22 10:06:29', 'Manish', '$2b$10$WqYFgxilZIygnem0Wxt2sewewok3nbSSbms2k6slO/xHU0h5zHhjq', 0, '7050494706', 990459, 0, '2026-02-17 12:41:09', '2026-01-21', 'male', 'user', 'https://res.cloudinary.com/do34gd7bu/image/upload/v1770986401/user_profiles/xvgmoc1cxb794abvmfvo.jpg', 1, 0, '2025-07-21 18:29:41.615401', '2026-02-17 18:09:17.000000', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL, 25, NULL, NULL);
+INSERT INTO `users` (`id`, `email`, `email_verified_at`, `username`, `password`, `HowManyOtpSend`, `phone`, `otp`, `dob`, `gender`, `role`, `image`, `isActive`, `createdAt`, `updatedAt`, `address`, `doctorId`, `age`, `state`, `city`, `emailNotifications`, `smsNotifications`, `appointmentReminders`, `showProfileToDoctors`, `allowAnalytics`, `otpExpireTime`, `verified`) VALUES
+(1, 'mks957678@gmail.com', NULL, 'Suman', NULL, 0, '6200027897', 810737, '1998-07-19', 'male', 'doctor', 'https://res.cloudinary.com/do34gd7bu/image/upload/v1770798476/uploads/k4uljydnrzspgvpgyt6s.jpg', 1, '2025-07-19 17:10:10.754959', '2026-03-09 11:51:34.744344', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitam.', 1, NULL, 'Delhi', 'Delhi', 1, 1, 1, 1, 0, NULL, 1),
+(3, 'hover@gmail.com', '2026-01-22 10:06:29', 'Manish', '$2b$10$WqYFgxilZIygnem0Wxt2sewewok3nbSSbms2k6slO/xHU0h5zHhjq', 0, '7050494706', 990459, '2026-01-21', 'male', 'user', 'https://res.cloudinary.com/do34gd7bu/image/upload/v1770986401/user_profiles/xvgmoc1cxb794abvmfvo.jpg', 1, '2025-07-21 18:29:41.615401', '2026-03-09 13:02:01.516278', '916 , 9th Floor, Tower-2, Pearls Omaxe, NSP, Pitampura, Delhi-110034', NULL, 25, NULL, NULL, 1, 1, 1, 1, 0, NULL, 1),
+(5, 'admin@gmail.com', '2026-02-19 09:31:42', 'Sper admin', '$2b$10$WqYFgxilZIygnem0Wxt2sewewok3nbSSbms2k6slO/xHU0h5zHhjq', 0, '', NULL, NULL, NULL, 'SUPER_ADMIN', 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah', 1, '2026-02-19 15:04:13.000000', '2026-03-09 11:51:37.552526', NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 0, NULL, 1),
+(6, NULL, NULL, 'Guest', '$2b$10$CR1Y4UXF00zWr0Icqx3rae5cWjT0/gZlMSTN8j37tofq8SDTCPWs.', 0, '7050494705', NULL, NULL, NULL, 'user', 'https://ui-avatars.com/api/?name=Guest', 1, '2026-03-09 11:38:31.098148', '2026-03-09 11:38:44.000000', NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 0, NULL, 1),
+(9, 'hbsdevelopersteam@gmail.com', NULL, 'Hover Business', NULL, 0, NULL, NULL, NULL, NULL, 'user', 'https://lh3.googleusercontent.com/a/ACg8ocIjI3MAjw_H3aQEBaPIM62t_MR7E_ChPa48CUON-korG2DM=s96-c', 1, '2026-03-09 13:42:56.477831', '2026-03-09 13:42:56.477831', NULL, NULL, NULL, NULL, NULL, 1, 1, 1, 1, 0, NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -665,11 +721,24 @@ ALTER TABLE `medicine_categories`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `FK_692a909ee0fa9383e7859f9b406` (`userId`);
+
+--
 -- Indexes for table `patients`
 --
 ALTER TABLE `patients`
   ADD PRIMARY KEY (`id`),
   ADD KEY `FK_2c24c3490a26d04b0d70f92057a` (`userId`);
+
+--
+-- Indexes for table `payments`
+--
+ALTER TABLE `payments`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `prescriptions`
@@ -752,7 +821,7 @@ ALTER TABLE `zoom_meeting`
 -- AUTO_INCREMENT for table `appointments`
 --
 ALTER TABLE `appointments`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `blogs`
@@ -809,16 +878,28 @@ ALTER TABLE `medicine_categories`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `patients`
 --
 ALTER TABLE `patients`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `payments`
+--
+ALTER TABLE `payments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `prescriptions`
 --
 ALTER TABLE `prescriptions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `reports`
@@ -860,7 +941,7 @@ ALTER TABLE `treatments`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `videocall_history`
@@ -922,6 +1003,12 @@ ALTER TABLE `doctor_subscriptions`
 ALTER TABLE `favorites`
   ADD CONSTRAINT `FK_e747534006c6e3c2f09939da60f` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   ADD CONSTRAINT `FK_e7f0aa924d1348939268f982579` FOREIGN KEY (`doctorId`) REFERENCES `doctors` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `FK_692a909ee0fa9383e7859f9b406` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `patients`
