@@ -65,7 +65,8 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   googleAuthRedirect(@Req() req: { user: { token: string; } }, @Res() res) {
     const { token } = req.user;
-    return res.redirect(`http://localhost:3000/google-success?token=${token}`);
+    const url = `${process.env.FRONTEND_URL}/google-success?token=${token}`
+    return res.redirect(url);
   }
 
 }

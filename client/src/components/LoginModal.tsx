@@ -372,7 +372,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
                                             <button
                                                 onClick={() =>
-                                                    window.location.href = "http://localhost:5000/api/auth/google"
+                                                    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`
                                                 }
                                                 className="flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 hover:bg-gray-50"
                                             >
