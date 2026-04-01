@@ -24,7 +24,7 @@ export const useUserStore = create<UserState>()(
                     userDetails: encryptedDetails
                 });
 
-                Cookies.set("token", response.token, { expires: expiryDate });
+                Cookies.set("token", response.token, { expires: expiryDate || 7 });
             },
             getUserDetails: () => {
                 const encryptedDetails = get().userDetails;

@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { uploadToCloudinary } from 'src/helper/cloudinary.helper';
 import * as bcrypt from 'bcrypt';
 
@@ -14,7 +14,11 @@ export class UserService {
   ) { }
 
   async findAll() {
-    return await this.userRepository.find();
+    return await this.userRepository.find({
+      where: {
+        role: Not('SUPER_ADMIN'),
+      },
+    });
   }
 
   async changePassword(userPassDto: { newPassword: string; }, userId: number) {
@@ -102,7 +106,7 @@ export class UserService {
     search?: string;
     role?: string;
   }) {
-    console.log("role", query.role);
+    // console.log("role", query.role);
     if (query.role === "CUSTOMER") {
       query.role = "user";
     }
@@ -129,6 +133,8 @@ export class UserService {
     if (query.role && query.role !== 'ALL') {
       qb.andWhere('user.role = :role', { role: query.role });
     }
+
+    qb.andWhere('user.role != :role', { role: 'SUPER_ADMIN' });
 
     const [users, total] = await qb
       .skip(skip)

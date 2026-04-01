@@ -100,5 +100,7 @@ export class UserController {
         return this.userService.updateSettings(req.user.id, body);
     }
 
+    
+
 }
 

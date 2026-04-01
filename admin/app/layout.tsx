@@ -1,14 +1,9 @@
-import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-
 import './globals.css'
+import type { Metadata } from 'next'
 import { Toaster } from 'react-hot-toast';
 
-const _geist = Geist({ subsets: ['latin'] })
-const _geistMono = Geist_Mono({ subsets: ['latin'] })
-
 export const metadata: Metadata = {
-  title: 'DMS Recruitment Admin',
+  title: 'Admin | Doctor Management System ',
   description: 'Multi-role HR Management System for Recruitment',
   generator: 'Next.js',
 }
@@ -20,8 +15,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">{children}</body>
-      <Toaster position="top-right" />
+      <body className="font-sans antialiased">
+        {children}
+        <Toaster position="top-right" />
+      </body>
     </html>
   )
 }

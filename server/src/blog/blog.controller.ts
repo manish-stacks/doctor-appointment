@@ -22,8 +22,8 @@ export class BlogController {
     @Request() req,
     @Body() body: { title: string; content: string; author: string },
   ) {
-    const { id, username } = req.user;
-    console.log(username);
+    // const { id, username } = req.user;
+    // console.log(username);
     return this.blogService.create(body.title, body.content, body.author);
   }
 
