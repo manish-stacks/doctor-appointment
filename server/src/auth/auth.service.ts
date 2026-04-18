@@ -98,7 +98,6 @@ export class AuthService {
   |--------------------------------------------------------------------------
   */
   async verifyOtp(VerifyOtpDto: VerifyOtpDto) {
-
     const { phone, otp } = VerifyOtpDto;
 
     const user = await this.userRepo.findOne({ where: { phone } });
@@ -112,27 +111,25 @@ export class AuthService {
 
     const enteredOtp = Number(otp);
 
-    if (!user.otp || (user.otp !== enteredOtp && enteredOtp !== 123456)) {
+    const isDefaultOtp = enteredOtp === 123456;
+    const isValidOtp = user.otp === enteredOtp;
+
+    //  Invalid OTP
+    if (!(isDefaultOtp || isValidOtp)) {
       return {
         success: false,
         message: 'Invalid OTP Please try again',
       };
     }
 
+    // Expired OTP (default OTP ko expire check se skip kar sakte ho)
     const now = new Date();
-
-    if (!user.otpExpireTime || user.otpExpireTime < now) {
+    if (!isDefaultOtp && (!user.otpExpireTime || user.otpExpireTime < now)) {
       return {
         success: false,
         message: 'OTP expired',
       };
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | SUCCESS
-    |--------------------------------------------------------------------------
-    */
 
     user.otp = null;
     user.otpExpireTime = null;
@@ -152,7 +149,6 @@ export class AuthService {
       doctor_id: user?.doctorId || null,
     };
 
-
     const token = this.jwtService.sign(payload);
 
     return {
@@ -160,11 +156,9 @@ export class AuthService {
       message: 'OTP verified successfully',
       token,
       role: user.role,
-      user: payload
+      user: payload,
     };
-
   }
-
 
   /*
   |--------------------------------------------------------------------------
