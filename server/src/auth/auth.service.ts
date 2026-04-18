@@ -111,8 +111,8 @@ export class AuthService {
 
     const enteredOtp = Number(otp);
 
-    const isDefaultOtp = enteredOtp === 123456;
-    const isValidOtp = user.otp === enteredOtp;
+    const isDefaultOtp = enteredOtp == 123456;
+    const isValidOtp = user.otp == enteredOtp;
 
     //  Invalid OTP
     if (!(isDefaultOtp || isValidOtp)) {
