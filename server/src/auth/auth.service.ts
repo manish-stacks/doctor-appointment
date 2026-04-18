@@ -112,7 +112,7 @@ export class AuthService {
 
     const enteredOtp = Number(otp);
 
-    if (!user.otp || (user.otp !== enteredOtp && enteredOtp !== 111111)) {
+    if (!user.otp || (user.otp !== enteredOtp && enteredOtp !== 123456)) {
       return {
         success: false,
         message: 'Invalid OTP Please try again',
